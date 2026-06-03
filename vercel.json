@@ -1,6 +1,5 @@
 {
   "installCommand": "npm install && npm install --prefix api",
-  "buildCommand": "npm install && npm install --prefix api",
   "functions": {
     "api/**/*.js": {
       "maxDuration": 10,
