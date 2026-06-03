@@ -1,8 +1,10 @@
 {
-  "installCommand": "npm install",
+  "installCommand": "npm install && npm install --prefix api",
+  "buildCommand": "npm install && npm install --prefix api",
   "functions": {
     "api/**/*.js": {
-      "maxDuration": 10
+      "maxDuration": 10,
+      "includeFiles": "node_modules/@neondatabase/**"
     }
   },
   "rewrites": [

@@ -1,6 +1,24 @@
 const fs = require('fs');
 const path = require('path');
 
+let neonFn = null;
+let blobList = null;
+let blobPut = null;
+
+try {
+  neonFn = require('@neondatabase/serverless').neon;
+} catch (e) {
+  /* optional on local file-only runs */
+}
+
+try {
+  const blob = require('@vercel/blob');
+  blobList = blob.list;
+  blobPut = blob.put;
+} catch (e) {
+  /* optional when blob storage not configured */
+}
+
 const DATA_DIR = process.env.VERCEL
   ? path.join('/tmp', 'jbs-data')
   : path.join(__dirname, 'data');
@@ -22,7 +40,7 @@ function pgUrl() {
 }
 
 function hasPg() {
-  return !!pgUrl();
+  return !!pgUrl() && !!neonFn;
 }
 
 function hasKv() {
@@ -30,7 +48,7 @@ function hasKv() {
 }
 
 function hasBlob() {
-  return !!process.env.BLOB_READ_WRITE_TOKEN;
+  return !!process.env.BLOB_READ_WRITE_TOKEN && !!blobList && !!blobPut;
 }
 
 function kvKey(name) {
@@ -74,8 +92,10 @@ function ensureDefaultsSync() {
 
 async function ensurePg() {
   if (!hasPg() || pgReady) return;
-  const { neon } = require('@neondatabase/serverless');
-  sql = neon(pgUrl());
+  if (!neonFn) {
+    throw new Error('Database driver missing. Redeploy the site after the latest GitHub update.');
+  }
+  sql = neonFn(pgUrl());
   await sql`CREATE TABLE IF NOT EXISTS jbs_store (
     file_key TEXT PRIMARY KEY,
     file_data JSONB NOT NULL,
@@ -126,9 +146,8 @@ async function kvSet(key, value) {
 }
 
 async function blobGet(name) {
-  const { list } = require('@vercel/blob');
   const pathname = blobPath(name);
-  const result = await list({
+  const result = await blobList({
     prefix: pathname,
     token: process.env.BLOB_READ_WRITE_TOKEN
   });
@@ -140,8 +159,7 @@ async function blobGet(name) {
 }
 
 async function blobSet(name, data) {
-  const { put } = require('@vercel/blob');
-  await put(blobPath(name), JSON.stringify(data), {
+  await blobPut(blobPath(name), JSON.stringify(data), {
     access: 'public',
     addRandomSuffix: false,
     token: process.env.BLOB_READ_WRITE_TOKEN,
@@ -161,7 +179,7 @@ function memorySet(name, data) {
 }
 
 async function readJSON(name, fallback) {
-  if (hasPg()) {
+  if (pgUrl()) {
     let data = await pgGet(name);
     if (data === null || data === undefined) {
       data = readDefaultSync(name, fallback);
@@ -213,7 +231,7 @@ async function readJSON(name, fallback) {
 async function writeJSON(name, data) {
   memorySet(name, data);
 
-  if (hasPg()) {
+  if (pgUrl()) {
     await pgSet(name, data);
     return;
   }
@@ -233,7 +251,7 @@ async function writeJSON(name, data) {
 }
 
 function hasSharedStorage() {
-  return hasPg() || hasKv() || hasBlob();
+  return !!pgUrl() || hasKv() || hasBlob();
 }
 
 module.exports = {
