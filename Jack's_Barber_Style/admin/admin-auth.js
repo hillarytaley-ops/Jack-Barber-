@@ -20,20 +20,26 @@
       })
     })
       .catch(function () {
-        throw new Error('Failed to fetch');
+        throw new Error('Cannot reach server. Try again in a moment.');
       })
-      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+      .then(function (r) {
+        return r.text().then(function (text) {
+          var data;
+          try {
+            data = JSON.parse(text);
+          } catch (err) {
+            throw new Error('Server error — please refresh and try again.');
+          }
+          return { ok: r.ok, data: data };
+        });
+      })
       .then(function (res) {
         if (!res.ok) throw new Error(res.data.error || 'Login failed');
         localStorage.setItem('jbs_admin_token', res.data.token);
         window.location.href = 'dashboard.html';
       })
       .catch(function (err) {
-        if (err.message.indexOf('fetch') !== -1 || err.message === 'Failed to fetch') {
-          errorEl.textContent = 'Server is not running. Double-click START-SERVER.bat first, then try again.';
-        } else {
-          errorEl.textContent = err.message;
-        }
+        errorEl.textContent = err.message;
         errorEl.hidden = false;
       });
   });
