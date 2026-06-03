@@ -1,0 +1,59 @@
+{
+  "contact": {
+    "phone": "0478268399",
+    "phoneDisplay": "0478 268 399",
+    "email": "Jacqueskatumbulu@gmail.com",
+    "address": "47 O'Meara Street",
+    "city": "Wodonga, VIC 3690",
+    "country": "Australia"
+  },
+  "brand": {
+    "name": "Jack's Barber Style",
+    "tagline": "Wodonga · African Hair Specialists"
+  },
+  "hero": {
+    "eyebrow": "47 O'Meara Street · Wodonga",
+    "title": "Where Crown & Culture Meet the Chair",
+    "lead": "Jack's Barber Style is a home for afro-textured hair — sharp fades, shaped afros, clean line-ups, and styles rooted in African barbering tradition.",
+    "stats": [
+      { "label": "Fades", "sub": "Skin to taper" },
+      { "label": "Afro", "sub": "Shape & comb" },
+      { "label": "Design", "sub": "Blade artistry" }
+    ]
+  },
+  "roots": {
+    "label": "Sankofa · Look Back, Move Forward",
+    "title": "Our Roots",
+    "paragraphs": [
+      "In many African communities, the barbershop is more than a place to get a haircut — it's a gathering space, a storyteller's corner, and a seat where identity is shaped with every pass of the clippers.",
+      "At Jack's Barber Style in Wodonga, we carry that spirit. Whether you're after a crisp skin fade, a perfectly shaped afro, twists, or a custom hair design, our barbers work with your natural texture — not against it."
+    ],
+    "quote": "Your hair tells a story. We help you write the next chapter."
+  },
+  "hours": {
+    "schedule": [
+      { "id": "weekdays", "label": "Mon – Fri", "open": "09:00", "close": "18:00", "closed": false },
+      { "id": "saturday", "label": "Saturday", "open": "08:00", "close": "16:00", "closed": false },
+      { "id": "sunday", "label": "Sunday", "open": "", "close": "", "closed": true }
+    ],
+    "closedDates": []
+  },
+  "services": [
+    { "id": "afro-cut", "name": "Afro Cut", "price": 45, "duration": 45, "featured": true, "description": "Shape cutting and afro combing for natural volume and texture." },
+    { "id": "skin-fade", "name": "Skin Fade", "price": 40, "duration": 30, "featured": false, "description": "Seamless gradient from skin to length." },
+    { "id": "taper-fade", "name": "Taper Fade", "price": 35, "duration": 25, "featured": false, "description": "Clean taper blended into your top." },
+    { "id": "scissor-cut", "name": "Scissor Cut", "price": 40, "duration": 30, "featured": false, "description": "Layers and movement on textured hair." },
+    { "id": "twists", "name": "Twists & Retwist", "price": 50, "duration": 45, "featured": false, "description": "Neat twists for locs or starter coils." },
+    { "id": "beard-trim", "name": "Beard Trim & Shape", "price": 25, "duration": 15, "featured": false, "description": "Sculpted beard lines that frame your face." },
+    { "id": "line-up", "name": "Blade Line-Up", "price": 15, "duration": 10, "featured": false, "description": "Hot towel and cut-throat crisp edges." },
+    { "id": "hair-design", "name": "Hair Design", "price": 15, "duration": 15, "featured": false, "description": "Custom parts, tracks, and patterns." }
+  ],
+  "gallery": [
+    { "id": "g1", "caption": "Skin Fade", "filename": "photo-1.svg", "alt": "Skin fade haircut" },
+    { "id": "g2", "caption": "Afro Shape", "filename": "photo-2.svg", "alt": "Shaped afro haircut" },
+    { "id": "g3", "caption": "Line-Up", "filename": "photo-3.svg", "alt": "Blade line-up" },
+    { "id": "g4", "caption": "Hair Design", "filename": "photo-4.svg", "alt": "Custom hair design" },
+    { "id": "g5", "caption": "Beard Trim", "filename": "photo-5.svg", "alt": "Beard trim and shape" },
+    { "id": "g6", "caption": "The Shop", "filename": "photo-6.svg", "alt": "Inside Jack's Barber Style shop" }
+  ]
+}
