@@ -1,9 +1,12 @@
 {
   "name": "jacks-barber-style",
   "version": "1.0.0",
-  "description": "Jack's Barber Style website with admin dashboard",
+  "description": "Jack's Barber Style website with staff area",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "^0.27.3"
   }
 }

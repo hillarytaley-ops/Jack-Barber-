@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
-const { readJSON, writeJSON, DATA_DIR, ensureDefaults, hasKv } = require('./store');
+const { readJSON, writeJSON, DATA_DIR, ensureDefaults } = require('./store');
 const { createSession, verifyToken } = require('./auth-token');
 
 const ROOT = path.join(__dirname, '..');
@@ -215,11 +215,6 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'POST' && pathname === '/api/bookings') {
-      if (process.env.VERCEL && !hasKv()) {
-        return send(res, 503, {
-          error: 'Online booking storage is not set up yet. Please call 0478 268 399 to book, or try again after the site owner connects Vercel KV storage.'
-        });
-      }
       const body = await parseBody(req);
       if (!body.name || !body.email || !body.phone || !body.service || !body.date || !body.time) {
         return send(res, 400, { error: 'Missing required fields' });

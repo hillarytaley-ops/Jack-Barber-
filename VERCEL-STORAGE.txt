@@ -1,18 +1,17 @@
-VERCEL STORAGE SETUP (required for online bookings + staff dashboard)
-======================================================================
+LIVE WEBSITE STORAGE (one-time setup for bookings + staff area)
+===============================================================
 
-Bookings and staff data must be saved in shared storage on Vercel.
-Without this, bookings look "sent" but do not appear in the staff area.
+Online bookings need shared storage on Vercel so the staff area can see them.
 
-Steps (one-time, ~2 minutes):
-1. Go to https://vercel.com/dashboard
-2. Open your project (jack-barber-rho)
-3. Click the "Storage" tab
-4. Click "Create Database" → choose "KV"
-5. Name it (e.g. jacks-barber-kv) and create it
-6. Click "Connect to Project" → select this project → Connect
-7. Redeploy the website (Deployments → ... → Redeploy)
+Quick setup (~2 minutes):
+1. https://vercel.com/dashboard → open project "jack-barber-rho"
+2. Click **Storage** tab
+3. Click **Create Database** → choose **KV** (recommended) or **Blob**
+4. Click **Connect to Project** → select this website → Connect
+5. **Redeploy** (Deployments → latest → Redeploy)
 
-After that, bookings from the website will appear under Staff area → Client Bookings.
+After redeploy:
+- Customers can book on the website
+- Bookings appear in Staff area → Client Bookings
 
-Local testing on your PC still uses START-SERVER.bat (no Vercel KV needed).
+Local PC (START-SERVER.bat) works without this step.
