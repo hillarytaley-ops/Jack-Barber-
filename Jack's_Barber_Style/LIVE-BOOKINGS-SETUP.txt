@@ -1,25 +1,53 @@
-ENABLE AUTOMATIC BOOKINGS → STAFF AREA (one-time, ~2 minutes)
-================================================================
+NEON DATABASE SETUP (free) — Jack's Barber Style
+=================================================
 
-After this, every booking on your website is saved and appears in
-Staff area → Client Bookings automatically.
+One-time setup so bookings on your live website appear automatically in
+Staff area → Client Bookings.
 
-Steps in Vercel:
-1. https://vercel.com/dashboard → open project **jack-barber-rho**
-2. Click **Storage** tab
-3. Click **Create Database** → choose **Postgres** (Neon)
-4. Name it (e.g. jacks-barber-db) → Create
-5. Click **Connect to Project** → select **jack-barber-rho** → Connect
-6. Go to **Deployments** → **Redeploy** the latest deployment
+YOU ARE USING: Neon (Serverless Postgres) — free plan is enough.
 
-That is all. No email app, no manual copy-paste of bookings.
+STEP BY STEP
+------------
+1. Open https://vercel.com/dashboard
 
-Test:
-- Submit a booking on the website (pick a service from the dropdown)
-- Sign in to Staff area → Client Bookings → booking should appear
+2. Open your project: **jack-barber**
+   (same project that hosts your live website)
 
-Local PC: use START-SERVER.bat — works without this step.
+3. Click the **Storage** tab at the top
 
-Staff login: admin / JackStyle2026
+4. Find **Neon** in the list (green logo, "Serverless Postgres")
 
-Alternative: deploy render.yaml on Render.com (see RENDER-SETUP.txt).
+5. Click **Create** on the Neon row
+
+6. When asked for a plan, choose **Free** ($0/month)
+
+7. Name the database something like: **jacks-barber-db**
+
+8. Click **Create** / continue until you see **Connect to Project**
+
+9. Select project **jack-barber**
+   - Enable **Production** (and Preview if you want)
+   - Click **Connect**
+
+10. Go to **Deployments** tab → latest deployment → **⋯** menu → **Redeploy**
+    (Required — the site must redeploy to pick up the database)
+
+TEST
+----
+1. Open your live website
+2. Submit a test booking (must pick a **service** from the dropdown)
+3. You should see a green **Request sent** message
+4. Open **Staff area** → sign in (admin / JackStyle2026)
+5. Click **Client Bookings** — your test booking should appear
+
+LOCAL PC (no Neon needed)
+-------------------------
+Double-click **START-SERVER.bat** → http://localhost:3000/admin/
+
+TROUBLESHOOTING
+---------------
+- Bookings still missing? Make sure you **Redeployed** after connecting Neon.
+- Still empty? Wait 1–2 minutes after redeploy, hard refresh (Ctrl+Shift+R).
+- Change staff password after first login: Staff area → Security.
+
+You do NOT need Supabase for this website.
