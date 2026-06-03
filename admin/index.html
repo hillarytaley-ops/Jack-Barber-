@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Login | Jack's Barber Style</title>
+  <link rel="icon" href="../assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="login-page">
+  <div class="login-portal">
+    <div class="login-portal-top">
+      <a class="portal-home-link" href="/">
+        ← Back to main website
+      </a>
+    </div>
+
+    <div class="kente-strip-login" aria-hidden="true"></div>
+
+    <div class="login-card">
+      <img src="../assets/logo.png" alt="Jack's Barber Style" width="80" height="80" class="login-logo">
+      <p class="login-eyebrow">Staff access only</p>
+      <h1>Admin Login</h1>
+      <p class="login-sub">Sign in to manage bookings, gallery, hours, and reports.</p>
+
+      <div class="login-notice" id="host-notice" hidden>
+        <strong>Admin is local only for now.</strong> Vercel hosts the public website only.
+        To use the dashboard, run <code>START-SERVER.bat</code> on your PC, then open
+        <a href="http://localhost:3000/admin/">localhost:3000/admin</a>.
+      </div>
+
+      <form id="login-form" class="login-form">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" value="admin" required autocomplete="username" placeholder="Enter username">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Enter password">
+
+        <p class="login-error" id="login-error" hidden></p>
+
+        <button type="submit" class="btn btn-primary btn-full">Sign in to dashboard</button>
+      </form>
+
+      <p class="login-foot">
+        Public site: <a href="/">jack'sbarberstyle.com</a>
+      </p>
+    </div>
+
+    <div class="kente-strip-login" aria-hidden="true"></div>
+  </div>
+
+  <script src="admin-auth.js"></script>
+</body>
+</html>

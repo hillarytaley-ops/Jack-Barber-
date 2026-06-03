@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Jack's Barber Style</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="server-alert" id="server-alert" hidden>
+    <strong>Server not running.</strong> Double-click <code>START-SERVER.bat</code> in the project folder, then refresh this page.
+  </div>
+  <div class="admin-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../assets/logo.png" alt="" width="40" height="40">
+        <span>Jack's Admin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button type="button" class="nav-item active" data-panel="overview">Overview</button>
+        <button type="button" class="nav-item" data-panel="content">Site Content</button>
+        <button type="button" class="nav-item" data-panel="hours">Hours &amp; Closures</button>
+        <button type="button" class="nav-item" data-panel="services">Services</button>
+        <button type="button" class="nav-item" data-panel="gallery">Gallery</button>
+        <button type="button" class="nav-item" data-panel="clients">Client Bookings</button>
+        <button type="button" class="nav-item" data-panel="finances">Finances</button>
+        <button type="button" class="nav-item" data-panel="reports">Reports</button>
+        <button type="button" class="nav-item" data-panel="security">Security</button>
+      </nav>
+      <div class="sidebar-foot">
+        <a href="/" target="_blank" rel="noopener">← Main website</a>
+        <button type="button" id="logout-btn">Log out</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <!-- Overview -->
+      <section class="panel active" id="panel-overview">
+        <header class="panel-head"><h2>Overview</h2><p>Today's snapshot</p></header>
+        <div class="stat-grid" id="overview-stats"></div>
+      </section>
+
+      <!-- Site Content -->
+      <section class="panel" id="panel-content">
+        <header class="panel-head"><h2>Site Content</h2><p>Edit text shown on the public website</p></header>
+        <form id="content-form" class="admin-form"></form>
+        <button type="button" class="btn btn-primary" id="save-content-btn">Save content</button>
+      </section>
+
+      <!-- Hours -->
+      <section class="panel" id="panel-hours">
+        <header class="panel-head"><h2>Hours &amp; Closures</h2><p>Set open hours and closed dates</p></header>
+        <div id="hours-editor"></div>
+        <h3 class="sub-head">Closed dates</h3>
+        <div class="inline-form">
+          <input type="date" id="closed-date-input">
+          <input type="text" id="closed-date-note" placeholder="Reason (optional)">
+          <button type="button" class="btn btn-secondary" id="add-closed-date">Add closed date</button>
+        </div>
+        <ul class="closed-list" id="closed-dates-list"></ul>
+        <button type="button" class="btn btn-primary" id="save-hours-btn">Save hours</button>
+      </section>
+
+      <!-- Services -->
+      <section class="panel" id="panel-services">
+        <header class="panel-head">
+          <h2>Services &amp; Prices</h2>
+          <button type="button" class="btn btn-secondary" id="add-service-btn">+ Add service</button>
+        </header>
+        <div class="service-row service-row-head">
+          <span>Service name</span>
+          <span>Price ($)</span>
+          <span>Duration (min)</span>
+          <span>Description</span>
+          <span>Featured</span>
+          <span></span>
+        </div>
+        <div id="services-editor"></div>
+        <button type="button" class="btn btn-primary" id="save-services-btn">Save services</button>
+      </section>
+
+      <!-- Gallery -->
+      <section class="panel" id="panel-gallery">
+        <header class="panel-head"><h2>Gallery</h2><p>Upload photos for the public gallery</p></header>
+        <form id="gallery-upload-form" class="inline-form" enctype="multipart/form-data">
+          <input type="file" name="photo" accept="image/*" required>
+          <input type="text" name="caption" placeholder="Caption" required>
+          <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+        <div class="gallery-admin-grid" id="gallery-admin-grid"></div>
+      </section>
+
+      <!-- Clients -->
+      <section class="panel" id="panel-clients">
+        <header class="panel-head"><h2>Client Bookings</h2><p>Contact details from booking form</p></header>
+        <div class="table-wrap">
+          <table class="admin-table" id="bookings-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Contact</th>
+                <th>Service</th>
+                <th>Appt</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Finances -->
+      <section class="panel" id="panel-finances">
+        <header class="panel-head"><h2>Finances</h2><p>Record payments and income</p></header>
+        <form id="transaction-form" class="admin-form inline-form-grid">
+          <div><label>Date</label><input type="date" name="date" required></div>
+          <div><label>Amount ($)</label><input type="number" name="amount" min="0" step="0.01" required></div>
+          <div><label>Service</label><input type="text" name="service" placeholder="Afro Cut"></div>
+          <div><label>Client</label><input type="text" name="clientName" placeholder="Client name"></div>
+          <div class="span-2"><label>Notes</label><input type="text" name="notes"></div>
+          <div><button type="submit" class="btn btn-primary">Add payment</button></div>
+        </form>
+        <div class="table-wrap">
+          <table class="admin-table" id="transactions-table">
+            <thead>
+              <tr><th>Date</th><th>Client</th><th>Service</th><th>Amount</th><th>Notes</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Reports -->
+      <section class="panel" id="panel-reports">
+        <header class="panel-head">
+          <h2>Reports</h2>
+          <div class="panel-actions">
+            <select id="report-period">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+            <button type="button" class="btn btn-secondary" id="print-report">Print report</button>
+          </div>
+        </header>
+        <div class="report-box" id="report-output"></div>
+      </section>
+
+      <!-- Security -->
+      <section class="panel" id="panel-security">
+        <header class="panel-head"><h2>Change password</h2></header>
+        <form id="password-form" class="admin-form">
+          <label>Current password</label>
+          <input type="password" name="currentPassword" required>
+          <label>New password</label>
+          <input type="password" name="newPassword" required minlength="8">
+          <button type="submit" class="btn btn-primary">Update password</button>
+          <p class="form-msg" id="password-msg"></p>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script src="admin.js"></script>
+</body>
+</html>

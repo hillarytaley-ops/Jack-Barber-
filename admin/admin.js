@@ -1,0 +1,470 @@
+(function () {
+  var token = localStorage.getItem('jbs_admin_token');
+  if (!token) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  var settings = null;
+
+  function showServerError() {
+    var el = document.getElementById('server-alert');
+    if (el) el.hidden = false;
+  }
+
+  function api(url, options) {
+    options = options || {};
+    options.headers = Object.assign({
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    }, options.headers || {});
+    return fetch(url, options)
+      .catch(function () {
+        showServerError();
+        throw new Error('Server is not running. Start START-SERVER.bat first.');
+      })
+      .then(function (r) {
+        if (r.status === 401) {
+          localStorage.removeItem('jbs_admin_token');
+          window.location.href = 'index.html';
+          throw new Error('Session expired');
+        }
+        return r.json().then(function (d) {
+          if (!r.ok) throw new Error(d.error || 'Request failed');
+          return d;
+        });
+      });
+  }
+
+  function money(n) {
+    return '$' + Number(n || 0).toFixed(2);
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  /* Navigation */
+  document.querySelectorAll('.nav-item').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+      if (btn.dataset.panel === 'reports') loadReport();
+      if (btn.dataset.panel === 'clients') loadBookings();
+      if (btn.dataset.panel === 'finances') loadTransactions();
+    });
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', function () {
+    api('/api/admin/logout', { method: 'POST' }).finally(function () {
+      localStorage.removeItem('jbs_admin_token');
+      window.location.href = 'index.html';
+    });
+  });
+
+  /* Load settings */
+  function loadSettings() {
+    return api('/api/admin/settings').then(function (data) {
+      settings = data;
+      renderContentForm();
+      renderHoursEditor();
+      renderServicesEditor();
+      renderGalleryAdmin();
+      renderClosedDates();
+    });
+  }
+
+  /* Overview */
+  function loadOverview() {
+    api('/api/admin/overview').then(function (data) {
+      document.getElementById('overview-stats').innerHTML =
+        statCard('Today', money(data.daily.totalRevenue), data.daily.transactionCount + ' payments') +
+        statCard('This week', money(data.weekly.totalRevenue), data.weekly.bookingCount + ' bookings') +
+        statCard('This month', money(data.monthly.totalRevenue), money(data.monthly.averageTicket) + ' avg') +
+        statCard('Pending bookings', data.pendingBookings, data.totalBookings + ' total');
+    });
+  }
+
+  function statCard(label, value, sub) {
+    return '<div class="stat-card"><span>' + label + '</span><strong>' + value + '</strong><span>' + sub + '</span></div>';
+  }
+
+  /* Content editor */
+  function renderContentForm() {
+    var c = settings.contact;
+    var h = settings.hero;
+    var r = settings.roots;
+    document.getElementById('content-form').innerHTML =
+      '<h3>Contact</h3>' +
+      field('contact-phone', 'Phone', c.phone) +
+      field('contact-phoneDisplay', 'Phone display', c.phoneDisplay) +
+      field('contact-email', 'Email', c.email) +
+      field('contact-address', 'Address', c.address) +
+      field('contact-city', 'City', c.city) +
+      '<h3>Hero</h3>' +
+      field('hero-eyebrow', 'Eyebrow', h.eyebrow) +
+      field('hero-title', 'Headline', h.title) +
+      field('hero-lead', 'Lead text', h.lead, true) +
+      '<h3>Our Roots</h3>' +
+      field('roots-label', 'Section label', r.label) +
+      field('roots-title', 'Section title', r.title) +
+      field('roots-p1', 'Paragraph 1', r.paragraphs[0], true) +
+      field('roots-p2', 'Paragraph 2', r.paragraphs[1], true) +
+      field('roots-quote', 'Quote', r.quote);
+  }
+
+  function field(id, label, value, textarea) {
+    var v = (value || '').replace(/"/g, '&quot;');
+    if (textarea) {
+      return '<label for="' + id + '">' + label + '</label><textarea id="' + id + '">' + (value || '') + '</textarea>';
+    }
+    return '<label for="' + id + '">' + label + '</label><input id="' + id + '" value="' + v + '">';
+  }
+
+  function val(id) {
+    return document.getElementById(id).value.trim();
+  }
+
+  document.getElementById('save-content-btn').addEventListener('click', function () {
+    settings.contact.phone = val('contact-phone');
+    settings.contact.phoneDisplay = val('contact-phoneDisplay');
+    settings.contact.email = val('contact-email');
+    settings.contact.address = val('contact-address');
+    settings.contact.city = val('contact-city');
+    settings.hero.eyebrow = val('hero-eyebrow');
+    settings.hero.title = val('hero-title');
+    settings.hero.lead = val('hero-lead');
+    settings.roots.label = val('roots-label');
+    settings.roots.title = val('roots-title');
+    settings.roots.paragraphs = [val('roots-p1'), val('roots-p2')];
+    settings.roots.quote = val('roots-quote');
+    api('/api/admin/settings', { method: 'PUT', body: JSON.stringify(settings) })
+      .then(function () { alert('Content saved. Refresh the public site to see changes.'); });
+  });
+
+  /* Hours */
+  function renderHoursEditor() {
+    document.getElementById('hours-editor').innerHTML = settings.hours.schedule.map(function (row, i) {
+      return '<div class="hours-row" data-idx="' + i + '">' +
+        '<strong>' + row.label + '</strong>' +
+        '<input type="time" class="hr-open" value="' + (row.open || '') + '" ' + (row.closed ? 'disabled' : '') + '>' +
+        '<input type="time" class="hr-close" value="' + (row.close || '') + '" ' + (row.closed ? 'disabled' : '') + '>' +
+        '<label><input type="checkbox" class="hr-closed" ' + (row.closed ? 'checked' : '') + '> Closed</label>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderClosedDates() {
+    var list = settings.hours.closedDates || [];
+    document.getElementById('closed-dates-list').innerHTML = list.map(function (item, i) {
+      var label = typeof item === 'string' ? item : item.date + (item.note ? ' — ' + item.note : '');
+      var key = typeof item === 'string' ? item : item.date;
+      return '<li><span>' + label + '</span><button type="button" class="btn btn-danger btn-sm" data-date="' + key + '">Remove</button></li>';
+    }).join('');
+
+    document.querySelectorAll('#closed-dates-list button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        settings.hours.closedDates = (settings.hours.closedDates || []).filter(function (item) {
+          var d = typeof item === 'string' ? item : item.date;
+          return d !== btn.dataset.date;
+        });
+        renderClosedDates();
+      });
+    });
+  }
+
+  document.getElementById('add-closed-date').addEventListener('click', function () {
+    var date = document.getElementById('closed-date-input').value;
+    var note = document.getElementById('closed-date-note').value.trim();
+    if (!date) return;
+    settings.hours.closedDates = settings.hours.closedDates || [];
+    if (!settings.hours.closedDates.some(function (x) { return (x.date || x) === date; })) {
+      settings.hours.closedDates.push(note ? { date: date, note: note } : date);
+    }
+    document.getElementById('closed-date-input').value = '';
+    document.getElementById('closed-date-note').value = '';
+    renderClosedDates();
+  });
+
+  document.getElementById('save-hours-btn').addEventListener('click', function () {
+    document.querySelectorAll('.hours-row').forEach(function (row) {
+      var i = Number(row.dataset.idx);
+      settings.hours.schedule[i].open = row.querySelector('.hr-open').value;
+      settings.hours.schedule[i].close = row.querySelector('.hr-close').value;
+      settings.hours.schedule[i].closed = row.querySelector('.hr-closed').checked;
+    });
+    api('/api/admin/settings', { method: 'PUT', body: JSON.stringify(settings) })
+      .then(function () { alert('Hours saved.'); });
+  });
+
+  /* Services */
+  function escAttr(val) {
+    return String(val || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function slugify(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'service';
+  }
+
+  function collectServicesFromDOM() {
+    return Array.from(document.querySelectorAll('#services-editor .service-row')).map(function (row) {
+      return {
+        id: row.dataset.id,
+        name: row.querySelector('.svc-name').value.trim(),
+        price: Number(row.querySelector('.svc-price').value) || 0,
+        duration: Number(row.querySelector('.svc-duration').value) || 30,
+        description: row.querySelector('.svc-desc').value.trim(),
+        featured: row.querySelector('.svc-featured').checked
+      };
+    }).filter(function (s) { return s.name; });
+  }
+
+  function renderServicesEditor() {
+    document.getElementById('services-editor').innerHTML = settings.services.map(function (s) {
+      return '<div class="service-row" data-id="' + escAttr(s.id) + '">' +
+        '<input class="svc-name" value="' + escAttr(s.name) + '" placeholder="Service name">' +
+        '<input class="svc-price" type="number" min="0" step="1" value="' + s.price + '" placeholder="0">' +
+        '<input class="svc-duration" type="number" min="5" step="5" value="' + s.duration + '" placeholder="30">' +
+        '<input class="svc-desc" value="' + escAttr(s.description || '') + '" placeholder="Short description">' +
+        '<label class="svc-featured-label"><input type="checkbox" class="svc-featured" ' + (s.featured ? 'checked' : '') + '> Featured</label>' +
+        '<button type="button" class="btn btn-danger btn-sm remove-service" title="Remove service">&times;</button>' +
+        '</div>';
+    }).join('');
+
+    document.querySelectorAll('.remove-service').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!confirm('Remove this service?')) return;
+        btn.closest('.service-row').remove();
+      });
+    });
+  }
+
+  document.getElementById('add-service-btn').addEventListener('click', function () {
+    settings.services = collectServicesFromDOM();
+    var newId = 'svc-' + Date.now();
+    settings.services.push({
+      id: newId,
+      name: '',
+      price: 50,
+      duration: 30,
+      description: '',
+      featured: false
+    });
+    renderServicesEditor();
+    var rows = document.querySelectorAll('#services-editor .service-row');
+    var last = rows[rows.length - 1];
+    if (last) last.querySelector('.svc-name').focus();
+  });
+
+  document.getElementById('save-services-btn').addEventListener('click', function () {
+    var collected = collectServicesFromDOM();
+    if (!collected.length) {
+      alert('Add at least one service with a name.');
+      return;
+    }
+    collected.forEach(function (s) {
+      if (!s.id || s.id.indexOf('svc-') !== 0) {
+        s.id = 'svc-' + slugify(s.name) + '-' + Date.now();
+      }
+    });
+    if (collected.filter(function (s) { return s.featured; }).length > 1) {
+      var first = true;
+      collected.forEach(function (s) {
+        if (s.featured && first) first = false;
+        else if (s.featured) s.featured = false;
+      });
+    }
+    settings.services = collected;
+    api('/api/admin/settings', { method: 'PUT', body: JSON.stringify(settings) })
+      .then(function () {
+        renderServicesEditor();
+        alert('Services saved. Refresh the public site to see updates.');
+      });
+  });
+
+  /* Gallery */
+  function renderGalleryAdmin() {
+    document.getElementById('gallery-admin-grid').innerHTML = settings.gallery.map(function (item) {
+      var src = item.filename.startsWith('photo-') && item.filename.endsWith('.svg')
+        ? '/assets/gallery/' + item.filename
+        : '/uploads/gallery/' + item.filename;
+      return '<figure class="gallery-admin-item">' +
+        '<img src="' + src + '" alt="">' +
+        '<figcaption>' + item.caption + '</figcaption>' +
+        '<button type="button" data-id="' + item.id + '">Delete</button></figure>';
+    }).join('');
+
+    document.querySelectorAll('.gallery-admin-item button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!confirm('Delete this photo?')) return;
+        api('/api/admin/gallery/' + btn.dataset.id, { method: 'DELETE' }).then(loadSettings);
+      });
+    });
+  }
+
+  document.getElementById('gallery-upload-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fileInput = e.target.querySelector('input[type=file]');
+    var captionInput = e.target.querySelector('input[name=caption]');
+    var file = fileInput.files[0];
+    if (!file) return;
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      api('/api/admin/gallery', {
+        method: 'POST',
+        body: JSON.stringify({
+          caption: captionInput.value,
+          alt: captionInput.value,
+          filename: file.name,
+          image: reader.result
+        })
+      }).then(function () {
+        e.target.reset();
+        loadSettings();
+      }).catch(function (err) { alert(err.message); });
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* Bookings */
+  function loadBookings() {
+    api('/api/admin/bookings').then(function (rows) {
+      document.querySelector('#bookings-table tbody').innerHTML = rows.map(function (b) {
+        return '<tr>' +
+          '<td>' + fmtDate(b.createdAt) + '</td>' +
+          '<td><strong>' + b.name + '</strong></td>' +
+          '<td>' + b.phone + '<br>' + b.email + '</td>' +
+          '<td>' + b.service + '<br><small>' + (b.serviceType === 'home' ? 'Home' : 'In-shop') + '</small></td>' +
+          '<td>' + b.date + ' ' + b.time + '</td>' +
+          '<td><select class="status-select" data-id="' + b.id + '">' +
+          ['pending', 'confirmed', 'completed', 'cancelled'].map(function (s) {
+            return '<option value="' + s + '" ' + (b.status === s ? 'selected' : '') + '>' + s + '</option>';
+          }).join('') + '</select></td>' +
+          '<td><button type="button" class="btn btn-danger btn-sm del-booking" data-id="' + b.id + '">Delete</button></td>' +
+          '</tr>';
+      }).join('') || '<tr><td colspan="7">No bookings yet</td></tr>';
+
+      document.querySelectorAll('.status-select').forEach(function (sel) {
+        sel.addEventListener('change', function () {
+          api('/api/admin/bookings/' + sel.dataset.id, {
+            method: 'PATCH',
+            body: JSON.stringify({ status: sel.value })
+          });
+        });
+      });
+      document.querySelectorAll('.del-booking').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (confirm('Delete booking?')) {
+            api('/api/admin/bookings/' + btn.dataset.id, { method: 'DELETE' }).then(loadBookings);
+          }
+        });
+      });
+    });
+  }
+
+  /* Transactions */
+  function loadTransactions() {
+    api('/api/admin/transactions').then(function (rows) {
+      document.querySelector('#transactions-table tbody').innerHTML = rows.map(function (t) {
+        return '<tr>' +
+          '<td>' + t.date + '</td>' +
+          '<td>' + (t.clientName || '—') + '</td>' +
+          '<td>' + (t.service || '—') + '</td>' +
+          '<td>' + money(t.amount) + '</td>' +
+          '<td>' + (t.notes || '') + '</td>' +
+          '<td><button type="button" class="btn btn-danger btn-sm del-txn" data-id="' + t.id + '">Delete</button></td></tr>';
+      }).join('') || '<tr><td colspan="6">No payments recorded yet</td></tr>';
+
+      document.querySelectorAll('.del-txn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (confirm('Delete transaction?')) {
+            api('/api/admin/transactions/' + btn.dataset.id, { method: 'DELETE' }).then(loadTransactions);
+          }
+        });
+      });
+    });
+  }
+
+  document.getElementById('transaction-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    api('/api/admin/transactions', {
+      method: 'POST',
+      body: JSON.stringify({
+        date: fd.get('date'),
+        amount: fd.get('amount'),
+        service: fd.get('service'),
+        clientName: fd.get('clientName'),
+        notes: fd.get('notes')
+      })
+    }).then(function () {
+      e.target.reset();
+      loadTransactions();
+      loadOverview();
+    });
+  });
+
+  /* Reports */
+  function loadReport() {
+    var period = document.getElementById('report-period').value;
+    api('/api/admin/reports?period=' + period).then(function (report) {
+      var services = Object.keys(report.byService).map(function (k) {
+        return '<tr><td>' + k + '</td><td>' + money(report.byService[k]) + '</td></tr>';
+      }).join('');
+
+      document.getElementById('report-output').innerHTML =
+        '<h3>' + report.period.charAt(0).toUpperCase() + report.period.slice(1) + ' Report</h3>' +
+        '<p>' + report.from + ' to ' + report.to + '</p>' +
+        '<div class="report-summary">' +
+        '<div><span>Total revenue</span><strong>' + money(report.summary.totalRevenue) + '</strong></div>' +
+        '<div><span>Payments</span><strong>' + report.summary.transactionCount + '</strong></div>' +
+        '<div><span>Bookings</span><strong>' + report.summary.bookingCount + '</strong></div>' +
+        '<div><span>Avg ticket</span><strong>' + money(report.summary.averageTicket) + '</strong></div>' +
+        '</div>' +
+        '<h4>Revenue by service</h4>' +
+        '<table class="admin-table"><thead><tr><th>Service</th><th>Amount</th></tr></thead><tbody>' +
+        (services || '<tr><td colspan="2">No payments in this period</td></tr>') +
+        '</tbody></table>' +
+        '<h4 style="margin-top:1.5rem">Bookings in period</h4>' +
+        '<table class="admin-table"><thead><tr><th>Client</th><th>Phone</th><th>Service</th><th>Appt</th></tr></thead><tbody>' +
+        (report.bookings.map(function (b) {
+          return '<tr><td>' + b.name + '</td><td>' + b.phone + '</td><td>' + b.service + '</td><td>' + b.date + '</td></tr>';
+        }).join('') || '<tr><td colspan="4">No bookings</td></tr>') +
+        '</tbody></table>';
+    });
+  }
+
+  document.getElementById('report-period').addEventListener('change', loadReport);
+  document.getElementById('print-report').addEventListener('click', function () { window.print(); });
+
+  /* Password */
+  document.getElementById('password-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    api('/api/admin/change-password', {
+      method: 'POST',
+      body: JSON.stringify({
+        currentPassword: fd.get('currentPassword'),
+        newPassword: fd.get('newPassword')
+      })
+    }).then(function () {
+      document.getElementById('password-msg').textContent = 'Password updated successfully.';
+      e.target.reset();
+    }).catch(function (err) {
+      document.getElementById('password-msg').textContent = err.message;
+    });
+  });
+
+  /* Init */
+  loadSettings()
+    .then(function () {
+      loadOverview();
+      loadBookings();
+      loadTransactions();
+    })
+    .catch(function () { /* server alert already shown */ });
+})();

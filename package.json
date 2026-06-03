@@ -1,0 +1,9 @@
+{
+  "name": "jacks-barber-style",
+  "version": "1.0.0",
+  "description": "Jack's Barber Style website with admin dashboard",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  }
+}
