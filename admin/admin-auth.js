@@ -7,27 +7,63 @@
   var form = document.getElementById('login-form');
   var errorEl = document.getElementById('login-error');
   var hostNotice = document.getElementById('host-notice');
-  var isVercel = /\.vercel\.app$/i.test(window.location.hostname);
+  var submitBtn = form.querySelector('button[type="submit"]');
+  var apiAvailable = false;
 
-  if (hostNotice && (isVercel || window.location.protocol === 'file:')) {
-    hostNotice.hidden = false;
+  function staticHostMessage() {
+    return 'This website is static-only (no backend API). Admin login is not available here. ' +
+      'On your PC: double-click START-SERVER.bat, then open http://localhost:3000/admin/ ' +
+      '(login: admin / JackStyle2026). For online admin, deploy this project to Render.com using render.yaml.';
   }
 
-  function loginErrorMessage(status) {
-    if (isVercel || status === 404) {
-      return 'Admin login does not work on Vercel (static hosting only). ' +
-        'Run START-SERVER.bat on your PC and open http://localhost:3000/admin/ — ' +
-        'or deploy the full app to Render.com with render.yaml in this project.';
+  function offlineMessage() {
+    return 'Server is not running. Double-click START-SERVER.bat on your PC, then open http://localhost:3000/admin/';
+  }
+
+  function showStaticNotice() {
+    if (hostNotice) hostNotice.hidden = false;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Admin unavailable on this host';
     }
-    return 'Server is not running. Double-click START-SERVER.bat, then try again at http://localhost:3000/admin/';
+    form.querySelectorAll('input').forEach(function (input) {
+      input.disabled = true;
+    });
+  }
+
+  function probeApi() {
+    return fetch('/api/public/config', { method: 'GET', cache: 'no-store' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('missing');
+        var ct = r.headers.get('content-type') || '';
+        if (ct.indexOf('json') === -1) throw new Error('not json');
+        return r.json();
+      })
+      .then(function () {
+        apiAvailable = true;
+      })
+      .catch(function () {
+        apiAvailable = false;
+        showStaticNotice();
+        if (window.location.protocol === 'file:') {
+          errorEl.textContent = offlineMessage();
+          errorEl.hidden = false;
+        }
+      });
+  }
+
+  if (window.location.protocol === 'file:') {
+    showStaticNotice();
+  } else {
+    probeApi();
   }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     errorEl.hidden = true;
 
-    if (isVercel) {
-      errorEl.textContent = loginErrorMessage(404);
+    if (!apiAvailable) {
+      errorEl.textContent = staticHostMessage();
       errorEl.hidden = false;
       return;
     }
@@ -49,7 +85,7 @@
           try {
             data = JSON.parse(text);
           } catch (err) {
-            throw new Error(loginErrorMessage(r.status));
+            throw new Error(r.status === 404 ? staticHostMessage() : offlineMessage());
           }
           return { ok: r.ok, status: r.status, data: data };
         });
@@ -60,11 +96,7 @@
         window.location.href = 'dashboard.html';
       })
       .catch(function (err) {
-        if (err.message === 'Failed to fetch') {
-          errorEl.textContent = loginErrorMessage(0);
-        } else {
-          errorEl.textContent = err.message;
-        }
+        errorEl.textContent = err.message === 'Failed to fetch' ? offlineMessage() : err.message;
         errorEl.hidden = false;
       });
   });

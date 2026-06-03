@@ -112,7 +112,38 @@ body { font-family: "Segoe UI", system-ui, sans-serif; background: #eef1f5; colo
 .login-card h1 { font-size: 1.5rem; color: var(--navy); margin-bottom: 0.35rem; }
 .login-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5; }
 
+.login-notice {
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(196, 30, 58, 0.35);
+  background: rgba(196, 30, 58, 0.08);
+  color: var(--navy);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  text-align: left;
+}
+
+.login-notice strong { color: var(--red); }
+
+.login-notice code {
+  font-size: 0.8rem;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.login-notice a {
+  color: var(--red);
+  font-weight: 600;
+}
+
 .login-form { text-align: left; }
+
+.login-form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
 
 .login-card label {
   display: block;

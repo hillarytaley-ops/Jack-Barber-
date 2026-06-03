@@ -24,9 +24,11 @@
       <p class="login-sub">Sign in to manage bookings, gallery, hours, and reports.</p>
 
       <div class="login-notice" id="host-notice" hidden>
-        <strong>Admin is local only for now.</strong> Vercel hosts the public website only.
-        To use the dashboard, run <code>START-SERVER.bat</code> on your PC, then open
-        <a href="http://localhost:3000/admin/">localhost:3000/admin</a>.
+        <strong>Admin needs the Node server.</strong> This live site is static-only, so
+        <code>/api/admin/login</code> is not available here.
+        On your PC: run <code>START-SERVER.bat</code>, then sign in at
+        <a href="http://localhost:3000/admin/">localhost:3000/admin</a>
+        (default: admin / JackStyle2026).
       </div>
 
       <form id="login-form" class="login-form">
