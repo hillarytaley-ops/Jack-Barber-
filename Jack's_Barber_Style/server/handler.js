@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
-const { readJSON, writeJSON, DATA_DIR, ensureDefaults } = require('./store');
+const { readJSON, writeJSON, DATA_DIR, ensureDefaults, hasKv } = require('./store');
 const { createSession, verifyToken } = require('./auth-token');
 
 const ROOT = path.join(__dirname, '..');
@@ -10,6 +10,8 @@ const UPLOADS = process.env.VERCEL
   ? path.join('/tmp', 'jbs-uploads')
   : path.join(ROOT, 'uploads', 'gallery');
 const DEFAULT_PASSWORD = process.env.ADMIN_PASSWORD || 'JackStyle2026';
+
+let ready = false;
 
 const MIME = {
   '.html': 'text/html',
@@ -36,16 +38,26 @@ function verifyPassword(password, stored) {
   return crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex') === hash;
 }
 
-function ensureAdmin() {
+async function ensureReady() {
+  if (ready) return;
   ensureDefaults();
-  const adminPath = path.join(DATA_DIR, 'admin.json');
-  if (!fs.existsSync(adminPath)) {
-    writeJSON('admin.json', { username: 'admin', passwordHash: hashPassword(DEFAULT_PASSWORD) });
+  const admin = await readJSON('admin.json', null);
+  if (!admin) {
+    await writeJSON('admin.json', {
+      username: 'admin',
+      passwordHash: hashPassword(DEFAULT_PASSWORD)
+    });
   }
+  ready = true;
 }
 
-function getSettings() { return readJSON('settings.json'); }
-function saveSettings(data) { writeJSON('settings.json', data); }
+async function getSettings() {
+  return readJSON('settings.json');
+}
+
+async function saveSettings(data) {
+  return writeJSON('settings.json', data);
+}
 
 function send(res, status, data, type) {
   const body = typeof data === 'string' ? data : JSON.stringify(data);
@@ -112,10 +124,10 @@ function inRange(dateStr, start, end) {
   return d >= start && d <= end;
 }
 
-function buildReport(period) {
+async function buildReport(period) {
   const { start, end, period: p } = parsePeriod(period);
-  const transactions = readJSON('transactions.json', []);
-  const bookings = readJSON('bookings.json', []);
+  const transactions = await readJSON('transactions.json', []);
+  const bookings = await readJSON('bookings.json', []);
   const filtered = transactions.filter(function (t) { return inRange(t.date, start, end); });
   const total = filtered.reduce(function (s, t) { return s + Number(t.amount || 0); }, 0);
   const byService = {};
@@ -173,8 +185,6 @@ function getSearchParams(req) {
   return url.searchParams;
 }
 
-ensureAdmin();
-
 async function handleRequest(req, res) {
   if (req.method === 'OPTIONS') return send(res, 204, '');
 
@@ -182,8 +192,10 @@ async function handleRequest(req, res) {
   const searchParams = getSearchParams(req);
 
   try {
+    await ensureReady();
+
     if (req.method === 'GET' && pathname === '/api/public/config') {
-      const settings = getSettings();
+      const settings = await getSettings();
       return send(res, 200, {
         contact: settings.contact,
         brand: settings.brand,
@@ -203,11 +215,16 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'POST' && pathname === '/api/bookings') {
+      if (process.env.VERCEL && !hasKv()) {
+        return send(res, 503, {
+          error: 'Online booking storage is not set up yet. Please call 0478 268 399 to book, or try again after the site owner connects Vercel KV storage.'
+        });
+      }
       const body = await parseBody(req);
       if (!body.name || !body.email || !body.phone || !body.service || !body.date || !body.time) {
         return send(res, 400, { error: 'Missing required fields' });
       }
-      const bookings = readJSON('bookings.json', []);
+      const bookings = await readJSON('bookings.json', []);
       const booking = Object.assign({}, body, {
         id: 'b' + Date.now(),
         serviceType: body.serviceType || 'shop',
@@ -215,13 +232,13 @@ async function handleRequest(req, res) {
         createdAt: new Date().toISOString()
       });
       bookings.unshift(booking);
-      writeJSON('bookings.json', bookings);
+      await writeJSON('bookings.json', bookings);
       return send(res, 200, { ok: true, id: booking.id });
     }
 
     if (req.method === 'POST' && pathname === '/api/admin/login') {
       const body = await parseBody(req);
-      const admin = readJSON('admin.json');
+      const admin = await readJSON('admin.json');
       if (body.username !== admin.username || !verifyPassword(body.password, admin.passwordHash)) {
         return send(res, 401, { error: 'Invalid username or password' });
       }
@@ -240,41 +257,50 @@ async function handleRequest(req, res) {
       if (!body.newPassword || body.newPassword.length < 8) {
         return send(res, 400, { error: 'New password must be at least 8 characters' });
       }
-      const admin = readJSON('admin.json');
+      const admin = await readJSON('admin.json');
       if (!verifyPassword(body.currentPassword, admin.passwordHash)) {
         return send(res, 401, { error: 'Current password is incorrect' });
       }
       admin.passwordHash = hashPassword(body.newPassword);
-      writeJSON('admin.json', admin);
+      await writeJSON('admin.json', admin);
       return send(res, 200, { ok: true });
     }
 
-    if (req.method === 'GET' && pathname === '/api/admin/settings') return send(res, 200, getSettings());
+    if (req.method === 'GET' && pathname === '/api/admin/settings') {
+      return send(res, 200, await getSettings());
+    }
     if (req.method === 'PUT' && pathname === '/api/admin/settings') {
-      saveSettings(await parseBody(req));
+      await saveSettings(await parseBody(req));
       return send(res, 200, { ok: true });
     }
 
-    if (req.method === 'GET' && pathname === '/api/admin/bookings') return send(res, 200, readJSON('bookings.json', []));
-    if (req.method === 'GET' && pathname === '/api/admin/transactions') return send(res, 200, readJSON('transactions.json', []));
+    if (req.method === 'GET' && pathname === '/api/admin/bookings') {
+      return send(res, 200, await readJSON('bookings.json', []));
+    }
+    if (req.method === 'GET' && pathname === '/api/admin/transactions') {
+      return send(res, 200, await readJSON('transactions.json', []));
+    }
     if (req.method === 'GET' && pathname === '/api/admin/overview') {
-      const bookings = readJSON('bookings.json', []);
+      const bookings = await readJSON('bookings.json', []);
+      const daily = await buildReport('daily');
+      const weekly = await buildReport('weekly');
+      const monthly = await buildReport('monthly');
       return send(res, 200, {
-        daily: buildReport('daily').summary,
-        weekly: buildReport('weekly').summary,
-        monthly: buildReport('monthly').summary,
+        daily: daily.summary,
+        weekly: weekly.summary,
+        monthly: monthly.summary,
         pendingBookings: bookings.filter(function (b) { return b.status === 'pending'; }).length,
         totalBookings: bookings.length
       });
     }
     if (req.method === 'GET' && pathname === '/api/admin/reports') {
-      return send(res, 200, buildReport(searchParams.get('period') || 'daily'));
+      return send(res, 200, await buildReport(searchParams.get('period') || 'daily'));
     }
 
     if (req.method === 'POST' && pathname === '/api/admin/transactions') {
       const body = await parseBody(req);
       if (!body.amount || !body.date) return send(res, 400, { error: 'Amount and date required' });
-      const transactions = readJSON('transactions.json', []);
+      const transactions = await readJSON('transactions.json', []);
       const item = {
         id: 't' + Date.now(),
         date: body.date,
@@ -285,7 +311,7 @@ async function handleRequest(req, res) {
         createdAt: new Date().toISOString()
       };
       transactions.unshift(item);
-      writeJSON('transactions.json', transactions);
+      await writeJSON('transactions.json', transactions);
       return send(res, 200, item);
     }
 
@@ -296,46 +322,48 @@ async function handleRequest(req, res) {
       const name = 'gallery-' + Date.now() + ext;
       const buffer = Buffer.from(body.image.replace(/^data:image\/\w+;base64,/, ''), 'base64');
       fs.writeFileSync(path.join(UPLOADS, name), buffer);
-      const settings = getSettings();
+      const settings = await getSettings();
       const item = { id: 'g' + Date.now(), caption: body.caption || 'Gallery photo', alt: body.alt || body.caption || 'Gallery photo', filename: name };
       settings.gallery.push(item);
-      saveSettings(settings);
+      await saveSettings(settings);
       return send(res, 200, { ok: true, item: Object.assign({}, item, { src: galleryUrl(item) }) });
     }
 
     if (req.method === 'DELETE' && pathname.startsWith('/api/admin/gallery/')) {
       const id = pathname.split('/').pop();
-      const settings = getSettings();
+      const settings = await getSettings();
       const item = settings.gallery.find(function (g) { return g.id === id; });
       if (item && item.filename && !item.filename.endsWith('.svg')) {
         const fp = path.join(UPLOADS, item.filename);
         if (fs.existsSync(fp)) fs.unlinkSync(fp);
       }
       settings.gallery = settings.gallery.filter(function (g) { return g.id !== id; });
-      saveSettings(settings);
+      await saveSettings(settings);
       return send(res, 200, { ok: true });
     }
 
     if (req.method === 'DELETE' && pathname.startsWith('/api/admin/bookings/')) {
       const id = pathname.split('/').pop();
-      writeJSON('bookings.json', readJSON('bookings.json', []).filter(function (b) { return b.id !== id; }));
+      const bookings = await readJSON('bookings.json', []);
+      await writeJSON('bookings.json', bookings.filter(function (b) { return b.id !== id; }));
       return send(res, 200, { ok: true });
     }
 
     if (req.method === 'PATCH' && pathname.startsWith('/api/admin/bookings/')) {
       const id = pathname.split('/').pop();
       const body = await parseBody(req);
-      const bookings = readJSON('bookings.json', []);
+      const bookings = await readJSON('bookings.json', []);
       const idx = bookings.findIndex(function (b) { return b.id === id; });
       if (idx === -1) return send(res, 404, { error: 'Not found' });
       bookings[idx] = Object.assign({}, bookings[idx], body);
-      writeJSON('bookings.json', bookings);
+      await writeJSON('bookings.json', bookings);
       return send(res, 200, bookings[idx]);
     }
 
     if (req.method === 'DELETE' && pathname.startsWith('/api/admin/transactions/')) {
       const id = pathname.split('/').pop();
-      writeJSON('transactions.json', readJSON('transactions.json', []).filter(function (t) { return t.id !== id; }));
+      const transactions = await readJSON('transactions.json', []);
+      await writeJSON('transactions.json', transactions.filter(function (t) { return t.id !== id; }));
       return send(res, 200, { ok: true });
     }
 
