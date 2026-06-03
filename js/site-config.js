@@ -109,7 +109,7 @@
     if (!select || !services) return;
     select.innerHTML = '<option value="">Select a service</option>' +
       services.map(function (s) {
-        return '<option>' + s.name + '</option>';
+        return '<option value="' + s.name.replace(/"/g, '&quot;') + '">' + s.name + '</option>';
       }).join('');
   }
 

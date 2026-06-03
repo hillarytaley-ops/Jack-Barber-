@@ -465,7 +465,7 @@
             <h2 id="book-heading">Book an appointment</h2>
             <p class="booking-intro">Complete the form below. Payment details will be sent once we receive your request.</p>
 
-            <form class="booking-form" id="booking-form" novalidate>
+            <form class="booking-form" id="booking-form">
               <div class="form-row">
                 <label for="name">Full name</label>
                 <input type="text" id="name" name="name" required autocomplete="name">
@@ -497,14 +497,14 @@
                 <label for="service">Service</label>
                 <select id="service" name="service" required>
                   <option value="">Select a service</option>
-                  <option>Afro Cut</option>
-                  <option>Skin Fade</option>
-                  <option>Taper Fade</option>
-                  <option>Scissor Cut</option>
-                  <option>Twists &amp; Retwist</option>
-                  <option>Beard Trim</option>
-                  <option>Blade Line-Up</option>
-                  <option>Hair Design</option>
+                  <option value="Afro Cut">Afro Cut</option>
+                  <option value="Skin Fade">Skin Fade</option>
+                  <option value="Taper Fade">Taper Fade</option>
+                  <option value="Scissor Cut">Scissor Cut</option>
+                  <option value="Twists &amp; Retwist">Twists &amp; Retwist</option>
+                  <option value="Beard Trim">Beard Trim</option>
+                  <option value="Blade Line-Up">Blade Line-Up</option>
+                  <option value="Hair Design">Hair Design</option>
                 </select>
               </div>
 
@@ -529,12 +529,14 @@
                 <span>I understand that payment is required before my appointment and that cancellations made within 30 minutes of the appointment time or no-shows may incur charges.</span>
               </label>
 
+              <p class="booking-error" id="booking-error" hidden role="alert"></p>
+
               <button type="submit" class="btn btn-primary btn-full">Confirm booking request</button>
             </form>
 
             <div class="booking-success" id="booking-success" hidden>
               <h3>Request sent</h3>
-              <p>Your email app should open with your booking details. Full payment is required to confirm your appointment — we will be in touch shortly.</p>
+              <p>Thank you — your booking request has been received. Full payment is required to confirm your appointment. We will contact you shortly with payment details.</p>
               <p class="booking-alt">Prefer to book by phone? <a href="tel:+61478268399" data-config="phone">0478 268 399</a></p>
             </div>
           </div>
