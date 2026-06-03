@@ -61,12 +61,33 @@ async function saveSettings(data) {
 
 function send(res, status, data, type) {
   const body = typeof data === 'string' ? data : JSON.stringify(data);
+  if (typeof res.status === 'function' && typeof res.send === 'function') {
+    res.setHeader('Content-Type', type || 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return res.status(status).send(body);
+  }
   res.writeHead(status, {
     'Content-Type': type || 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   });
   res.end(body);
+}
+
+function sendBinary(res, status, buffer, mimeType) {
+  const headers = {
+    'Content-Type': mimeType,
+    'Cache-Control': 'public, max-age=86400',
+    'Access-Control-Allow-Origin': '*'
+  };
+  if (typeof res.status === 'function' && typeof res.send === 'function') {
+    res.status(status);
+    Object.keys(headers).forEach(function (key) { res.setHeader(key, headers[key]); });
+    return res.send(buffer);
+  }
+  res.writeHead(status, headers);
+  res.end(buffer);
 }
 
 function parseBody(req) {
@@ -221,13 +242,7 @@ async function handleRequest(req, res) {
       }
       const image = await getImage(filename);
       if (!image) return send(res, 404, 'Not found', 'text/plain');
-      res.writeHead(200, {
-        'Content-Type': image.mimeType,
-        'Cache-Control': 'public, max-age=86400',
-        'Access-Control-Allow-Origin': '*'
-      });
-      res.end(image.buffer);
-      return;
+      return sendBinary(res, 200, image.buffer, image.mimeType);
     }
 
     if (req.method === 'POST' && pathname === '/api/bookings') {
@@ -278,7 +293,11 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'GET' && pathname === '/api/admin/settings') {
-      return send(res, 200, await getSettings());
+      const settings = await getSettings();
+      settings.gallery = settings.gallery.map(function (item) {
+        return Object.assign({}, item, { src: galleryUrl(item) });
+      });
+      return send(res, 200, settings);
     }
     if (req.method === 'PUT' && pathname === '/api/admin/settings') {
       await saveSettings(await parseBody(req));
@@ -331,7 +350,7 @@ async function handleRequest(req, res) {
       if (!body.image || !body.filename) return send(res, 400, { error: 'Image data required' });
       const ext = path.extname(body.filename).toLowerCase() || '.jpg';
       const name = 'gallery-' + Date.now() + ext;
-      const buffer = Buffer.from(body.image.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+      const buffer = Buffer.from(body.image.replace(/^data:image\/[^;]+;base64,/, ''), 'base64');
       if (buffer.length > 5 * 1024 * 1024) {
         return send(res, 400, { error: 'Image must be 5 MB or smaller' });
       }

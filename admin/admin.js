@@ -288,9 +288,11 @@
   /* Gallery */
   function renderGalleryAdmin() {
     document.getElementById('gallery-admin-grid').innerHTML = settings.gallery.map(function (item) {
-      var src = item.filename.startsWith('photo-') && item.filename.endsWith('.svg')
-        ? '/assets/gallery/' + item.filename
-        : '/api/gallery/' + encodeURIComponent(item.filename);
+      var src = item.src || (
+        item.filename.startsWith('photo-') && item.filename.endsWith('.svg')
+          ? '/assets/gallery/' + item.filename
+          : '/api/gallery/' + encodeURIComponent(item.filename)
+      );
       return '<figure class="gallery-admin-item">' +
         '<img src="' + src + '" alt="">' +
         '<figcaption>' + item.caption + '</figcaption>' +
