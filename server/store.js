@@ -59,6 +59,34 @@ function blobPath(name) {
   return 'jbs-data/' + name;
 }
 
+const ARRAY_FILES = ['bookings.json', 'transactions.json'];
+
+function normalizeStored(name, data, fallback) {
+  if (data === null || data === undefined) return fallback;
+
+  let value = data;
+  while (typeof value === 'string') {
+    try {
+      value = JSON.parse(value);
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  if (ARRAY_FILES.indexOf(name) !== -1) {
+    return Array.isArray(value) ? value : (Array.isArray(fallback) ? fallback : []);
+  }
+
+  return value;
+}
+
+function needsRepair(name, data, normalized) {
+  if (data === null || data === undefined) return false;
+  if (typeof data === 'string') return true;
+  if (ARRAY_FILES.indexOf(name) !== -1) return !Array.isArray(data);
+  return false;
+}
+
 function readDefaultSync(name, fallback) {
   const source = path.join(DEFAULTS_DIR, name.replace('.json', '.default.json'));
   if (fs.existsSync(source)) {
@@ -112,12 +140,11 @@ async function pgGet(name) {
 
 async function pgSet(name, data) {
   await ensurePg();
-  const json = JSON.stringify(data);
   await sql`
     INSERT INTO jbs_store (file_key, file_data, updated_at)
-    VALUES (${name}, ${json}::jsonb, NOW())
+    VALUES (${name}, ${data}, NOW())
     ON CONFLICT (file_key) DO UPDATE
-    SET file_data = ${json}::jsonb, updated_at = NOW()
+    SET file_data = ${data}, updated_at = NOW()
   `;
 }
 
@@ -184,9 +211,11 @@ async function readJSON(name, fallback) {
     if (data === null || data === undefined) {
       data = readDefaultSync(name, fallback);
       if (data !== undefined && data !== null) await writeJSON(name, data);
-      return data;
+      return normalizeStored(name, data, fallback);
     }
-    return data;
+    const normalized = normalizeStored(name, data, fallback);
+    if (needsRepair(name, data, normalized)) await pgSet(name, normalized);
+    return normalized;
   }
 
   if (hasKv()) {
@@ -194,9 +223,11 @@ async function readJSON(name, fallback) {
     if (data === null || data === undefined) {
       data = readDefaultSync(name, fallback);
       if (data !== undefined && data !== null) await writeJSON(name, data);
-      return data;
+      return normalizeStored(name, data, fallback);
     }
-    return data;
+    const normalized = normalizeStored(name, data, fallback);
+    if (needsRepair(name, data, normalized)) await writeJSON(name, normalized);
+    return normalized;
   }
 
   if (hasBlob()) {
@@ -204,25 +235,29 @@ async function readJSON(name, fallback) {
     if (data === null || data === undefined) {
       data = readDefaultSync(name, fallback);
       if (data !== undefined && data !== null) await writeJSON(name, data);
-      return data;
+      return normalizeStored(name, data, fallback);
     }
     memorySet(name, data);
-    return data;
+    const normalized = normalizeStored(name, data, fallback);
+    if (needsRepair(name, data, normalized)) await writeJSON(name, normalized);
+    return normalized;
   }
 
   const cached = memoryGet(name);
-  if (cached !== null && cached !== undefined) return cached;
+  if (cached !== null && cached !== undefined) {
+    return normalizeStored(name, cached, fallback);
+  }
 
   ensureDefaultsSync();
   try {
     const raw = fs.readFileSync(filePath(name), 'utf8');
     const data = JSON.parse(raw);
     memorySet(name, data);
-    return data;
+    return normalizeStored(name, data, fallback);
   } catch {
     if (fallback !== undefined) {
       await writeJSON(name, fallback);
-      return fallback;
+      return normalizeStored(name, fallback, fallback);
     }
     throw new Error('Missing data file: ' + name);
   }
