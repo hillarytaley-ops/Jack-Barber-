@@ -34,6 +34,8 @@ STEP BY STEP
 
 10. Select project **jack-barber**
 11. Go to **Deployments** tab → latest deployment → **⋯** menu → **Redeploy**
+
+TEST
 ----
 1. Open your live website
 2. Submit a test booking (must pick a **service** from the dropdown)

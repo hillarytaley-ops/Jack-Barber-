@@ -11,7 +11,7 @@ if (process.env.VERCEL) {
   globalThis.__jbsStore = globalThis.__jbsStore || {};
 }
 
-let pgPool = null;
+let sql = null;
 let pgReady = false;
 
 function pgUrl() {
@@ -74,30 +74,31 @@ function ensureDefaultsSync() {
 
 async function ensurePg() {
   if (!hasPg() || pgReady) return;
-  const { Pool } = require('pg');
-  pgPool = new Pool({
-    connectionString: pgUrl(),
-    ssl: pgUrl().includes('localhost') ? false : { rejectUnauthorized: false }
-  });
-  await pgPool.query(
-    'CREATE TABLE IF NOT EXISTS jbs_store (file_key TEXT PRIMARY KEY, file_data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW())'
-  );
+  const { neon } = require('@neondatabase/serverless');
+  sql = neon(pgUrl());
+  await sql`CREATE TABLE IF NOT EXISTS jbs_store (
+    file_key TEXT PRIMARY KEY,
+    file_data JSONB NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+  )`;
   pgReady = true;
 }
 
 async function pgGet(name) {
   await ensurePg();
-  const res = await pgPool.query('SELECT file_data FROM jbs_store WHERE file_key = $1', [name]);
-  return res.rows[0] ? res.rows[0].file_data : null;
+  const rows = await sql`SELECT file_data FROM jbs_store WHERE file_key = ${name}`;
+  return rows[0] ? rows[0].file_data : null;
 }
 
 async function pgSet(name, data) {
   await ensurePg();
-  await pgPool.query(
-    'INSERT INTO jbs_store (file_key, file_data, updated_at) VALUES ($1, $2, NOW()) ' +
-    'ON CONFLICT (file_key) DO UPDATE SET file_data = $2, updated_at = NOW()',
-    [name, data]
-  );
+  const json = JSON.stringify(data);
+  await sql`
+    INSERT INTO jbs_store (file_key, file_data, updated_at)
+    VALUES (${name}, ${json}::jsonb, NOW())
+    ON CONFLICT (file_key) DO UPDATE
+    SET file_data = ${json}::jsonb, updated_at = NOW()
+  `;
 }
 
 async function kvGet(key) {
