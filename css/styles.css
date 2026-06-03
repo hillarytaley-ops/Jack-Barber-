@@ -258,6 +258,23 @@ address {
   color: var(--red);
 }
 
+.site-nav .staff-login-link {
+  font-size: 0.85rem;
+  color: var(--navy);
+  opacity: 0.75;
+  text-decoration: none;
+  border: 1px solid rgba(26, 35, 64, 0.2);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  transition: color var(--transition), border-color var(--transition), opacity var(--transition);
+}
+
+.site-nav .staff-login-link:hover {
+  color: var(--red);
+  opacity: 1;
+  border-color: var(--red);
+}
+
 .nav-toggle {
   display: none;
   flex-direction: column;
@@ -1276,17 +1293,6 @@ address {
   font-size: 0.8rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.staff-login-link {
-  color: rgba(255, 255, 255, 0.45);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  font-size: 0.75rem;
-}
-
-.staff-login-link:hover {
-  color: var(--gold-light);
 }
 
 /* Responsive */
