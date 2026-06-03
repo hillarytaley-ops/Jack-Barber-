@@ -9,8 +9,8 @@ const server = http.createServer(handleRequest);
 if (require.main === module) {
   server.listen(PORT, function () {
     console.log("Jack's Barber Style → http://localhost:" + PORT);
-    console.log('Admin dashboard → http://localhost:' + PORT + '/admin/');
-    console.log('Login: admin / ' + DEFAULT_PASSWORD);
+    console.log('Staff area → http://localhost:' + PORT + '/admin/');
+    console.log('Staff login: admin / ' + DEFAULT_PASSWORD);
   });
 }
 

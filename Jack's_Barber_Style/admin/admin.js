@@ -21,7 +21,7 @@
     return fetch(url, options)
       .catch(function () {
         showServerError();
-        throw new Error('Server is not running. Start START-SERVER.bat first.');
+        throw new Error('Website services are offline. Run START-SERVER.bat on your computer, then refresh.');
       })
       .then(function (r) {
         if (r.status === 401) {
