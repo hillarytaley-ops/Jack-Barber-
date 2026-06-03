@@ -8,6 +8,7 @@
   var success = document.getElementById('booking-success');
   var errorEl = document.getElementById('booking-error');
   var submitBtn = form.querySelector('button[type="submit"]');
+  var bookingPanel = form.closest('.booking-panel');
 
   function toggleHomeFields() {
     var isHome = form.querySelector('input[name="service-type"]:checked');
@@ -44,19 +45,27 @@
   }
 
   function showError(message) {
-    if (!errorEl) return;
-    errorEl.textContent = message;
-    errorEl.hidden = false;
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.hidden = false;
+    }
+    if (success) success.hidden = true;
   }
 
   function clearError() {
-    if (errorEl) errorEl.hidden = true;
+    if (errorEl) {
+      errorEl.textContent = '';
+      errorEl.hidden = true;
+    }
   }
 
   function showSuccess() {
+    clearError();
     form.hidden = true;
+    if (bookingPanel) bookingPanel.classList.add('booking-confirmed');
     if (success) {
       success.hidden = false;
+      success.setAttribute('aria-live', 'polite');
       success.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
@@ -125,25 +134,34 @@
       submitBtn.textContent = 'Sending…';
     }
 
+    var succeeded = false;
+
     fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
       .then(function (r) {
-        return r.json().then(function (data) {
+        return r.text().then(function (text) {
+          var data;
+          try {
+            data = text ? JSON.parse(text) : {};
+          } catch (err) {
+            throw new Error('Could not save your booking. Please call 0478 268 399 to book by phone.');
+          }
           if (!r.ok) throw new Error(data.error || 'Could not save your booking.');
           return data;
         });
       })
       .then(function () {
+        succeeded = true;
         showSuccess();
       })
       .catch(function (err) {
         showError(err.message || 'Something went wrong. Please try again or call 0478 268 399.');
       })
       .finally(function () {
-        if (submitBtn) {
+        if (!succeeded && submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Confirm booking request';
         }

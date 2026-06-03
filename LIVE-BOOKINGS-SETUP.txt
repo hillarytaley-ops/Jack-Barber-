@@ -1,0 +1,25 @@
+ENABLE AUTOMATIC BOOKINGS → STAFF AREA (one-time, ~2 minutes)
+================================================================
+
+After this, every booking on your website is saved and appears in
+Staff area → Client Bookings automatically.
+
+Steps in Vercel:
+1. https://vercel.com/dashboard → open project **jack-barber-rho**
+2. Click **Storage** tab
+3. Click **Create Database** → choose **Postgres** (Neon)
+4. Name it (e.g. jacks-barber-db) → Create
+5. Click **Connect to Project** → select **jack-barber-rho** → Connect
+6. Go to **Deployments** → **Redeploy** the latest deployment
+
+That is all. No email app, no manual copy-paste of bookings.
+
+Test:
+- Submit a booking on the website (pick a service from the dropdown)
+- Sign in to Staff area → Client Bookings → booking should appear
+
+Local PC: use START-SERVER.bat — works without this step.
+
+Staff login: admin / JackStyle2026
+
+Alternative: deploy render.yaml on Render.com (see RENDER-SETUP.txt).

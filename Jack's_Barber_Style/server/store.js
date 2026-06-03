@@ -11,6 +11,17 @@ if (process.env.VERCEL) {
   globalThis.__jbsStore = globalThis.__jbsStore || {};
 }
 
+let pgPool = null;
+let pgReady = false;
+
+function pgUrl() {
+  return process.env.DATABASE_URL || process.env.POSTGRES_URL;
+}
+
+function hasPg() {
+  return !!pgUrl();
+}
+
 function hasKv() {
   return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 }
@@ -56,6 +67,34 @@ function copyDefault(name) {
 function ensureDefaultsSync() {
   ensureDataDir();
   ['settings.json', 'bookings.json', 'transactions.json'].forEach(copyDefault);
+}
+
+async function ensurePg() {
+  if (!hasPg() || pgReady) return;
+  const { Pool } = require('pg');
+  pgPool = new Pool({
+    connectionString: pgUrl(),
+    ssl: pgUrl().includes('localhost') ? false : { rejectUnauthorized: false }
+  });
+  await pgPool.query(
+    'CREATE TABLE IF NOT EXISTS jbs_store (file_key TEXT PRIMARY KEY, file_data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW())'
+  );
+  pgReady = true;
+}
+
+async function pgGet(name) {
+  await ensurePg();
+  const res = await pgPool.query('SELECT file_data FROM jbs_store WHERE file_key = $1', [name]);
+  return res.rows[0] ? res.rows[0].file_data : null;
+}
+
+async function pgSet(name, data) {
+  await ensurePg();
+  await pgPool.query(
+    'INSERT INTO jbs_store (file_key, file_data, updated_at) VALUES ($1, $2, NOW()) ' +
+    'ON CONFLICT (file_key) DO UPDATE SET file_data = $2, updated_at = NOW()',
+    [name, data]
+  );
 }
 
 async function kvGet(key) {
@@ -118,6 +157,16 @@ function memorySet(name, data) {
 }
 
 async function readJSON(name, fallback) {
+  if (hasPg()) {
+    let data = await pgGet(name);
+    if (data === null || data === undefined) {
+      data = readDefaultSync(name, fallback);
+      if (data !== undefined && data !== null) await writeJSON(name, data);
+      return data;
+    }
+    return data;
+  }
+
   if (hasKv()) {
     let data = await kvGet(kvKey(name));
     if (data === null || data === undefined) {
@@ -160,6 +209,11 @@ async function readJSON(name, fallback) {
 async function writeJSON(name, data) {
   memorySet(name, data);
 
+  if (hasPg()) {
+    await pgSet(name, data);
+    return;
+  }
+
   if (hasKv()) {
     await kvSet(kvKey(name), data);
     return;
@@ -175,15 +229,17 @@ async function writeJSON(name, data) {
 }
 
 function hasSharedStorage() {
-  return hasKv() || hasBlob();
+  return hasPg() || hasKv() || hasBlob();
 }
 
 module.exports = {
   readJSON,
   writeJSON,
+  ensurePg,
   DATA_DIR,
   ensureDefaults: ensureDefaultsSync,
   DEFAULTS_DIR,
+  hasPg,
   hasKv,
   hasBlob,
   hasSharedStorage

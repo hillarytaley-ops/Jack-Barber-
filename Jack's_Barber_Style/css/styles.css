@@ -1219,16 +1219,23 @@ address {
 }
 
 .booking-success {
-  padding: 1.5rem;
-  background: rgba(10, 22, 40, 0.05);
+  padding: 1.75rem;
+  margin-top: 0.5rem;
+  background: rgba(34, 120, 70, 0.08);
   border-radius: var(--radius);
-  border-left: 4px solid var(--red);
+  border: 2px solid rgba(34, 120, 70, 0.35);
+  border-left: 6px solid #227846;
+}
+
+.booking-panel.booking-confirmed .booking-intro {
+  display: none;
 }
 
 .booking-success h3 {
   font-family: var(--font-display);
-  color: var(--navy);
+  color: #227846;
   margin-bottom: 0.5rem;
+  font-size: 1.35rem;
 }
 
 .booking-success p {
