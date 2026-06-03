@@ -25,14 +25,15 @@ STEP BY STEP
 
 8. Click **Create** / continue until you see **Connect to Project**
 
-9. Select project **jack-barber**
-   - Enable **Production** (and Preview if you want)
+9. On the connect screen:
+   - **Production** ✓ (required)
+   - **Preview** ✓ (optional, fine to leave on)
+   - **Development** — leave off (local PC uses START-SERVER.bat)
+   - **Custom prefix** — leave EMPTY (do not type STORAGE or anything else)
    - Click **Connect**
 
-10. Go to **Deployments** tab → latest deployment → **⋯** menu → **Redeploy**
-    (Required — the site must redeploy to pick up the database)
-
-TEST
+10. Select project **jack-barber**
+11. Go to **Deployments** tab → latest deployment → **⋯** menu → **Redeploy**
 ----
 1. Open your live website
 2. Submit a test booking (must pick a **service** from the dropdown)

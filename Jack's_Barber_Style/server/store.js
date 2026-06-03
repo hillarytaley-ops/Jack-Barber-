@@ -15,7 +15,10 @@ let pgPool = null;
 let pgReady = false;
 
 function pgUrl() {
-  return process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  return process.env.DATABASE_URL
+    || process.env.POSTGRES_URL
+    || process.env.STORAGE_DATABASE_URL
+    || process.env.STORAGE_POSTGRES_URL;
 }
 
 function hasPg() {
