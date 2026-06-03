@@ -140,12 +140,14 @@ async function pgGet(name) {
 
 async function pgSet(name, data) {
   await ensurePg();
-  await sql`
-    INSERT INTO jbs_store (file_key, file_data, updated_at)
-    VALUES (${name}, ${data}, NOW())
-    ON CONFLICT (file_key) DO UPDATE
-    SET file_data = ${data}, updated_at = NOW()
-  `;
+  const json = JSON.stringify(data);
+  await sql.query(
+    `INSERT INTO jbs_store (file_key, file_data, updated_at)
+     VALUES ($1, $2::jsonb, NOW())
+     ON CONFLICT (file_key) DO UPDATE
+     SET file_data = EXCLUDED.file_data, updated_at = NOW()`,
+    [name, json]
+  );
 }
 
 async function kvGet(key) {
