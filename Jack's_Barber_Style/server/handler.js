@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
-const { readJSON, writeJSON, DATA_DIR, ensureDefaults } = require('./store');
+const { readJSON, writeJSON, DATA_DIR, ensureDefaults, saveImage, getImage, deleteImage } = require('./store');
 const { createSession, verifyToken } = require('./auth-token');
 
 const ROOT = path.join(__dirname, '..');
@@ -105,7 +105,7 @@ function galleryUrl(item) {
   if (item.filename.startsWith('photo-') && item.filename.endsWith('.svg')) {
     return '/assets/gallery/' + item.filename;
   }
-  return '/uploads/gallery/' + item.filename;
+  return '/api/gallery/' + encodeURIComponent(item.filename);
 }
 
 function parsePeriod(period) {
@@ -214,6 +214,22 @@ async function handleRequest(req, res) {
       });
     }
 
+    if (req.method === 'GET' && pathname.startsWith('/api/gallery/')) {
+      const filename = decodeURIComponent(pathname.slice('/api/gallery/'.length));
+      if (!filename || filename.includes('..') || filename.includes('/')) {
+        return send(res, 400, { error: 'Invalid filename' });
+      }
+      const image = await getImage(filename);
+      if (!image) return send(res, 404, 'Not found', 'text/plain');
+      res.writeHead(200, {
+        'Content-Type': image.mimeType,
+        'Cache-Control': 'public, max-age=86400',
+        'Access-Control-Allow-Origin': '*'
+      });
+      res.end(image.buffer);
+      return;
+    }
+
     if (req.method === 'POST' && pathname === '/api/bookings') {
       const body = await parseBody(req);
       if (!body.name || !body.email || !body.phone || !body.service || !body.date || !body.time) {
@@ -316,7 +332,11 @@ async function handleRequest(req, res) {
       const ext = path.extname(body.filename).toLowerCase() || '.jpg';
       const name = 'gallery-' + Date.now() + ext;
       const buffer = Buffer.from(body.image.replace(/^data:image\/\w+;base64,/, ''), 'base64');
-      fs.writeFileSync(path.join(UPLOADS, name), buffer);
+      if (buffer.length > 5 * 1024 * 1024) {
+        return send(res, 400, { error: 'Image must be 5 MB or smaller' });
+      }
+      const mimeType = MIME[ext] || 'image/jpeg';
+      await saveImage(name, buffer, mimeType);
       const settings = await getSettings();
       const item = { id: 'g' + Date.now(), caption: body.caption || 'Gallery photo', alt: body.alt || body.caption || 'Gallery photo', filename: name };
       settings.gallery.push(item);
@@ -329,8 +349,7 @@ async function handleRequest(req, res) {
       const settings = await getSettings();
       const item = settings.gallery.find(function (g) { return g.id === id; });
       if (item && item.filename && !item.filename.endsWith('.svg')) {
-        const fp = path.join(UPLOADS, item.filename);
-        if (fs.existsSync(fp)) fs.unlinkSync(fp);
+        await deleteImage(item.filename);
       }
       settings.gallery = settings.gallery.filter(function (g) { return g.id !== id; });
       await saveSettings(settings);

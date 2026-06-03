@@ -129,6 +129,12 @@ async function ensurePg() {
     file_data JSONB NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW()
   )`;
+  await sql`CREATE TABLE IF NOT EXISTS jbs_images (
+    file_key TEXT PRIMARY KEY,
+    mime_type TEXT NOT NULL,
+    image_data TEXT NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+  )`;
   pgReady = true;
 }
 
@@ -290,15 +296,80 @@ function hasSharedStorage() {
   return !!pgUrl() || hasKv() || hasBlob();
 }
 
+const LOCAL_GALLERY_DIR = path.join(__dirname, '..', 'uploads', 'gallery');
+
+function mimeFromExt(ext) {
+  const map = {
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.webp': 'image/webp',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml'
+  };
+  return map[ext.toLowerCase()] || 'application/octet-stream';
+}
+
+async function saveImage(filename, buffer, mimeType) {
+  if (pgUrl()) {
+    await ensurePg();
+    const base64 = buffer.toString('base64');
+    await sql`
+      INSERT INTO jbs_images (file_key, mime_type, image_data, updated_at)
+      VALUES (${filename}, ${mimeType}, ${base64}, NOW())
+      ON CONFLICT (file_key) DO UPDATE
+      SET mime_type = ${mimeType}, image_data = ${base64}, updated_at = NOW()
+    `;
+    return;
+  }
+
+  if (!fs.existsSync(LOCAL_GALLERY_DIR)) fs.mkdirSync(LOCAL_GALLERY_DIR, { recursive: true });
+  fs.writeFileSync(path.join(LOCAL_GALLERY_DIR, filename), buffer);
+}
+
+async function getImage(filename) {
+  if (pgUrl()) {
+    await ensurePg();
+    const rows = await sql`SELECT mime_type, image_data FROM jbs_images WHERE file_key = ${filename}`;
+    if (!rows[0]) return null;
+    return {
+      mimeType: rows[0].mime_type,
+      buffer: Buffer.from(rows[0].image_data, 'base64')
+    };
+  }
+
+  const fp = path.join(LOCAL_GALLERY_DIR, filename);
+  if (!fs.existsSync(fp)) return null;
+  return {
+    mimeType: mimeFromExt(path.extname(filename)),
+    buffer: fs.readFileSync(fp)
+  };
+}
+
+async function deleteImage(filename) {
+  if (pgUrl()) {
+    await ensurePg();
+    await sql`DELETE FROM jbs_images WHERE file_key = ${filename}`;
+    return;
+  }
+
+  const fp = path.join(LOCAL_GALLERY_DIR, filename);
+  if (fs.existsSync(fp)) fs.unlinkSync(fp);
+}
+
 module.exports = {
   readJSON,
   writeJSON,
   ensurePg,
+  saveImage,
+  getImage,
+  deleteImage,
   DATA_DIR,
   ensureDefaults: ensureDefaultsSync,
   DEFAULTS_DIR,
   hasPg,
   hasKv,
   hasBlob,
-  hasSharedStorage
+  hasSharedStorage,
+  pgUrl
 };
