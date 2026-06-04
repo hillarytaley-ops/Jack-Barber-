@@ -5,12 +5,18 @@ let stripeClient = null;
 function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) return null;
-  if (!stripeClient) stripeClient = require('stripe')(key);
+  if (!stripeClient) {
+    try {
+      stripeClient = require('stripe')(key);
+    } catch (e) {
+      return null;
+    }
+  }
   return stripeClient;
 }
 
 function paymentsEnabled() {
-  return !!process.env.STRIPE_SECRET_KEY;
+  return !!getStripe();
 }
 
 function siteUrl() {

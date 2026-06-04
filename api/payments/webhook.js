@@ -1,6 +1,10 @@
-require('@neondatabase/serverless');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { handleStripeWebhook } = require('../../server/payments');
+
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) return null;
+  return require('stripe')(key);
+}
 
 function rawBody(req) {
   return new Promise(function (resolve, reject) {
@@ -17,6 +21,10 @@ module.exports = async function (req, res) {
   }
 
   try {
+    var stripe = getStripe();
+    if (!stripe) {
+      return res.status(503).json({ error: 'Stripe is not configured' });
+    }
     var buf = await rawBody(req);
     var sig = req.headers['stripe-signature'];
     var secret = process.env.STRIPE_WEBHOOK_SECRET;

@@ -53,7 +53,21 @@ async function ensureReady() {
 }
 
 async function getSettings() {
-  return readJSON('settings.json');
+  const settings = await readJSON('settings.json');
+  if (!settings.homeService) {
+    settings.homeService = {
+      enabled: true,
+      label: 'We Come to You',
+      title: 'Home Service Haircut',
+      travelFee: 15,
+      serviceArea: 'Wodonga and surrounding areas',
+      coverageNote: '',
+      parkingNote: '',
+      minNoticeHours: 24,
+      steps: []
+    };
+  }
+  return settings;
 }
 
 async function saveSettings(data) {
@@ -288,16 +302,25 @@ async function handleRequest(req, res) {
       if (paymentsEnabled()) {
         try {
           const session = await createCheckoutSession(booking, settings);
-          booking.stripeSessionId = session.id;
-          bookings[0] = booking;
-          await writeJSON('bookings.json', bookings);
-          return send(res, 200, { ok: true, id: booking.id, checkoutUrl: session.url, amount: price });
+          if (session && session.url) {
+            booking.stripeSessionId = session.id;
+            bookings[0] = booking;
+            await writeJSON('bookings.json', bookings);
+            return send(res, 200, { ok: true, id: booking.id, checkoutUrl: session.url, amount: price });
+          }
         } catch (e) {
-          return send(res, 500, { error: e.message });
+          /* booking is saved — payment can be arranged manually */
         }
       }
 
-      return send(res, 200, { ok: true, id: booking.id, amount: price });
+      return send(res, 200, {
+        ok: true,
+        id: booking.id,
+        amount: price,
+        message: serviceType === 'home'
+          ? 'Your home service request was received. We will contact you to confirm payment and arrival time.'
+          : 'Your booking request was received. We will contact you shortly with payment details.'
+      });
     }
 
     if (req.method === 'POST' && pathname === '/api/payments/checkout') {

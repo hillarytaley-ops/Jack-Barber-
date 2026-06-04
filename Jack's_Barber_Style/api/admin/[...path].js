@@ -1,4 +1,3 @@
-require('@neondatabase/serverless');
 const { handleRequest } = require('../../server/handler');
 
 function apiPath(req) {

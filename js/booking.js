@@ -221,6 +221,9 @@
           try {
             data = text ? JSON.parse(text) : {};
           } catch (err) {
+            if (text && text.indexOf('FUNCTION_INVOCATION_FAILED') !== -1) {
+              throw new Error('Our booking system is temporarily down. Please call 0478 268 399 to book by phone.');
+            }
             throw new Error('Could not save your booking. Please call 0478 268 399 to book by phone.');
           }
           if (!r.ok) throw new Error(data.error || 'Could not save your booking.');
@@ -235,7 +238,7 @@
         succeeded = true;
         showSuccess(
           'Request sent',
-          'Thank you — your booking request has been received. We will contact you shortly with payment details.'
+          data.message || 'Thank you — your booking request has been received. We will contact you shortly with payment details.'
         );
       })
       .catch(function (err) {

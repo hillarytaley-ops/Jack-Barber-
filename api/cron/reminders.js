@@ -1,4 +1,3 @@
-require('@neondatabase/serverless');
 const { processReminders } = require('../../server/reminders');
 
 module.exports = async function (req, res) {
