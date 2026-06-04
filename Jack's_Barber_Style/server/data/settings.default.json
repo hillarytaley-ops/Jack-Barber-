@@ -55,5 +55,22 @@
     { "id": "g4", "caption": "Hair Design", "filename": "photo-4.svg", "alt": "Custom hair design" },
     { "id": "g5", "caption": "Beard Trim", "filename": "photo-5.svg", "alt": "Beard trim and shape" },
     { "id": "g6", "caption": "The Shop", "filename": "photo-6.svg", "alt": "Inside Jack's Barber Style shop" }
-  ]
+  ],
+  "homeService": {
+    "enabled": true,
+    "label": "We Come to You",
+    "title": "Home Service Haircut",
+    "lead": "Enjoy professional grooming from the comfort of your home. Select Home Service when booking, choose your date and time, and we'll come to you.",
+    "steps": [
+      "Select Home Service on the booking form",
+      "Choose your service, date, and time",
+      "Enter your home address and confirm payment terms",
+      "We'll arrive at your scheduled appointment"
+    ],
+    "travelFee": 15,
+    "serviceArea": "Wodonga and surrounding areas (within 15 km of the shop)",
+    "coverageNote": "A travel fee applies to all home service bookings. Extra charges may apply for locations outside our standard service area.",
+    "parkingNote": "Please ensure parking is available at your address. Paid parking costs may be added to your booking where required.",
+    "minNoticeHours": 24
+  }
 }
