@@ -65,6 +65,7 @@
 
     renderServices(cfg.services);
     renderGallery(cfg.gallery);
+    renderHomeService(cfg.homeService);
     populateServiceSelect(cfg.services);
 
     window.__siteConfig = cfg;
@@ -102,6 +103,44 @@
         '<img src="' + item.src + '" alt="' + item.alt + '" loading="lazy">' +
         '</button><figcaption>' + item.caption + '</figcaption></figure>';
     }).join('');
+  }
+
+  function renderHomeService(hs) {
+    var section = document.getElementById('home-service');
+    if (!section || !hs) return;
+
+    if (hs.enabled === false) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+
+    var label = document.getElementById('home-service-label');
+    var heading = document.getElementById('home-service-heading');
+    var lead = document.getElementById('home-service-lead');
+    var stepsEl = document.getElementById('home-service-steps');
+    var info = document.getElementById('home-service-info');
+    var coverage = document.getElementById('home-service-coverage');
+
+    if (label && hs.label) label.textContent = hs.label;
+    if (heading && hs.title) heading.textContent = hs.title;
+    if (lead && hs.lead) lead.textContent = hs.lead;
+
+    if (stepsEl && hs.steps && hs.steps.length) {
+      stepsEl.innerHTML = hs.steps.map(function (step, i) {
+        return '<li><span class="home-step-num">' + (i + 1) + '</span> ' + step + '</li>';
+      }).join('');
+    }
+
+    if (info) {
+      var fee = Number(hs.travelFee) || 0;
+      info.innerHTML =
+        '<div class="home-info-item"><strong>Travel fee</strong><span>$' + fee + ' added to every home visit</span></div>' +
+        '<div class="home-info-item"><strong>Service area</strong><span>' + (hs.serviceArea || 'Wodonga area') + '</span></div>' +
+        '<div class="home-info-item"><strong>Parking</strong><span>' + (hs.parkingNote || '') + '</span></div>';
+    }
+
+    if (coverage && hs.coverageNote) coverage.textContent = hs.coverageNote;
   }
 
   function populateServiceSelect(services) {

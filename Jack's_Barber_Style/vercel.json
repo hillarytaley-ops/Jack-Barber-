@@ -1,5 +1,11 @@
 {
   "installCommand": "npm install && npm install --prefix api",
+  "crons": [
+    {
+      "path": "/api/cron/reminders",
+      "schedule": "*/15 * * * *"
+    }
+  ],
   "functions": {
     "api/**/*.js": {
       "maxDuration": 10,

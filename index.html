@@ -251,21 +251,26 @@
       <div class="pattern-divider" aria-hidden="true"></div>
       <div class="container">
         <div class="section-header">
-          <span class="section-label">We Come to You</span>
+          <span class="section-label" id="home-service-label">We Come to You</span>
           <h2 id="home-service-heading">Home Service Haircut</h2>
         </div>
         <div class="home-service-card">
-          <p class="home-service-lead">
+          <p class="home-service-lead" id="home-service-lead">
             Enjoy professional grooming from the comfort of your home. Simply select
             <strong>Home Service</strong> when booking your appointment, choose your preferred
             date and time, and we'll come to you.
           </p>
-          <ol class="home-steps">
+          <ol class="home-steps" id="home-service-steps">
             <li>Select <strong>Home Service</strong> on the booking form</li>
             <li>Choose your service, date, and time</li>
             <li>Enter your home address and confirm payment terms</li>
             <li>We'll arrive at your scheduled appointment</li>
           </ol>
+          <div class="home-service-info" id="home-service-info"></div>
+          <div class="home-service-actions">
+            <a class="btn btn-primary" href="#book?home=1" id="home-service-book-btn">Book home service</a>
+            <p class="home-service-note" id="home-service-coverage"></p>
+          </div>
         </div>
       </div>
     </section>
@@ -463,7 +468,7 @@
 
           <div class="booking-panel">
             <h2 id="book-heading">Book an appointment</h2>
-            <p class="booking-intro">Complete the form below. Payment details will be sent once we receive your request.</p>
+            <p class="booking-intro">Complete the form below, then pay securely by Visa, Mastercard, or other credit/debit card.</p>
 
             <form class="booking-form" id="booking-form">
               <div class="form-row">
@@ -522,6 +527,7 @@
               <div class="form-row home-fields" id="home-fields" hidden>
                 <label for="address">Home address</label>
                 <textarea id="address" name="address" rows="3" placeholder="Street address, suburb, postcode"></textarea>
+                <p class="home-fee-note" id="home-fee-note" hidden></p>
               </div>
 
               <label class="checkbox-label">
@@ -531,12 +537,13 @@
 
               <p class="booking-error" id="booking-error" hidden role="alert"></p>
 
-              <button type="submit" class="btn btn-primary btn-full">Confirm booking request</button>
+              <button type="submit" class="btn btn-primary btn-full">Continue to secure card payment</button>
             </form>
 
             <div class="booking-success" id="booking-success" hidden>
-              <h3>Request sent</h3>
-              <p>Thank you — your booking request has been received. Full payment is required to confirm your appointment. We will contact you shortly with payment details.</p>
+              <h3 id="booking-success-title">Request sent</h3>
+              <p id="booking-success-text">Thank you — your booking request has been received. Full payment is required to confirm your appointment.</p>
+              <button type="button" class="btn btn-primary btn-full" id="booking-pay-again" hidden>Pay now with card</button>
               <p class="booking-alt">Prefer to book by phone? <a href="tel:+61478268399" data-config="phone">0478 268 399</a></p>
             </div>
           </div>

@@ -72,6 +72,7 @@
       renderContentForm();
       renderHoursEditor();
       renderServicesEditor();
+      renderHomeServiceEditor();
       renderGalleryAdmin();
       renderClosedDates();
     });
@@ -285,6 +286,42 @@
       });
   });
 
+  /* Home Service */
+  function renderHomeServiceEditor() {
+    var hs = settings.homeService || {};
+    var steps = (hs.steps || []).join('\n');
+    document.getElementById('home-service-form').innerHTML =
+      '<label><input type="checkbox" id="hs-enabled" ' + (hs.enabled !== false ? 'checked' : '') + '> Home service available for booking</label>' +
+      field('hs-label', 'Section label', hs.label || 'We Come to You') +
+      field('hs-title', 'Heading', hs.title || 'Home Service Haircut') +
+      field('hs-lead', 'Introduction', hs.lead || '', true) +
+      '<label for="hs-steps">Steps (one per line)</label><textarea id="hs-steps" rows="5">' + steps + '</textarea>' +
+      field('hs-travelFee', 'Travel fee ($)', hs.travelFee != null ? hs.travelFee : 15) +
+      field('hs-serviceArea', 'Service area', hs.serviceArea || '') +
+      field('hs-coverageNote', 'Coverage note', hs.coverageNote || '', true) +
+      field('hs-parkingNote', 'Parking note', hs.parkingNote || '', true) +
+      field('hs-minNoticeHours', 'Minimum notice (hours)', hs.minNoticeHours != null ? hs.minNoticeHours : 24);
+  }
+
+  document.getElementById('save-home-service-btn').addEventListener('click', function () {
+    settings.homeService = {
+      enabled: document.getElementById('hs-enabled').checked,
+      label: val('hs-label'),
+      title: val('hs-title'),
+      lead: val('hs-lead'),
+      steps: val('hs-steps').split('\n').map(function (s) { return s.trim(); }).filter(Boolean),
+      travelFee: Number(val('hs-travelFee')) || 0,
+      serviceArea: val('hs-serviceArea'),
+      coverageNote: val('hs-coverageNote'),
+      parkingNote: val('hs-parkingNote'),
+      minNoticeHours: Number(val('hs-minNoticeHours')) || 24
+    };
+    api('/api/admin/settings', { method: 'PUT', body: JSON.stringify(settings) })
+      .then(function () {
+        alert('Home service settings saved. Refresh the public site to see changes.');
+      });
+  });
+
   /* Gallery */
   function renderGalleryAdmin() {
     document.getElementById('gallery-admin-grid').innerHTML = settings.gallery.map(function (item) {
@@ -336,19 +373,27 @@
   function loadBookings() {
     api('/api/admin/bookings').then(function (rows) {
       document.querySelector('#bookings-table tbody').innerHTML = rows.map(function (b) {
+        var payment = b.paymentStatus === 'paid'
+          ? 'Paid' + (b.amount ? ' ($' + b.amount + ')' : '')
+          : (b.paymentStatus || 'unpaid');
+        var location = b.serviceType === 'home'
+          ? (b.address || '—') + (b.travelFee ? '<br><small>Travel fee: $' + b.travelFee + '</small>' : '')
+          : '47 O\'Meara St (in-shop)';
         return '<tr>' +
           '<td>' + fmtDate(b.createdAt) + '</td>' +
           '<td><strong>' + b.name + '</strong></td>' +
           '<td>' + b.phone + '<br>' + b.email + '</td>' +
-          '<td>' + b.service + '<br><small>' + (b.serviceType === 'home' ? 'Home' : 'In-shop') + '</small></td>' +
+          '<td>' + b.service + '<br><small>' + (b.serviceType === 'home' ? 'Home visit' : 'In-shop') + '</small></td>' +
+          '<td>' + location + '</td>' +
           '<td>' + b.date + ' ' + b.time + '</td>' +
+          '<td>' + payment + '</td>' +
           '<td><select class="status-select" data-id="' + b.id + '">' +
           ['pending', 'confirmed', 'completed', 'cancelled'].map(function (s) {
             return '<option value="' + s + '" ' + (b.status === s ? 'selected' : '') + '>' + s + '</option>';
           }).join('') + '</select></td>' +
           '<td><button type="button" class="btn btn-danger btn-sm del-booking" data-id="' + b.id + '">Delete</button></td>' +
           '</tr>';
-      }).join('') || '<tr><td colspan="7">No bookings yet</td></tr>';
+      }).join('') || '<tr><td colspan="9">No bookings yet</td></tr>';
 
       document.querySelectorAll('.status-select').forEach(function (sel) {
         sel.addEventListener('change', function () {

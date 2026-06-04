@@ -1055,6 +1055,79 @@ address {
   color: var(--navy);
 }
 
+.home-steps .home-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.35rem;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--gold-light);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.home-service-info {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px) {
+  .home-service-info {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.home-info-item {
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  border: 1px solid rgba(26, 35, 64, 0.08);
+}
+
+.home-info-item strong {
+  display: block;
+  color: var(--navy);
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.home-info-item span {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.home-service-actions {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.home-service-note {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.home-fee-note {
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  background: #fef9e7;
+  border: 1px solid #f0d878;
+  border-radius: var(--radius-sm);
+  color: #7a5c00;
+  font-size: 0.9rem;
+}
+
+.radio-label.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Booking */
 .booking-layout {
   display: grid;

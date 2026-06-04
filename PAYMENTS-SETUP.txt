@@ -1,0 +1,65 @@
+CARD PAYMENTS — Jack's Barber Style
+====================================
+
+Clients pay by Visa, Mastercard, and other credit/debit cards at booking time
+using Stripe (secure checkout — card details never touch your website).
+
+STEP 1 — CREATE STRIPE ACCOUNT
+------------------------------
+1. Go to https://dashboard.stripe.com/register
+2. Complete business details for Jack's Barber Style (Australia)
+3. In Stripe Dashboard → **Developers** → **API keys**
+4. Copy:
+   - **Secret key** (starts with sk_test_ for testing, sk_live_ for live)
+   - **Publishable key** (optional — not needed for redirect checkout)
+
+STEP 2 — ADD KEYS TO VERCEL
+---------------------------
+1. Open https://vercel.com/dashboard → project **jack-barber**
+2. **Settings** → **Environment Variables**
+3. Add:
+
+   STRIPE_SECRET_KEY = sk_test_... (or sk_live_... when ready for real payments)
+   SITE_URL = https://jack-barber-rho.vercel.app
+
+4. Redeploy after saving.
+
+STEP 3 — WEBHOOK (required to confirm paid bookings)
+--------------------------------------------------
+1. Stripe Dashboard → **Developers** → **Webhooks** → **Add endpoint**
+2. Endpoint URL:
+   https://jack-barber-rho.vercel.app/api/payments/webhook
+3. Select event: **checkout.session.completed**
+4. Click **Add endpoint**
+5. Copy the **Signing secret** (starts with whsec_)
+6. Add to Vercel Environment Variables:
+   STRIPE_WEBHOOK_SECRET = whsec_...
+7. Redeploy again.
+
+HOW IT WORKS
+------------
+1. Client fills in the booking form
+2. They are redirected to Stripe to pay by card (AUD)
+3. Price comes from your **Services** list in Staff area
+4. After successful payment:
+   - Booking status → **Confirmed**
+   - Payment recorded in **Finances**
+   - Reminder emails/SMS can send (if configured)
+5. If they cancel payment, they can click **Pay now with card** to try again
+
+TEST CARDS (Stripe test mode)
+-----------------------------
+- Visa: 4242 4242 4242 4242
+- Any future expiry, any CVC, any name
+
+GO LIVE
+-------
+1. Complete Stripe account verification
+2. Switch STRIPE_SECRET_KEY to **live** key (sk_live_...)
+3. Create a new webhook endpoint for live mode with the same URL
+4. Update STRIPE_WEBHOOK_SECRET with the live signing secret
+5. Redeploy
+
+LOCAL PC
+--------
+Without STRIPE_SECRET_KEY, bookings work as before (no online payment).

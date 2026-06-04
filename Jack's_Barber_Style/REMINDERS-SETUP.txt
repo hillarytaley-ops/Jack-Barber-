@@ -1,0 +1,53 @@
+APPOINTMENT REMINDERS — Jack's Barber Style
+===========================================
+
+Clients get reminders when a booking is set to **Confirmed** in Staff area:
+- **24 hours before** the appointment (email + optional SMS)
+- **1 hour before** the appointment (email + optional SMS)
+
+STEP 1 — EMAIL (required, free tier available)
+----------------------------------------------
+1. Create a free account at https://resend.com
+2. Copy your **API Key**
+3. In Vercel → jack-barber → **Settings** → **Environment Variables**, add:
+   - Name: RESEND_API_KEY
+   - Value: your Resend API key
+   - Environment: Production ✓
+
+4. Optional — custom sender (after verifying your domain in Resend):
+   - Name: REMINDER_FROM_EMAIL
+   - Value: Jack's Barber Style <bookings@yourdomain.com>
+
+   Without this, Resend uses onboarding@resend.dev (fine for testing).
+
+STEP 2 — SMS (optional, paid Twilio account)
+--------------------------------------------
+1. Create account at https://twilio.com
+2. Buy an Australian SMS-capable phone number
+3. Add these in Vercel Environment Variables:
+   - TWILIO_ACCOUNT_SID
+   - TWILIO_AUTH_TOKEN
+   - TWILIO_PHONE_NUMBER  (e.g. +614XXXXXXXX)
+
+STEP 3 — CRON SECURITY (recommended)
+------------------------------------
+1. In Vercel → Environment Variables, add:
+   - Name: CRON_SECRET
+   - Value: any long random password you make up
+   - Environment: Production ✓
+
+2. Redeploy the site after adding variables.
+
+HOW IT WORKS
+------------
+- Vercel runs a check every 15 minutes
+- Only **Confirmed** bookings get reminders (not Pending or Cancelled)
+- After payment, open Staff area → Client Bookings → change status to **Confirmed**
+- Reminders use Melbourne time (Wodonga)
+
+TEST
+----
+1. Create a test booking on the live site
+2. In Staff area, set it to **Confirmed** with date/time about 24 hours ahead
+3. Wait for the cron job (or redeploy after setup)
+4. Client should receive email at the address they entered on the form

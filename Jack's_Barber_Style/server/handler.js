@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { URL } = require('url');
 const { readJSON, writeJSON, DATA_DIR, ensureDefaults, saveImage, getImage, deleteImage } = require('./store');
 const { createSession, verifyToken } = require('./auth-token');
+const { paymentsEnabled, createCheckoutSession, getServicePrice, getBookingTotal, getTravelFee } = require('./payments');
 
 const ROOT = path.join(__dirname, '..');
 const UPLOADS = process.env.VERCEL
@@ -231,7 +232,9 @@ async function handleRequest(req, res) {
         gallery: settings.gallery.map(function (item) {
           return { id: item.id, caption: item.caption, alt: item.alt, src: galleryUrl(item) };
         }),
-        closedDates: settings.hours.closedDates || []
+        closedDates: settings.hours.closedDates || [],
+        paymentsEnabled: paymentsEnabled(),
+        homeService: settings.homeService || {}
       });
     }
 
@@ -250,16 +253,70 @@ async function handleRequest(req, res) {
       if (!body.name || !body.email || !body.phone || !body.service || !body.date || !body.time) {
         return send(res, 400, { error: 'Missing required fields' });
       }
+      const settings = await getSettings();
+      const serviceType = body.serviceType || 'shop';
+      const hs = settings.homeService || {};
+
+      if (serviceType === 'home') {
+        if (hs.enabled === false) {
+          return send(res, 400, { error: 'Home service is not available at the moment. Please call us to book.' });
+        }
+        if (!body.address || !String(body.address).trim()) {
+          return send(res, 400, { error: 'Home address is required for home service bookings.' });
+        }
+      }
+
+      const travelFee = getTravelFee(settings, serviceType);
+      const price = getServicePrice(settings, body.service) + travelFee;
+      if (price <= 0) {
+        return send(res, 400, { error: 'Could not find a price for this service.' });
+      }
+
       const bookings = await readJSON('bookings.json', []);
       const booking = Object.assign({}, body, {
         id: 'b' + Date.now(),
-        serviceType: body.serviceType || 'shop',
+        serviceType: serviceType,
         status: 'pending',
+        paymentStatus: 'unpaid',
+        travelFee: travelFee,
+        amount: price,
         createdAt: new Date().toISOString()
       });
       bookings.unshift(booking);
       await writeJSON('bookings.json', bookings);
-      return send(res, 200, { ok: true, id: booking.id });
+
+      if (paymentsEnabled()) {
+        try {
+          const session = await createCheckoutSession(booking, settings);
+          booking.stripeSessionId = session.id;
+          bookings[0] = booking;
+          await writeJSON('bookings.json', bookings);
+          return send(res, 200, { ok: true, id: booking.id, checkoutUrl: session.url, amount: price });
+        } catch (e) {
+          return send(res, 500, { error: e.message });
+        }
+      }
+
+      return send(res, 200, { ok: true, id: booking.id, amount: price });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/payments/checkout') {
+      const body = await parseBody(req);
+      if (!body.bookingId) return send(res, 400, { error: 'Booking ID required' });
+      if (!paymentsEnabled()) return send(res, 503, { error: 'Online payments are not configured yet.' });
+
+      const bookings = await readJSON('bookings.json', []);
+      const booking = bookings.find(function (b) { return b.id === body.bookingId; });
+      if (!booking) return send(res, 404, { error: 'Booking not found' });
+      if (booking.paymentStatus === 'paid') return send(res, 400, { error: 'This booking is already paid' });
+
+      try {
+        const settings = await getSettings();
+        const session = await createCheckoutSession(booking, settings);
+        return send(res, 200, { checkoutUrl: session.url });
+      } catch (e) {
+        return send(res, 500, { error: e.message });
+      }
     }
 
     if (req.method === 'POST' && pathname === '/api/admin/login') {
