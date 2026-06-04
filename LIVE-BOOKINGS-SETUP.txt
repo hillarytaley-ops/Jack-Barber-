@@ -6,6 +6,12 @@ Staff area → Client Bookings.
 
 YOU ARE USING: Neon (Serverless Postgres) — free plan is enough.
 
+STEP 0 — VERCEL ROOT DIRECTORY (important)
+------------------------------------------
+In Vercel → jack-barber → Settings → General → Root Directory:
+Leave this **empty** (do NOT set Jack's_Barber_Style).
+The website files live at the repository root (api/, server/, index.html).
+
 STEP BY STEP
 ------------
 1. Open https://vercel.com/dashboard
