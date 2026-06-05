@@ -68,11 +68,14 @@
 
   const staggerParents = [
     '.roots-features',
+    '.roots-pillars',
+    '.services-menu',
     '.services-grid',
     '.gallery-grid',
     '.process-steps',
     '.extras-grid',
-    '.faq-list'
+    '.faq-list',
+    '.voice-strip'
   ];
 
   document.querySelectorAll('.section-header').forEach(function (el) {
@@ -88,8 +91,8 @@
   });
 
   document.querySelectorAll(
-    '.feature-card, .service-card, .gallery-item, .home-service-card, ' +
-    '.process-step, .extra-card, .faq-item, .visit-info, .visit-map, .policy-panel, .booking-panel'
+    '.feature-card, .service-card, .service-row, .gallery-item, .home-service-card, ' +
+    '.process-step, .extra-card, .faq-item, .voice-card, .visit-info, .visit-map, .policy-panel, .booking-panel'
   ).forEach(function (el) {
     el.classList.add('reveal');
 

@@ -76,21 +76,32 @@
     var grid = document.querySelector('.services-grid');
     if (!grid || !services) return;
 
-    grid.innerHTML = services.map(function (s) {
-      if (s.featured) {
-        return '<article class="service-card service-featured">' +
-          '<span class="service-badge">Signature</span>' +
-          '<h3>' + s.name + '</h3>' +
-          '<p class="service-desc">' + s.description + '</p>' +
-          '<p class="service-price">From <strong>$' + s.price + '</strong></p>' +
-          '<a class="btn btn-primary btn-sm" href="#book">Book ' + s.name + '</a></article>';
-      }
-      return '<article class="service-card">' +
+    var featured = services.filter(function (s) { return s.featured; });
+    var standard = services.filter(function (s) { return !s.featured; });
+
+    var featuredHtml = featured.map(function (s) {
+      return '<article class="service-card service-featured">' +
+        '<span class="service-badge">Signature</span>' +
         '<h3>' + s.name + '</h3>' +
         '<p class="service-desc">' + s.description + '</p>' +
-        '<p class="service-meta">' + s.duration + ' min · From <strong>$' + s.price + '</strong></p>' +
-        '<a class="btn btn-outline-light btn-sm" href="#book">Book</a></article>';
+        '<p class="service-price">From <strong>$' + s.price + '</strong></p>' +
+        '<a class="btn btn-primary btn-sm" href="#book">Book ' + s.name + '</a></article>';
     }).join('');
+
+    var menuHtml = standard.map(function (s) {
+      return '<article class="service-row">' +
+        '<div class="service-row-main">' +
+        '<h3>' + s.name + '</h3>' +
+        '<p>' + s.description + '</p>' +
+        '</div>' +
+        '<span class="service-row-meta">' + s.duration + ' min</span>' +
+        '<span class="service-row-price">From <strong>$' + s.price + '</strong></span>' +
+        '<a class="btn btn-outline-light btn-sm" href="#book">Book</a>' +
+        '</article>';
+    }).join('');
+
+    grid.innerHTML = featuredHtml +
+      (menuHtml ? '<div class="services-menu">' + menuHtml + '</div>' : '');
   }
 
   function renderGallery(items) {
@@ -101,7 +112,8 @@
       return '<figure class="gallery-item">' +
         '<button type="button" class="gallery-trigger">' +
         '<img src="' + item.src + '" alt="' + item.alt + '" loading="lazy">' +
-        '</button><figcaption>' + item.caption + '</figcaption></figure>';
+        '<span class="gallery-tag">' + item.caption + '</span>' +
+        '</button></figure>';
     }).join('');
   }
 
