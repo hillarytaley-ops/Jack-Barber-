@@ -1588,7 +1588,58 @@ address {
   }
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 769px) {
+  .nav-toggle {
+    display: none;
+  }
+
+  .nav-overlay {
+    display: none !important;
+  }
+
+  .site-nav {
+    position: static;
+    inset: auto;
+    width: auto;
+    padding: 0;
+    transform: none;
+    visibility: visible;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+    z-index: auto;
+  }
+
+  .site-nav ul {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.65rem 1.15rem;
+  }
+
+  .site-nav .btn-nav {
+    width: auto;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1199px) {
+  .site-nav a:not(.btn) {
+    font-size: 0.82rem;
+  }
+
+  .site-nav .staff-login-link {
+    font-size: 0.78rem;
+    padding: 0.3rem 0.65rem;
+  }
+
+  .site-nav .btn-nav {
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
   .nav-toggle {
     display: flex;
   }
