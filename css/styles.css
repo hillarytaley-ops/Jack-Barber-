@@ -345,7 +345,10 @@ address {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("../assets/hero-barber.png") 15% center / cover no-repeat;
+  background-image: url("../assets/hero-barber.png");
+  background-position: 20% center;
+  background-size: 86%;
+  background-repeat: no-repeat;
   opacity: 0.82;
   pointer-events: none;
   z-index: 0;
@@ -1021,7 +1024,8 @@ body.policy-modal-open {
 
 @media (max-width: 900px) {
   .hero::after {
-    background-position: center 25%;
+    background-position: center 30%;
+    background-size: 94%;
     opacity: 0.76;
   }
 
@@ -1172,7 +1176,8 @@ body.policy-modal-open {
   }
 
   .hero::after {
-    background-position: center top;
+    background-position: center 35%;
+    background-size: 100%;
     opacity: 0.72;
   }
 
