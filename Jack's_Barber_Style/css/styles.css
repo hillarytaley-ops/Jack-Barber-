@@ -1179,10 +1179,6 @@ body.policy-modal-open {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .visit-map {
-    max-height: 180px;
-  }
-
   .site-footer-main {
     padding-bottom: 1rem;
   }
