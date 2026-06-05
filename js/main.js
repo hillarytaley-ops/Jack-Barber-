@@ -61,6 +61,11 @@
     return;
   }
 
+  /* Scroll animations off on phones/tablets — keeps layout stable on mobile */
+  if (window.matchMedia('(max-width: 1024px)').matches) {
+    return;
+  }
+
   const staggerParents = [
     '.roots-features',
     '.services-grid',

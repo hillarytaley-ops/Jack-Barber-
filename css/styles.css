@@ -83,13 +83,17 @@ address {
 }
 
 .container {
-  width: min(1120px, 92vw);
+  width: 100%;
+  max-width: 1120px;
   margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2rem);
 }
 
 .container-narrow {
-  width: min(720px, 92vw);
+  width: 100%;
+  max-width: 720px;
   margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2rem);
 }
 
 /* Kente-inspired stripe pattern */
@@ -218,12 +222,15 @@ address {
 }
 
 .header-inner {
-  width: min(1120px, 92vw);
+  width: 100%;
+  max-width: 1120px;
   margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 0;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
   gap: 1rem;
 }
 
@@ -340,13 +347,16 @@ address {
 .hero-inner {
   position: relative;
   z-index: 2;
-  width: min(1120px, 92vw);
+  width: 100%;
+  max-width: 1120px;
   margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2rem);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
   align-items: center;
-  padding: 4rem 0 3.5rem;
+  padding-top: 4rem;
+  padding-bottom: 3.5rem;
 }
 
 .hero > .kente-strip {
@@ -643,7 +653,7 @@ address {
 
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
 }
 
@@ -1614,10 +1624,12 @@ address {
     box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
     z-index: 200;
     overflow-y: auto;
+    visibility: hidden;
   }
 
   .site-nav.is-open {
     transform: translateX(0);
+    visibility: visible;
   }
 
   .site-nav ul {
@@ -1646,11 +1658,11 @@ address {
   }
 
   .hero-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     text-align: center;
     gap: 2rem;
-    padding: 2.5rem 0 2rem;
-    width: min(1120px, 94vw);
+    padding-top: 2.5rem;
+    padding-bottom: 2rem;
   }
 
   .hero-content {
@@ -1710,28 +1722,25 @@ address {
   }
 
   .services-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .service-featured {
-    grid-column: span 2;
-    grid-row: span 1;
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .extras-grid,
+  .gallery-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .process-steps {
-    grid-template-columns: 1fr;
-  }
-
-  .extras-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .booking-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .visit-map iframe {
@@ -1739,21 +1748,84 @@ address {
   }
 }
 
-@media (max-width: 640px) {
-  .container,
-  .container-narrow,
-  .header-inner {
-    width: min(1120px, 94vw);
+/* Phone — single column everything, no horizontal scroll */
+@media (max-width: 767px) {
+  .reveal,
+  .reveal-left,
+  .reveal-right {
+    transform: none;
+    transition: none;
   }
 
+  .roots-grid,
+  .visit-grid,
+  .services-grid,
+  .gallery-grid,
+  .extras-grid,
+  .process-steps,
+  .booking-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .service-featured,
+  .service-card {
+    grid-column: 1;
+    grid-row: auto;
+    min-height: 0;
+  }
+
+  .service-featured {
+    padding: 1.75rem;
+  }
+
+  .section-header-left {
+    text-align: center;
+  }
+
+  .home-service-info {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-service-actions .btn,
+  .service-card .btn,
+  .booking-form button[type="submit"] {
+    width: 100%;
+    min-height: 2.85rem;
+  }
+
+  .form-row-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    font-size: 16px;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .footer-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 640px) {
   .section {
     padding: 3.25rem 0;
   }
 
   .header-inner {
-    padding: 0.65rem 0;
-    padding-left: max(0px, env(safe-area-inset-left));
-    padding-right: max(0px, env(safe-area-inset-right));
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .site-nav {
@@ -1775,9 +1847,9 @@ address {
   }
 
   .hero-inner {
-    width: min(1120px, 94vw);
     gap: 1.5rem;
-    padding: 2rem 0 max(1.75rem, env(safe-area-inset-bottom));
+    padding-top: 2rem;
+    padding-bottom: max(1.75rem, env(safe-area-inset-bottom));
   }
 
   .hero-eyebrow {
@@ -1844,7 +1916,8 @@ address {
   }
 
   .service-featured {
-    grid-column: span 1;
+    grid-column: 1;
+    grid-row: auto;
     padding: 1.75rem;
   }
 
