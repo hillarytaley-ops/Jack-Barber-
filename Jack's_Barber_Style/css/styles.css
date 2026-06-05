@@ -918,26 +918,69 @@ body.policy-modal-open {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Scroll reveal & motion — content stays visible; only position animates */
+/* Scroll reveal — fade up with staggered delay on cards */
 .reveal {
-  opacity: 1;
-  transform: translateY(28px);
-  transition: transform var(--transition-slow);
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--transition-slow),
+    transform var(--transition-slow);
   transition-delay: var(--reveal-delay, 0s);
 }
 
 .reveal-left {
-  transform: translateX(-28px);
+  transform: translateX(-24px);
 }
 
 .reveal-right {
-  transform: translateX(28px);
+  transform: translateX(24px);
 }
 
 .reveal.is-visible,
 .reveal-left.is-visible,
 .reveal-right.is-visible {
+  opacity: 1;
   transform: translate(0, 0);
+}
+
+/* Info cards — lift on hover (desktop pointer only) */
+@media (hover: hover) and (pointer: fine) {
+  .feature-card,
+  .home-step-card,
+  .home-info-card,
+  .process-step,
+  .extra-card {
+    transition:
+      transform var(--transition),
+      box-shadow var(--transition);
+  }
+
+  .feature-card:hover,
+  .home-step-card:hover,
+  .home-info-card:hover,
+  .process-step:hover,
+  .extra-card:hover,
+  .reveal.is-visible.feature-card:hover,
+  .reveal.is-visible.home-step-card:hover,
+  .reveal.is-visible.home-info-card:hover,
+  .reveal.is-visible.process-step:hover,
+  .reveal.is-visible.extra-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 32px rgba(10, 22, 40, 0.14);
+  }
+
+  .feature-card:hover .feature-icon {
+    transform: scale(1.15);
+  }
+
+  .process-step:hover .step-num {
+    transform: scale(1.08);
+  }
+}
+
+.feature-icon,
+.step-num {
+  transition: transform var(--transition);
 }
 
 .roots-quote {
@@ -983,6 +1026,8 @@ body.policy-modal-open {
   .service-card:hover,
   .process-step:hover,
   .extra-card:hover,
+  .home-step-card:hover,
+  .home-info-card:hover,
   .gallery-trigger:hover,
   .btn:hover {
     transform: none;
@@ -1186,13 +1231,6 @@ body.policy-modal-open {
 
 /* Phone — single column everything, no horizontal scroll */
 @media (max-width: 767px) {
-  .reveal,
-  .reveal-left,
-  .reveal-right {
-    transform: none;
-    transition: none;
-  }
-
   .booking-layout {
     grid-template-columns: minmax(0, 1fr);
   }

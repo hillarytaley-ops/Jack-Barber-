@@ -61,11 +61,6 @@
     return;
   }
 
-  /* Scroll animations off on phones/tablets — keeps layout stable on mobile */
-  if (window.matchMedia('(max-width: 1024px)').matches) {
-    return;
-  }
-
   const staggerParents = [
     '.roots-pillars',
     '.style-gallery',
@@ -89,7 +84,7 @@
     const parent = el.parentElement;
     if (parent && staggerParents.some(function (sel) { return parent.matches(sel); })) {
       const index = Array.prototype.indexOf.call(parent.children, el);
-      el.style.setProperty('--reveal-delay', (index * 0.08) + 's');
+      el.style.setProperty('--reveal-delay', (index * 0.1) + 's');
     }
   });
 

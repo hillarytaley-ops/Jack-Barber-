@@ -329,6 +329,7 @@
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  will-change: transform;
 }
 
 .home-step-card {
@@ -666,7 +667,7 @@
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  transition: transform var(--transition), box-shadow var(--transition);
+  will-change: transform;
 }
 
 .feature-icon {
