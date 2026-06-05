@@ -739,56 +739,9 @@ address {
   text-decoration: underline;
 }
 
-/* Footer */
+/* Footer shell — details in page-sections.css */
 .site-footer {
-  background: var(--navy);
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.footer-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: 2rem 0;
-}
-
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.footer-brand img {
-  border-radius: 50%;
-}
-
-.footer-brand p {
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.footer-nav {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.footer-nav a {
-  font-size: 0.9rem;
-  transition: color var(--transition);
-}
-
-.footer-nav a:hover {
-  color: var(--gold-light);
-}
-
-.footer-copy {
-  width: 100%;
-  text-align: center;
-  font-size: 0.8rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Scroll reveal & motion — content stays visible; only position animates */

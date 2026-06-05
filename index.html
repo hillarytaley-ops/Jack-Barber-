@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260610">
-  <link rel="stylesheet" href="css/page-sections.css?v=20260610">
+  <link rel="stylesheet" href="css/styles.css?v=20260611">
+  <link rel="stylesheet" href="css/page-sections.css?v=20260611">
   <link rel="icon" href="assets/logo.png" type="image/png">
 </head>
 <body>
@@ -338,48 +338,6 @@
       </div>
     </section>
 
-    <!-- Visit -->
-    <section class="section visit" id="visit" aria-labelledby="visit-heading">
-      <div class="container">
-        <div class="visit-grid">
-          <div class="visit-info">
-            <span class="section-label">Find the Chair</span>
-            <h2 id="visit-heading">Visit Us in Wodonga</h2>
-            <address data-config="address">
-              <strong>Jack's Barber Style</strong><br>
-              47 O'Meara Street<br>
-              Wodonga, VIC 3690<br>
-              Australia
-            </address>
-            <ul class="visit-details">
-              <li>
-                <span class="detail-label">Hours</span>
-                <span>Monday: 9:00 AM – 6:00 PM<br>Tuesday: 9:00 AM – 6:00 PM<br>Wednesday: 9:00 AM – 6:00 PM<br>Thursday: 9:00 AM – 6:00 PM<br>Friday: 9:00 AM – 6:00 PM<br>Saturday: 8:00 AM – 4:00 PM<br>Sunday: Closed</span>
-              </li>
-              <li>
-                <span class="detail-label">Phone</span>
-                <a href="tel:+61478268399" data-config="phone">0478 268 399</a>
-              </li>
-              <li>
-                <span class="detail-label">Email</span>
-                <a href="mailto:Jacqueskatumbulu@gmail.com" data-config="email">Jacqueskatumbulu@gmail.com</a>
-              </li>
-            </ul>
-            <a class="btn btn-outline-light" href="https://maps.google.com/?q=47+O'Meara+Street+Wodonga" target="_blank" rel="noopener noreferrer">Get Directions</a>
-          </div>
-          <div class="visit-map" aria-label="Map showing 47 O'Meara Street, Wodonga">
-            <iframe
-              title="Jack's Barber Style location map"
-              src="https://maps.google.com/maps?q=47+O%27Meara+Street+Wodonga+Victoria+Australia&output=embed"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              allowfullscreen>
-            </iframe>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Book -->
     <section class="section book" id="book" aria-labelledby="book-heading">
       <div class="kente-strip" aria-hidden="true"></div>
@@ -515,22 +473,60 @@
     </figure>
   </div>
 
-  <footer class="site-footer">
+  <footer class="site-footer" id="visit" aria-labelledby="visit-heading">
     <div class="kente-strip kente-footer" aria-hidden="true"></div>
-    <div class="container footer-inner">
-      <div class="footer-brand">
-        <img src="assets/logo.png" alt="" width="48" height="48" aria-hidden="true">
-        <p><strong>Jack's Barber Style</strong><br>47 O'Meara Street, Wodonga</p>
+    <div class="container site-footer-main">
+      <div class="visit-grid">
+        <div class="visit-info">
+          <span class="section-label">Find the Chair</span>
+          <h2 id="visit-heading">Visit Us in Wodonga</h2>
+          <address data-config="address">
+            <strong>Jack's Barber Style</strong><br>
+            47 O'Meara Street<br>
+            Wodonga, VIC 3690<br>
+            Australia
+          </address>
+          <ul class="visit-details">
+            <li>
+              <span class="detail-label">Hours</span>
+              <span>Monday: 9:00 AM – 6:00 PM<br>Tuesday: 9:00 AM – 6:00 PM<br>Wednesday: 9:00 AM – 6:00 PM<br>Thursday: 9:00 AM – 6:00 PM<br>Friday: 9:00 AM – 6:00 PM<br>Saturday: 8:00 AM – 4:00 PM<br>Sunday: Closed</span>
+            </li>
+            <li>
+              <span class="detail-label">Phone</span>
+              <a href="tel:+61478268399" data-config="phone">0478 268 399</a>
+            </li>
+            <li>
+              <span class="detail-label">Email</span>
+              <a href="mailto:Jacqueskatumbulu@gmail.com" data-config="email">Jacqueskatumbulu@gmail.com</a>
+            </li>
+          </ul>
+          <a class="btn btn-outline-light" href="https://maps.google.com/?q=47+O'Meara+Street+Wodonga" target="_blank" rel="noopener noreferrer">Get Directions</a>
+        </div>
+        <div class="visit-map" aria-label="Map showing 47 O'Meara Street, Wodonga">
+          <iframe
+            title="Jack's Barber Style location map"
+            src="https://maps.google.com/maps?q=47+O%27Meara+Street+Wodonga+Victoria+Australia&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen>
+          </iframe>
+        </div>
       </div>
-      <nav class="footer-nav" aria-label="Footer">
-        <a href="#craft">Services</a>
-        <a href="#gallery">Gallery</a>
-        <a href="#home-service">Home Service</a>
-        <a href="#process">Process</a>
-        <a href="#visit">Location</a>
-        <a href="#book">Book</a>
-      </nav>
-      <p class="footer-copy">&copy; 2026 Jack's Barber Style. All rights reserved.</p>
+    </div>
+    <div class="footer-bar">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <img src="assets/logo.png" alt="" width="44" height="44" aria-hidden="true">
+          <p><strong>Jack's Barber Style</strong><br>Wodonga · African Hair Specialists</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <a href="#craft">Services</a>
+          <a href="#gallery">Gallery</a>
+          <a href="#home-service">Home Service</a>
+          <a href="#book">Book</a>
+        </nav>
+        <p class="footer-copy">&copy; 2026 Jack's Barber Style. All rights reserved.</p>
+      </div>
     </div>
   </footer>
 

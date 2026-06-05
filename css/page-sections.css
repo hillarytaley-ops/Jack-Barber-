@@ -472,9 +472,25 @@
   line-height: 1.5;
 }
 
-/* Visit */
-.visit {
+/* Site footer — visit, map, and bottom bar */
+.site-footer {
   background: var(--navy);
+  color: var(--white);
+  margin-top: 0;
+}
+
+.site-footer-main {
+  padding: 2.75rem 0 2rem;
+}
+
+.site-footer .section-label {
+  color: var(--gold-light);
+}
+
+.site-footer h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 1rem;
   color: var(--white);
 }
 
@@ -485,17 +501,7 @@
   align-items: start;
 }
 
-.visit .section-label {
-  color: var(--gold-light);
-}
-
-.visit h2 {
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  margin-bottom: 1rem;
-}
-
-.visit address {
+.visit-info address {
   font-size: 0.95rem;
   line-height: 1.7;
   margin-bottom: 1.25rem;
@@ -530,16 +536,76 @@
   text-underline-offset: 3px;
 }
 
+.visit-details a:hover {
+  color: var(--gold-light);
+}
+
 .visit-map {
   border-radius: var(--radius);
   overflow: hidden;
   aspect-ratio: 4 / 3;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 .visit-map iframe {
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+.footer-bar {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.footer-bar .footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding: 1.25rem 0;
+}
+
+.footer-bar .footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.footer-bar .footer-brand img {
+  border-radius: 50%;
+}
+
+.footer-bar .footer-brand p {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.footer-bar .footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.25rem;
+}
+
+.footer-bar .footer-nav a {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.footer-bar .footer-nav a:hover {
+  color: var(--gold-light);
+}
+
+.footer-bar .footer-copy {
+  width: 100%;
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* Book section shell */
@@ -595,6 +661,20 @@
     grid-column: 2;
     grid-row: 1 / span 2;
     align-self: center;
+  }
+
+  .site-footer-main {
+    padding-bottom: 1.5rem;
+  }
+
+  .footer-bar .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .footer-bar .footer-nav {
+    justify-content: center;
   }
 }
 
