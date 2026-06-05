@@ -35,7 +35,7 @@
       btn.onclick = function () {
         var img = btn.querySelector('img');
         var title = btn.closest('.style-card');
-        var heading = title ? title.querySelector('.style-card-body h3') : null;
+        var heading = title ? title.querySelector('.style-card-meta h3') : null;
         var caption = heading ? heading.textContent.replace(/\s*Signature\s*/i, '').trim() : img.alt;
         openLightbox(img.src, img.alt, caption);
       };

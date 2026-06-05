@@ -119,10 +119,12 @@
         '<button type="button" class="gallery-trigger">' +
         '<img src="' + img.src + '" alt="' + img.alt.replace(/"/g, '&quot;') + '" loading="lazy">' +
         '</button></figure>' +
-        '<div class="style-card-body">' +
+        '<div class="style-card-footer">' +
+        '<div class="style-card-meta">' +
         '<h3>' + s.name + (featured ? ' <span class="service-badge">Signature</span>' : '') + '</h3>' +
         '<p class="style-card-price">From <strong>$' + s.price + '</strong> · ' + s.duration + ' min</p>' +
-        '<a class="btn btn-outline-light btn-sm btn-full" href="#book">Book</a>' +
+        '</div>' +
+        '<a class="btn btn-outline-light btn-sm" href="#book">Book</a>' +
         '</div></article>';
     }).join('');
   }
