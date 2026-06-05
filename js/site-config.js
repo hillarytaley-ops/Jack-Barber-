@@ -83,6 +83,7 @@
     }
 
     renderStyleGallery(cfg.services, cfg.gallery);
+    renderHairstyleGallery(cfg.hairstyleGallery);
     renderHomeService(cfg.homeService);
     populateServiceSelect(cfg.services);
 
@@ -128,7 +129,7 @@
   }
 
   function renderStyleGallery(services, gallery) {
-    var grid = document.getElementById('gallery');
+    var grid = document.getElementById('service-grid');
     if (!grid || !services) return;
 
     grid.innerHTML = services.map(function (s, index) {
@@ -144,7 +145,7 @@
         '<h3>' + s.name + (featured ? ' <span class="service-badge">Signature</span>' : '') + '</h3>' +
         '<p class="style-card-price">From <strong>$' + s.price + '</strong> · ' + s.duration + ' min</p>' +
         '</div>' +
-        '<a class="btn btn-outline-light btn-sm" href="#book">Book</a>' +
+        '<a class="btn btn-outline-light btn-sm" href="#book?service=' + encodeURIComponent(s.name) + '">Book</a>' +
         '</div></article>';
     }).join('');
   }
@@ -187,17 +188,104 @@
     if (coverage && hs.coverageNote) coverage.textContent = hs.coverageNote;
   }
 
+  var DEFAULT_HAIRSTYLE_GALLERY = {
+    image: 'assets/gallery/hairstyles-collage.jpg',
+    cols: 4,
+    rows: 3,
+    items: [
+      { col: 0, row: 0, caption: 'Skin Fade', service: 'Skin Fade' },
+      { col: 1, row: 0, caption: 'High-Top Fade', service: 'High-Top Fade' },
+      { col: 2, row: 0, caption: 'Textured Afro', service: 'Afro Cut' },
+      { col: 3, row: 0, caption: 'Hair Design', service: 'Hair Design' },
+      { col: 0, row: 1, caption: '360 Waves', service: '360 Waves' },
+      { col: 1, row: 1, caption: 'Buzz Cut & Line-Up', service: 'Buzz Cut & Line-Up' },
+      { col: 2, row: 1, caption: 'Beard Trim & Fade', service: 'Beard Trim & Shape' },
+      { col: 3, row: 1, caption: 'Taper Fade', service: 'Taper Fade' },
+      { col: 0, row: 2, caption: 'Curly Mohawk', service: 'Curly Mohawk' },
+      { col: 1, row: 2, caption: 'Scissor Cut', service: 'Scissor Cut' },
+      { col: 2, row: 2, caption: 'Blade Line-Up', service: 'Blade Line-Up' },
+      { col: 3, row: 2, caption: 'Twists & Retwist', service: 'Twists & Retwist' }
+    ]
+  };
+
+  function renderHairstyleGallery(config) {
+    var grid = document.getElementById('hairstyle-gallery');
+    if (!grid) return;
+
+    var data = config || DEFAULT_HAIRSTYLE_GALLERY;
+    var cols = data.cols || 4;
+    var rows = data.rows || 3;
+    var image = data.image || DEFAULT_HAIRSTYLE_GALLERY.image;
+    var items = data.items && data.items.length ? data.items : DEFAULT_HAIRSTYLE_GALLERY.items;
+
+    grid.dataset.cols = String(cols);
+    grid.dataset.rows = String(rows);
+    grid.style.setProperty('--hair-cols', cols);
+    grid.style.setProperty('--hair-rows', rows);
+
+    grid.innerHTML = items.map(function (item) {
+      var caption = item.caption || item.service || 'Style';
+      var service = item.service || '';
+      var alt = item.alt || caption;
+      return '<article class="hair-photo" style="--col:' + item.col + ';--row:' + item.row + '">' +
+        '<button type="button" class="gallery-trigger hair-photo-trigger" data-cols="' + cols + '" data-rows="' + rows + '" ' +
+        'data-col="' + item.col + '" data-row="' + item.row + '" data-caption="' + caption.replace(/"/g, '&quot;') + '" ' +
+        (service ? 'data-service="' + service.replace(/"/g, '&quot;') + '"' : '') + '>' +
+        '<img src="' + image + '" alt="' + alt.replace(/"/g, '&quot;') + '" loading="lazy">' +
+        '<span class="hair-photo-label">' + caption + '</span>' +
+        '</button></article>';
+    }).join('');
+  }
+
+  var SERVICE_GROUPS = [
+    { label: 'Fades & Cuts', categories: ['fades'] },
+    { label: 'Afro & Texture', categories: ['afro'] },
+    { label: 'Line-Up & Design', categories: ['design'] },
+    { label: 'Beard Grooming', categories: ['beard'] }
+  ];
+
+  function serviceOptionLabel(service) {
+    return service.name + ' — $' + service.price + ' · ' + service.duration + ' min';
+  }
+
   function populateServiceSelect(services) {
     var select = document.getElementById('service');
     if (!select || !services) return;
-    select.innerHTML = '<option value="">Select a service</option>' +
-      services.map(function (s) {
-        return '<option value="' + s.name.replace(/"/g, '&quot;') + '">' + s.name + '</option>';
-      }).join('');
+
+    var grouped = SERVICE_GROUPS.map(function (group) {
+      var items = services.filter(function (s) {
+        return group.categories.indexOf(s.category || '') !== -1;
+      });
+      if (!items.length) return '';
+      return '<optgroup label="' + group.label + '">' +
+        items.map(function (s) {
+          return '<option value="' + s.name.replace(/"/g, '&quot;') + '">' + serviceOptionLabel(s) + '</option>';
+        }).join('') +
+        '</optgroup>';
+    }).join('');
+
+    var uncategorized = services.filter(function (s) {
+      return !s.category || !SERVICE_GROUPS.some(function (g) {
+        return g.categories.indexOf(s.category) !== -1;
+      });
+    });
+
+    var fallback = uncategorized.map(function (s) {
+      return '<option value="' + s.name.replace(/"/g, '&quot;') + '">' + serviceOptionLabel(s) + '</option>';
+    }).join('');
+
+    select.innerHTML = '<option value="">Choose a style service</option>' + grouped + fallback;
   }
 
   fetch('/api/public/config')
     .then(function (r) { return r.ok ? r.json() : null; })
-    .then(applyConfig)
-    .catch(function () { /* static fallback — existing HTML stays */ });
+    .then(function (cfg) {
+      applyConfig(cfg);
+      if (!cfg) {
+        renderHairstyleGallery(null);
+      }
+    })
+    .catch(function () {
+      renderHairstyleGallery(null);
+    });
 })();

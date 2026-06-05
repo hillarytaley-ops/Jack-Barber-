@@ -69,6 +69,7 @@
   const staggerParents = [
     '.roots-pillars',
     '.style-gallery',
+    '.hairstyle-gallery',
     '.home-steps-cards',
     '.home-info-cards',
     '.process-steps',
@@ -80,7 +81,7 @@
   });
 
   document.querySelectorAll(
-    '.feature-card, .style-card, .home-step-card, .home-info-card, ' +
+    '.feature-card, .style-card, .hair-photo, .home-step-card, .home-info-card, ' +
     '.process-step, .extra-card, .visit-card, .booking-panel'
   ).forEach(function (el) {
     el.classList.add('reveal');

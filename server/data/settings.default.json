@@ -43,14 +43,18 @@
     "closedDates": []
   },
   "services": [
-    { "id": "afro-cut", "name": "Afro Cut", "price": 45, "duration": 45, "featured": true, "description": "Shape cutting and afro combing for natural volume and texture." },
-    { "id": "skin-fade", "name": "Skin Fade", "price": 40, "duration": 30, "featured": false, "description": "Seamless gradient from skin to length." },
-    { "id": "taper-fade", "name": "Taper Fade", "price": 35, "duration": 25, "featured": false, "description": "Clean taper blended into your top." },
-    { "id": "scissor-cut", "name": "Scissor Cut", "price": 40, "duration": 30, "featured": false, "description": "Layers and movement on textured hair." },
-    { "id": "twists", "name": "Twists & Retwist", "price": 50, "duration": 45, "featured": false, "description": "Neat twists for locs or starter coils." },
-    { "id": "beard-trim", "name": "Beard Trim & Shape", "price": 25, "duration": 15, "featured": false, "description": "Sculpted beard lines that frame your face." },
-    { "id": "line-up", "name": "Blade Line-Up", "price": 15, "duration": 10, "featured": false, "description": "Hot towel and cut-throat crisp edges." },
-    { "id": "hair-design", "name": "Hair Design", "price": 15, "duration": 15, "featured": false, "description": "Custom parts, tracks, and patterns." }
+    { "id": "afro-cut", "name": "Afro Cut", "price": 45, "duration": 45, "featured": true, "category": "afro", "description": "Shape cutting and afro combing for natural volume and texture." },
+    { "id": "skin-fade", "name": "Skin Fade", "price": 40, "duration": 30, "featured": false, "category": "fades", "description": "Seamless gradient from skin to length." },
+    { "id": "taper-fade", "name": "Taper Fade", "price": 35, "duration": 25, "featured": false, "category": "fades", "description": "Clean taper blended into your top." },
+    { "id": "high-top", "name": "High-Top Fade", "price": 45, "duration": 35, "featured": false, "category": "afro", "description": "Flat-top shape with crisp faded sides." },
+    { "id": "buzz-cut", "name": "Buzz Cut & Line-Up", "price": 30, "duration": 20, "featured": false, "category": "fades", "description": "Short uniform cut with sharp edges." },
+    { "id": "scissor-cut", "name": "Scissor Cut", "price": 40, "duration": 30, "featured": false, "category": "fades", "description": "Layers and movement on textured hair." },
+    { "id": "360-waves", "name": "360 Waves", "price": 40, "duration": 30, "featured": false, "category": "afro", "description": "Deep wave pattern with precise brush work." },
+    { "id": "curly-mohawk", "name": "Curly Mohawk", "price": 45, "duration": 35, "featured": false, "category": "afro", "description": "Textured top with tapered or faded sides." },
+    { "id": "twists", "name": "Twists & Retwist", "price": 50, "duration": 45, "featured": false, "category": "afro", "description": "Neat twists for locs or starter coils." },
+    { "id": "beard-trim", "name": "Beard Trim & Shape", "price": 25, "duration": 15, "featured": false, "category": "beard", "description": "Sculpted beard lines that frame your face." },
+    { "id": "line-up", "name": "Blade Line-Up", "price": 15, "duration": 10, "featured": false, "category": "design", "description": "Hot towel and cut-throat crisp edges." },
+    { "id": "hair-design", "name": "Hair Design", "price": 15, "duration": 15, "featured": false, "category": "design", "description": "Custom parts, tracks, and patterns." }
   ],
   "gallery": [
     { "id": "g1", "caption": "Skin Fade", "filename": "photo-1.svg", "alt": "Skin fade haircut" },

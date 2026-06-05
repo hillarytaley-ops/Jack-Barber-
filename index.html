@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260624">
-  <link rel="stylesheet" href="css/page-sections.css?v=20260619">
+  <link rel="stylesheet" href="css/styles.css?v=20260625">
+  <link rel="stylesheet" href="css/page-sections.css?v=20260625">
   <link rel="icon" href="assets/logo.png" type="image/png">
 </head>
 <body>
@@ -108,15 +108,15 @@
       </div>
     </section>
 
-    <!-- Services + Gallery -->
+    <!-- Services -->
     <section class="section craft" id="craft" aria-labelledby="craft-heading">
       <div class="container">
         <header class="section-header section-header-light">
           <span class="section-label">The Craft</span>
-          <h2 id="craft-heading">Services &amp; Style Gallery</h2>
-          <p class="section-sub">Consultation included with every appointment. Tap any photo to view larger.</p>
+          <h2 id="craft-heading">Our Services</h2>
+          <p class="section-sub">Every appointment includes a consultation. Choose your style when you book below.</p>
         </header>
-        <div class="style-gallery" id="gallery">
+        <div class="style-gallery" id="service-grid">
           <article class="style-card style-card--featured">
             <figure class="style-card-media">
               <button type="button" class="gallery-trigger">
@@ -230,6 +230,18 @@
             </div>
           </article>
         </div>
+      </div>
+    </section>
+
+    <!-- Style Gallery -->
+    <section class="section hairstyle-showcase" id="gallery" aria-labelledby="gallery-heading">
+      <div class="container">
+        <header class="section-header">
+          <span class="section-label">Real Cuts</span>
+          <h2 id="gallery-heading">Style Gallery</h2>
+          <p class="section-sub">Browse fades, afros, waves, and line-ups. Tap a photo to view larger, then book the same style from the form.</p>
+        </header>
+        <div class="hairstyle-gallery" id="hairstyle-gallery" data-cols="4" data-rows="3"></div>
       </div>
     </section>
 
@@ -384,18 +396,11 @@
               </fieldset>
 
               <div class="form-row">
-                <label for="service">Service</label>
+                <label for="service">Style service</label>
                 <select id="service" name="service" required>
-                  <option value="">Select a service</option>
-                  <option value="Afro Cut">Afro Cut</option>
-                  <option value="Skin Fade">Skin Fade</option>
-                  <option value="Taper Fade">Taper Fade</option>
-                  <option value="Scissor Cut">Scissor Cut</option>
-                  <option value="Twists &amp; Retwist">Twists &amp; Retwist</option>
-                  <option value="Beard Trim">Beard Trim</option>
-                  <option value="Blade Line-Up">Blade Line-Up</option>
-                  <option value="Hair Design">Hair Design</option>
+                  <option value="">Choose a style service</option>
                 </select>
+                <p class="form-hint">All style services are listed here — pick the cut that matches your gallery inspiration.</p>
               </div>
 
               <div class="form-row form-row-2">
@@ -449,6 +454,7 @@
       <img class="lightbox-img" src="" alt="">
       <figcaption class="lightbox-caption"></figcaption>
     </figure>
+    <a class="btn btn-primary lightbox-book" href="#book" hidden>Book this style</a>
   </div>
 
   <div class="policy-modal" id="policy-modal" hidden role="dialog" aria-modal="true" aria-labelledby="policy-modal-title">
@@ -557,9 +563,9 @@
     </div>
   </footer>
 
-  <script src="js/site-config.js?v=20260619"></script>
-  <script src="js/main.js?v=20260619"></script>
-  <script src="js/booking.js?v=20260617"></script>
-  <script src="js/gallery.js?v=20260614"></script>
+  <script src="js/site-config.js?v=20260625"></script>
+  <script src="js/main.js?v=20260625"></script>
+  <script src="js/booking.js?v=20260625"></script>
+  <script src="js/gallery.js?v=20260625"></script>
 </body>
 </html>

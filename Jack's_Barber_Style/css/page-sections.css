@@ -226,6 +226,68 @@
   vertical-align: middle;
 }
 
+/* Hairstyle photo gallery */
+.hairstyle-showcase {
+  background: var(--cream);
+}
+
+.hairstyle-showcase .section-sub {
+  max-width: 36rem;
+  margin-inline: auto;
+}
+
+.hairstyle-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.hair-photo {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.hair-photo-trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: var(--navy);
+  cursor: pointer;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.hair-photo-trigger img {
+  width: calc(var(--hair-cols, 4) * 100%);
+  height: calc(var(--hair-rows, 3) * 100%);
+  max-width: none;
+  object-fit: cover;
+  transform: translate(calc(var(--col, 0) * -100%), calc(var(--row, 0) * -100%));
+  transition: transform 0.35s ease;
+}
+
+.hair-photo-trigger:hover img {
+  transform: translate(calc(var(--col, 0) * -100%), calc(var(--row, 0) * -100%)) scale(1.04);
+}
+
+.hair-photo-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.25rem 0.45rem 0.4rem;
+  background: linear-gradient(transparent, rgba(10, 22, 40, 0.88));
+  color: var(--white);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+  pointer-events: none;
+}
+
 /* Home service */
 .home-service {
   background: var(--cream);
@@ -617,6 +679,7 @@
   .process-steps,
   .extras-grid,
   .style-gallery,
+  .hairstyle-gallery,
   .visit-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -643,6 +706,10 @@
   .process-steps,
   .extras-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hairstyle-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .style-gallery {

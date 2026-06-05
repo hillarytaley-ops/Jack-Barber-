@@ -46,6 +46,19 @@
     if (params.get('home') === '1') {
       selectHomeService();
     }
+    applyServiceFromUrl(params.get('service'));
+  }
+
+  function applyServiceFromUrl(serviceName) {
+    if (!serviceName) return;
+    var select = form.querySelector('#service');
+    if (!select) return;
+    var match = Array.prototype.find.call(select.options, function (opt) {
+      return opt.value === serviceName;
+    });
+    if (match) {
+      select.value = serviceName;
+    }
   }
 
   function scrollToBooking() {
@@ -414,5 +427,11 @@
 
   document.addEventListener('site-config-loaded', function () {
     updateHomeFeeNote();
+    var hash = window.location.hash.slice(1);
+    if (hash.split('?')[0] === 'book') {
+      var qIndex = hash.indexOf('?');
+      var params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : '');
+      applyServiceFromUrl(params.get('service'));
+    }
   });
 })();
