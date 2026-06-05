@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260617">
-  <link rel="stylesheet" href="css/page-sections.css?v=20260616">
+  <link rel="stylesheet" href="css/styles.css?v=20260618">
+  <link rel="stylesheet" href="css/page-sections.css?v=20260618">
   <link rel="icon" href="assets/logo.png" type="image/png">
 </head>
 <body>
@@ -236,24 +236,48 @@
     <!-- Home Service -->
     <section class="section home-service" id="home-service" aria-labelledby="home-service-heading">
       <div class="container">
-        <div class="home-banner">
-          <div class="home-banner-text">
-            <span class="section-label" id="home-service-label">We Come to You</span>
-            <h2 id="home-service-heading">Home Service Haircut</h2>
-            <p class="home-service-lead" id="home-service-lead">
-              Select <strong>Home Service</strong> when booking — we'll come to you at your scheduled time.
-            </p>
-            <ol class="home-steps" id="home-service-steps">
-              <li><span class="home-step-num">1</span> Choose Home Service on the booking form</li>
-              <li><span class="home-step-num">2</span> Pick your service, date, and time</li>
-              <li><span class="home-step-num">3</span> Enter your address and confirm payment</li>
-            </ol>
-            <p class="home-service-note" id="home-service-coverage"></p>
-          </div>
-          <div class="home-banner-cta">
-            <div class="home-service-info" id="home-service-info"></div>
-            <a class="btn btn-primary" href="#book?home=1" id="home-service-book-btn">Book home service</a>
-          </div>
+        <header class="section-header section-header-left">
+          <span class="section-label" id="home-service-label">We Come to You</span>
+          <h2 id="home-service-heading">Home Service Haircut</h2>
+          <p class="home-service-lead" id="home-service-lead">
+            Select <strong>Home Service</strong> when booking — we'll come to you at your scheduled time.
+          </p>
+        </header>
+
+        <ol class="home-steps-cards" id="home-service-steps">
+          <li class="home-step-card">
+            <span class="step-num">1</span>
+            <p>Choose Home Service on the booking form</p>
+          </li>
+          <li class="home-step-card">
+            <span class="step-num">2</span>
+            <p>Pick your service, date, and time</p>
+          </li>
+          <li class="home-step-card">
+            <span class="step-num">3</span>
+            <p>Enter your address and confirm payment</p>
+          </li>
+        </ol>
+
+        <div class="home-info-cards" id="home-service-info">
+          <article class="home-info-card">
+            <strong>Travel fee</strong>
+            <span>$20 added to every home visit</span>
+          </article>
+          <article class="home-info-card">
+            <strong>Service area</strong>
+            <span>Wodonga area</span>
+          </article>
+          <article class="home-info-card">
+            <strong>Parking</strong>
+            <span>Please ensure visitor parking is available</span>
+          </article>
+        </div>
+
+        <p class="home-service-note" id="home-service-coverage"></p>
+
+        <div class="home-service-actions">
+          <a class="btn btn-primary" href="#book?home=1" id="home-service-book-btn">Book home service</a>
         </div>
       </div>
     </section>
@@ -532,8 +556,8 @@
     </div>
   </footer>
 
-  <script src="js/site-config.js?v=20260614"></script>
-  <script src="js/main.js?v=20260614"></script>
+  <script src="js/site-config.js?v=20260618"></script>
+  <script src="js/main.js?v=20260618"></script>
   <script src="js/booking.js?v=20260617"></script>
   <script src="js/gallery.js?v=20260614"></script>
 </body>

@@ -152,16 +152,16 @@
 
     if (stepsEl && hs.steps && hs.steps.length) {
       stepsEl.innerHTML = hs.steps.map(function (step, i) {
-        return '<li><span class="home-step-num">' + (i + 1) + '</span> ' + step + '</li>';
+        return '<li class="home-step-card"><span class="step-num">' + (i + 1) + '</span><p>' + step + '</p></li>';
       }).join('');
     }
 
     if (info) {
       var fee = Number(hs.travelFee) || 0;
       info.innerHTML =
-        '<div class="home-info-item"><strong>Travel fee</strong><span>$' + fee + ' added to every home visit</span></div>' +
-        '<div class="home-info-item"><strong>Service area</strong><span>' + (hs.serviceArea || 'Wodonga area') + '</span></div>' +
-        '<div class="home-info-item"><strong>Parking</strong><span>' + (hs.parkingNote || '') + '</span></div>';
+        '<article class="home-info-card"><strong>Travel fee</strong><span>$' + fee + ' added to every home visit</span></article>' +
+        '<article class="home-info-card"><strong>Service area</strong><span>' + (hs.serviceArea || 'Wodonga area') + '</span></article>' +
+        '<article class="home-info-card"><strong>Parking</strong><span>' + (hs.parkingNote || '') + '</span></article>';
     }
 
     if (coverage && hs.coverageNote) coverage.textContent = hs.coverageNote;
