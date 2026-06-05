@@ -85,15 +85,31 @@
   font-size: 0.84rem;
 }
 
-/* Services */
+/* Services + Gallery — integrated craft section */
 .craft {
   background: var(--navy);
   color: var(--white);
 }
 
+.craft-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem 2.5rem;
+  align-items: start;
+}
+
+.craft-block-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin-bottom: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
 .services-board {
-  max-width: 760px;
-  margin-inline: auto;
+  max-width: none;
+  margin-inline: 0;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius);
@@ -171,50 +187,47 @@
   text-align: center;
 }
 
-/* Gallery */
-.gallery {
-  background: var(--white);
-}
-
-.gallery-grid {
+.craft-gallery .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-.gallery-item {
+.craft-gallery .gallery-item {
   margin: 0;
 }
 
-.gallery-trigger {
+.craft-gallery .gallery-trigger {
   display: block;
   width: 100%;
   padding: 0;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   overflow: hidden;
   cursor: pointer;
-  background: var(--navy);
-  transition: transform var(--transition), box-shadow var(--transition);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
 
-.gallery-trigger:hover {
+.craft-gallery .gallery-trigger:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(10, 22, 40, 0.15);
+  border-color: rgba(212, 160, 23, 0.45);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
-.gallery-trigger img {
+.craft-gallery .gallery-trigger img {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   display: block;
 }
 
-.gallery-item figcaption {
-  margin-top: 0.4rem;
+.craft-gallery .gallery-item figcaption {
+  margin-top: 0.35rem;
   font-family: var(--font-display);
-  font-size: 0.88rem;
-  color: var(--navy);
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
   text-align: center;
 }
 
@@ -568,7 +581,7 @@
 }
 
 .gallery-trigger:focus-visible {
-  outline: 3px solid var(--red);
+  outline: 3px solid var(--gold-light);
   outline-offset: 3px;
 }
 
@@ -589,10 +602,14 @@
   .roots-pillars,
   .process-steps,
   .extras-grid,
-  .gallery-grid,
+  .craft-layout,
   .home-banner,
   .visit-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .craft-gallery .gallery-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .service-row {
@@ -630,6 +647,10 @@
 @media (max-width: 640px) {
   .roots-pillars {
     gap: 0.75rem;
+  }
+
+  .craft-gallery .gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .service-row {
