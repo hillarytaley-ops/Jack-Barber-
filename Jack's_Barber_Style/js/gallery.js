@@ -34,7 +34,7 @@
     gallery.querySelectorAll('.gallery-item button').forEach(function (btn) {
       btn.onclick = function () {
         var img = btn.querySelector('img');
-        var caption = btn.querySelector('.gallery-tag');
+        var caption = btn.closest('.gallery-item').querySelector('figcaption');
         openLightbox(img.src, img.alt, caption ? caption.textContent : img.alt);
       };
     });

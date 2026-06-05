@@ -74,25 +74,16 @@
     '.gallery-grid',
     '.process-steps',
     '.extras-grid',
-    '.faq-list',
-    '.voice-strip'
+    '.faq-list'
   ];
 
   document.querySelectorAll('.section-header').forEach(function (el) {
     el.classList.add('reveal');
   });
 
-  document.querySelectorAll('.roots-story').forEach(function (el) {
-    el.classList.add('reveal', 'reveal-left');
-  });
-
-  document.querySelectorAll('.roots-quote').forEach(function (el) {
-    el.classList.add('reveal');
-  });
-
   document.querySelectorAll(
-    '.feature-card, .service-card, .service-row, .gallery-item, .home-service-card, ' +
-    '.process-step, .extra-card, .faq-item, .voice-card, .visit-info, .visit-map, .policy-panel, .booking-panel'
+    '.feature-card, .service-row, .gallery-item, .home-banner, ' +
+    '.process-step, .extra-card, .faq-item, .visit-info, .visit-map, .policy-panel, .booking-panel'
   ).forEach(function (el) {
     el.classList.add('reveal');
 
@@ -101,10 +92,6 @@
       const index = Array.prototype.indexOf.call(parent.children, el);
       el.style.setProperty('--reveal-delay', (index * 0.08) + 's');
     }
-  });
-
-  document.querySelectorAll('.feature-card').forEach(function (el) {
-    el.classList.add('reveal-right');
   });
 
   const revealObserver = new IntersectionObserver(function (entries) {

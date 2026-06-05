@@ -50,11 +50,10 @@
     var rootsTitle = document.getElementById('roots-heading');
     if (rootsLabel) rootsLabel.textContent = r.label;
     if (rootsTitle) rootsTitle.textContent = r.title;
-    var rootPs = document.querySelectorAll('.roots-story p');
-    if (rootPs[0]) rootPs[0].textContent = r.paragraphs[0];
-    if (rootPs[1]) rootPs[1].textContent = r.paragraphs[1];
-    var quote = document.querySelector('.roots-quote p');
-    if (quote) quote.textContent = '"' + r.quote + '"';
+    var rootLead = document.querySelector('.roots-lead');
+    if (rootLead && r.paragraphs) {
+      rootLead.textContent = r.paragraphs.join(' ');
+    }
 
     var hoursEl = document.querySelector('.visit-details li:first-child span:last-child');
     if (hoursEl && cfg.hoursDisplay) {
@@ -76,32 +75,18 @@
     var grid = document.querySelector('.services-grid');
     if (!grid || !services) return;
 
-    var featured = services.filter(function (s) { return s.featured; });
-    var standard = services.filter(function (s) { return !s.featured; });
-
-    var featuredHtml = featured.map(function (s) {
-      return '<article class="service-card service-featured">' +
-        '<span class="service-badge">Signature</span>' +
-        '<h3>' + s.name + '</h3>' +
-        '<p class="service-desc">' + s.description + '</p>' +
-        '<p class="service-price">From <strong>$' + s.price + '</strong></p>' +
-        '<a class="btn btn-primary btn-sm" href="#book">Book ' + s.name + '</a></article>';
-    }).join('');
-
-    var menuHtml = standard.map(function (s) {
-      return '<article class="service-row">' +
-        '<div class="service-row-main">' +
-        '<h3>' + s.name + '</h3>' +
-        '<p>' + s.description + '</p>' +
-        '</div>' +
+    var menuHtml = services.map(function (s) {
+      var featured = s.featured;
+      return '<article class="service-row' + (featured ? ' service-row--featured' : '') + '">' +
+        '<span class="service-row-name">' + s.name +
+        (featured ? ' <span class="service-badge">Signature</span>' : '') + '</span>' +
         '<span class="service-row-meta">' + s.duration + ' min</span>' +
         '<span class="service-row-price">From <strong>$' + s.price + '</strong></span>' +
-        '<a class="btn btn-outline-light btn-sm" href="#book">Book</a>' +
+        '<a class="btn ' + (featured ? 'btn-primary' : 'btn-outline-light') + ' btn-sm" href="#book">Book</a>' +
         '</article>';
     }).join('');
 
-    grid.innerHTML = featuredHtml +
-      (menuHtml ? '<div class="services-menu">' + menuHtml + '</div>' : '');
+    grid.innerHTML = '<div class="services-menu">' + menuHtml + '</div>';
   }
 
   function renderGallery(items) {
@@ -112,8 +97,7 @@
       return '<figure class="gallery-item">' +
         '<button type="button" class="gallery-trigger">' +
         '<img src="' + item.src + '" alt="' + item.alt + '" loading="lazy">' +
-        '<span class="gallery-tag">' + item.caption + '</span>' +
-        '</button></figure>';
+        '</button><figcaption>' + item.caption + '</figcaption></figure>';
     }).join('');
   }
 
