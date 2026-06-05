@@ -69,6 +69,8 @@
   const staggerParents = [
     '.roots-pillars',
     '.style-gallery',
+    '.home-steps-cards',
+    '.home-info-cards',
     '.process-steps',
     '.extras-grid'
   ];
@@ -78,7 +80,7 @@
   });
 
   document.querySelectorAll(
-    '.feature-card, .style-card, .home-banner, ' +
+    '.feature-card, .style-card, .home-step-card, .home-info-card, ' +
     '.process-step, .extra-card, .visit-info, .visit-map, .booking-panel'
   ).forEach(function (el) {
     el.classList.add('reveal');
