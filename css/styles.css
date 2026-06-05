@@ -544,7 +544,8 @@ address {
 .policy-consent {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   gap: 0.65rem;
   padding: 0.85rem 1rem;
   background: var(--cream);
@@ -712,6 +713,12 @@ address {
 .btn-full {
   width: 100%;
   margin-top: 0.5rem;
+}
+
+.booking-form .btn-full,
+.booking-form button[type="submit"] {
+  align-self: center;
+  width: min(100%, 22rem);
 }
 
 .booking-success {
