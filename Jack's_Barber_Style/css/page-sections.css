@@ -234,6 +234,7 @@
 .hairstyle-showcase .section-sub {
   max-width: 36rem;
   margin-inline: auto;
+  color: var(--text-muted);
 }
 
 .hairstyle-gallery {
@@ -261,16 +262,15 @@
 }
 
 .hair-photo-trigger img {
-  width: calc(var(--hair-cols, 4) * 100%);
-  height: calc(var(--hair-rows, 3) * 100%);
-  max-width: none;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  transform: translate(calc(var(--col, 0) * -100%), calc(var(--row, 0) * -100%));
+  display: block;
   transition: transform 0.35s ease;
 }
 
 .hair-photo-trigger:hover img {
-  transform: translate(calc(var(--col, 0) * -100%), calc(var(--row, 0) * -100%)) scale(1.04);
+  transform: scale(1.04);
 }
 
 .hair-photo-label {

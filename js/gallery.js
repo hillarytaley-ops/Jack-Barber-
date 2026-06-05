@@ -22,7 +22,7 @@
       lightboxImg.alt = alt;
       lightboxCaption.textContent = caption || '';
 
-      if (crop && lightboxFigure) {
+      if (crop && crop.cols && lightboxFigure) {
         lightboxFigure.classList.add('lightbox-figure--crop');
         lightboxFigure.style.setProperty('--hair-cols', crop.cols);
         lightboxFigure.style.setProperty('--hair-rows', crop.rows);
@@ -74,10 +74,6 @@
       btn.onclick = function () {
         var img = btn.querySelector('img');
         openLightbox(img.src, img.alt, btn.dataset.caption || img.alt, {
-          cols: btn.dataset.cols || 4,
-          rows: btn.dataset.rows || 3,
-          col: btn.dataset.col || 0,
-          row: btn.dataset.row || 0,
           service: btn.dataset.service || ''
         });
       };

@@ -215,6 +215,10 @@
     return String(val || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   }
 
+  function escHtml(val) {
+    return String(val || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   function slugify(name) {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'service';
   }
@@ -332,16 +336,27 @@
   });
 
   /* Gallery */
+  function renderGalleryServiceSelect() {
+    var select = document.getElementById('gallery-service-select');
+    if (!select || !settings || !settings.services) return;
+    select.innerHTML = '<option value="">Link to booking service (optional)</option>' +
+      settings.services.map(function (s) {
+        return '<option value="' + escAttr(s.name) + '">' + escHtml(s.name) + '</option>';
+      }).join('');
+  }
+
   function renderGalleryAdmin() {
+    renderGalleryServiceSelect();
     document.getElementById('gallery-admin-grid').innerHTML = settings.gallery.map(function (item) {
       var src = item.src || (
         item.filename.startsWith('photo-') && item.filename.endsWith('.svg')
           ? '/assets/gallery/' + item.filename
           : '/api/gallery/' + encodeURIComponent(item.filename)
       );
+      var serviceNote = item.service ? '<small>Books: ' + escHtml(item.service) + '</small>' : '';
       return '<figure class="gallery-admin-item">' +
         '<img src="' + src + '" alt="">' +
-        '<figcaption>' + item.caption + '</figcaption>' +
+        '<figcaption>' + escHtml(item.caption) + serviceNote + '</figcaption>' +
         '<button type="button" data-id="' + item.id + '">Delete</button></figure>';
     }).join('');
 
@@ -357,6 +372,7 @@
     e.preventDefault();
     var fileInput = e.target.querySelector('input[type=file]');
     var captionInput = e.target.querySelector('input[name=caption]');
+    var serviceInput = e.target.querySelector('select[name=service]');
     var file = fileInput.files[0];
     if (!file) return;
 
@@ -367,6 +383,7 @@
         body: JSON.stringify({
           caption: captionInput.value,
           alt: captionInput.value,
+          service: serviceInput ? serviceInput.value : '',
           filename: file.name,
           image: reader.result
         })

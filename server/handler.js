@@ -251,7 +251,14 @@ async function handleRequest(req, res) {
         }),
         services: settings.services,
         gallery: settings.gallery.map(function (item) {
-          return { id: item.id, caption: item.caption, alt: item.alt, src: galleryUrl(item) };
+          return {
+            id: item.id,
+            caption: item.caption,
+            alt: item.alt,
+            src: galleryUrl(item),
+            filename: item.filename,
+            service: item.service || ''
+          };
         }),
         closedDates: settings.hours.closedDates || [],
         paymentsEnabled: paymentsEnabled(),
@@ -444,7 +451,13 @@ async function handleRequest(req, res) {
       const mimeType = MIME[ext] || 'image/jpeg';
       await saveImage(name, buffer, mimeType);
       const settings = await getSettings();
-      const item = { id: 'g' + Date.now(), caption: body.caption || 'Gallery photo', alt: body.alt || body.caption || 'Gallery photo', filename: name };
+      const item = {
+        id: 'g' + Date.now(),
+        caption: body.caption || 'Gallery photo',
+        alt: body.alt || body.caption || 'Gallery photo',
+        filename: name,
+        service: body.service || ''
+      };
       settings.gallery.push(item);
       await saveSettings(settings);
       return send(res, 200, { ok: true, item: Object.assign({}, item, { src: galleryUrl(item) }) });
