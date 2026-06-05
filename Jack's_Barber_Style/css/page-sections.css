@@ -421,57 +421,6 @@
   line-height: 1.45;
 }
 
-/* FAQ */
-.faq {
-  background: var(--cream);
-}
-
-.faq-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.faq-item {
-  background: var(--white);
-  border-radius: var(--radius);
-  border: 1px solid rgba(26, 35, 64, 0.08);
-  overflow: hidden;
-}
-
-.faq-item summary {
-  padding: 1rem 1.15rem;
-  font-weight: 600;
-  font-size: 0.92rem;
-  color: var(--navy);
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.faq-item summary::-webkit-details-marker {
-  display: none;
-}
-
-.faq-item summary::after {
-  content: "+";
-  font-size: 1.15rem;
-  color: var(--red);
-}
-
-.faq-item[open] summary::after {
-  content: "−";
-}
-
-.faq-item p {
-  padding: 0 1.15rem 1rem;
-  color: var(--text-muted);
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-
 /* Site footer — visit, map, and bottom bar */
 .site-footer {
   background: var(--navy);

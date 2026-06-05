@@ -73,8 +73,7 @@
     '.services-grid',
     '.gallery-grid',
     '.process-steps',
-    '.extras-grid',
-    '.faq-list'
+    '.extras-grid'
   ];
 
   document.querySelectorAll('.section-header').forEach(function (el) {
@@ -83,7 +82,7 @@
 
   document.querySelectorAll(
     '.feature-card, .service-row, .gallery-item, .home-banner, ' +
-    '.process-step, .extra-card, .faq-item, .visit-info, .visit-map, .policy-panel, .booking-panel'
+    '.process-step, .extra-card, .visit-info, .visit-map, .policy-panel, .booking-panel'
   ).forEach(function (el) {
     el.classList.add('reveal');
 
