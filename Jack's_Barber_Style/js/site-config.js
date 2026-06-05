@@ -122,7 +122,7 @@
         '<div class="style-card-body">' +
         '<h3>' + s.name + (featured ? ' <span class="service-badge">Signature</span>' : '') + '</h3>' +
         '<p class="style-card-price">From <strong>$' + s.price + '</strong> · ' + s.duration + ' min</p>' +
-        '<a class="btn ' + (featured ? 'btn-primary' : 'btn-outline-light') + ' btn-sm btn-full" href="#book">Book</a>' +
+        '<a class="btn btn-outline-light btn-sm btn-full" href="#book">Book</a>' +
         '</div></article>';
     }).join('');
   }

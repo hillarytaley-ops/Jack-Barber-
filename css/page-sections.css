@@ -171,6 +171,27 @@
 
 .style-card-body .btn {
   margin-top: auto;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.style-card-body .btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: var(--white);
+}
+
+.style-card--featured .style-card-body .btn {
+  background: rgba(212, 160, 23, 0.06);
+  border-color: rgba(212, 160, 23, 0.28);
+  color: var(--gold-light);
+}
+
+.style-card--featured .style-card-body .btn:hover {
+  background: rgba(212, 160, 23, 0.14);
+  border-color: rgba(212, 160, 23, 0.45);
+  color: var(--gold-light);
 }
 
 .service-badge {
