@@ -32,6 +32,23 @@
     homeFeeNote.hidden = fee <= 0;
   }
 
+  function applyHomeFromUrl() {
+    var hash = window.location.hash.slice(1);
+    if (!hash || hash.split('?')[0] !== 'book') return;
+    var qIndex = hash.indexOf('?');
+    var params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : '');
+    if (params.get('home') === '1') {
+      selectHomeService();
+    }
+  }
+
+  function scrollToBooking() {
+    var bookSection = document.getElementById('book');
+    if (bookSection) {
+      bookSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   function selectHomeService() {
     var homeRadio = form.querySelector('input[name="service-type"][value="home"]');
     if (homeRadio) homeRadio.checked = true;
@@ -295,15 +312,16 @@
     .catch(function () { /* ignore */ })
     .finally(function () {
       handleReturnFromPayment();
-      if (window.location.hash === '#book' && new URLSearchParams(window.location.search).get('home') === '1') {
-        selectHomeService();
-      }
+      applyHomeFromUrl();
     });
 
   var homeBookBtn = document.getElementById('home-service-book-btn');
   if (homeBookBtn) {
     homeBookBtn.addEventListener('click', function (e) {
+      e.preventDefault();
       selectHomeService();
+      history.replaceState(null, '', '#book?home=1');
+      scrollToBooking();
     });
   }
 
