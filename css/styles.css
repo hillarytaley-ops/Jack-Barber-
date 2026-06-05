@@ -15,6 +15,7 @@
   --font-display: "Playfair Display", Georgia, serif;
   --font-body: "Source Sans 3", system-ui, sans-serif;
   --radius: 8px;
+  --radius-sm: 6px;
   --shadow: 0 4px 24px rgba(10, 22, 40, 0.12);
   --transition: 0.25s ease;
   --transition-slow: 0.7s cubic-bezier(0.22, 1, 0.36, 1);
@@ -1351,7 +1352,7 @@ address {
 .booking-panel {
   background: var(--white);
   border-radius: var(--radius);
-  padding: 2rem;
+  padding: 1.35rem 1.5rem;
   box-shadow: var(--shadow);
   border: 2px solid var(--gold);
   border-top: 4px solid var(--red);
@@ -1359,15 +1360,16 @@ address {
 
 .booking-panel > h2 {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: var(--navy);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
 }
 
 .booking-intro {
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   color: var(--text-muted);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
 }
 
 .booking-form {
@@ -1635,16 +1637,16 @@ address {
 /* Responsive */
 @media (max-width: 1200px) {
   .services-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .service-featured {
-    grid-column: span 2;
-    grid-row: span 1;
+    grid-column: 1 / -1;
+    grid-row: auto;
   }
 
   .extras-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1673,9 +1675,9 @@ address {
   .site-nav ul {
     flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-end;
-    gap: 0.65rem 1.15rem;
+    gap: 0.45rem 0.85rem;
   }
 
   .site-nav .btn-nav {
@@ -1815,12 +1817,24 @@ address {
   }
 
   .section {
-    padding: 4rem 0;
+    padding: 2.75rem 0;
   }
 
   .section-header {
-    margin-bottom: 2.25rem;
-    padding-inline: 0.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .service-featured {
+    grid-template-columns: 1fr;
+  }
+
+  .service-featured .service-price,
+  .service-featured .btn {
+    grid-column: 1;
+    grid-row: auto;
+    text-align: left;
+    justify-self: start;
+    align-self: start;
   }
 
   .section-header h2 {
