@@ -345,11 +345,11 @@ address {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("../assets/hero-barber.png");
-  background-position: 20% center;
-  background-size: 86%;
+  background-image: url("../assets/hero-shop.png");
+  background-position: 62% center;
+  background-size: cover;
   background-repeat: no-repeat;
-  opacity: 0.82;
+  opacity: 0.9;
   pointer-events: none;
   z-index: 0;
 }
@@ -359,7 +359,7 @@ address {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(135deg, rgba(10, 22, 40, 0.52) 0%, rgba(26, 39, 68, 0.38) 45%, rgba(42, 63, 107, 0.22) 100%),
+    linear-gradient(105deg, rgba(10, 22, 40, 0.78) 0%, rgba(10, 22, 40, 0.42) 42%, rgba(26, 39, 68, 0.28) 100%),
     radial-gradient(circle at 20% 80%, rgba(212, 160, 23, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(196, 30, 58, 0.08) 0%, transparent 50%);
   pointer-events: none;
@@ -1024,9 +1024,9 @@ body.policy-modal-open {
 
 @media (max-width: 900px) {
   .hero::after {
-    background-position: center 30%;
-    background-size: 94%;
-    opacity: 0.76;
+    background-position: 58% center;
+    background-size: cover;
+    opacity: 0.86;
   }
 
   .hero::before {
@@ -1176,9 +1176,9 @@ body.policy-modal-open {
   }
 
   .hero::after {
-    background-position: center 35%;
-    background-size: 100%;
-    opacity: 0.72;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.8;
   }
 
   .hero-inner {
