@@ -410,77 +410,121 @@
 }
 
 .site-footer-main {
-  padding: 2.75rem 0 2rem;
+  padding: 1.5rem 0 1.25rem;
 }
 
 .site-footer .section-label {
   color: var(--gold-light);
+  font-size: 0.68rem;
+  margin-bottom: 0.25rem;
 }
 
 .site-footer h2 {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  margin-bottom: 1rem;
+  font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+  margin-bottom: 0.45rem;
   color: var(--white);
 }
 
 .visit-grid {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 2rem;
-  align-items: start;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 1rem;
+  align-items: stretch;
+  max-width: 880px;
+  margin-inline: auto;
+}
+
+.visit-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+}
+
+.visit-info {
+  padding: 1rem 1.1rem;
 }
 
 .visit-info address {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  margin-bottom: 1.25rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
   color: rgba(255, 255, 255, 0.9);
 }
 
 .visit-details {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  margin-bottom: 1.25rem;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+  list-style: none;
+  padding: 0;
 }
 
-.visit-details li {
+.visit-detail-hours {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 56px 1fr;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.visit-detail-contact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.visit-contact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  min-width: 0;
+}
+
+.visit-contact-item a {
+  color: var(--white);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+
+.visit-contact-item a:hover {
+  color: var(--gold-light);
 }
 
 .detail-label {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--gold-light);
 }
 
-.visit-details a {
-  color: var(--white);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.visit-hours-text {
+  color: rgba(255, 255, 255, 0.88);
 }
 
-.visit-details a:hover {
-  color: var(--gold-light);
+.visit-info .btn-sm {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
 }
 
 .visit-map {
-  border-radius: var(--radius);
   overflow: hidden;
-  aspect-ratio: 4 / 3;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  padding: 0;
+  min-height: 0;
+  aspect-ratio: 16 / 11;
+  max-height: 190px;
 }
 
 .visit-map iframe {
   width: 100%;
   height: 100%;
   border: 0;
+  display: block;
 }
 
 .footer-bar {
@@ -577,8 +621,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .site-footer-main {
-    padding-bottom: 1.5rem;
+  .visit-detail-contact {
+    grid-template-columns: 1fr;
   }
 
   .footer-bar .footer-inner {

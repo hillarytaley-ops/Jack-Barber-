@@ -81,7 +81,7 @@
 
   document.querySelectorAll(
     '.feature-card, .style-card, .home-step-card, .home-info-card, ' +
-    '.process-step, .extra-card, .visit-info, .visit-map, .booking-panel'
+    '.process-step, .extra-card, .visit-card, .booking-panel'
   ).forEach(function (el) {
     el.classList.add('reveal');
 

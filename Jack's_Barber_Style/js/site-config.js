@@ -9,6 +9,28 @@
     return hour + ':' + m + ' ' + ampm;
   }
 
+  function formatHoursCompact(rows) {
+    if (!rows || !rows.length) return '';
+    var groups = [];
+    var i = 0;
+    while (i < rows.length) {
+      var text = rows[i].text;
+      var start = rows[i].label;
+      var end = start;
+      var j = i + 1;
+      while (j < rows.length && rows[j].text === text) {
+        end = rows[j].label;
+        j++;
+      }
+      var label = start === end
+        ? start.slice(0, 3)
+        : start.slice(0, 3) + '–' + end.slice(0, 3);
+      groups.push(label + ': ' + text);
+      i = j;
+    }
+    return groups.join('<br>');
+  }
+
   function applyConfig(cfg) {
     if (!cfg) return;
 
@@ -55,11 +77,9 @@
       rootLead.textContent = r.paragraphs.join(' ');
     }
 
-    var hoursEl = document.querySelector('.visit-details li:first-child span:last-child');
+    var hoursEl = document.querySelector('.visit-hours-text');
     if (hoursEl && cfg.hoursDisplay) {
-      hoursEl.innerHTML = cfg.hoursDisplay.map(function (row) {
-        return row.label + ': ' + row.text;
-      }).join('<br>');
+      hoursEl.innerHTML = formatHoursCompact(cfg.hoursDisplay);
     }
 
     renderStyleGallery(cfg.services, cfg.gallery);

@@ -1094,8 +1094,12 @@ body.policy-modal-open {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .visit-map iframe {
-    min-height: 260px;
+  .visit-map {
+    max-height: 180px;
+  }
+
+  .site-footer-main {
+    padding-bottom: 1rem;
   }
 }
 
@@ -1288,10 +1292,6 @@ body.policy-modal-open {
   .policy-modal-panel,
   .booking-panel {
     padding: 1.5rem;
-  }
-
-  .visit-map iframe {
-    min-height: 220px;
   }
 
   .lightbox-close {
