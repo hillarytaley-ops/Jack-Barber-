@@ -114,6 +114,13 @@
   ];
 
   function imageForService(service, gallery, index) {
+    if (gallery && gallery.length) {
+      var byService = gallery.find(function (g) {
+        return g.service === service.name && isUploadedGalleryItem(g);
+      });
+      if (byService) return { src: byService.src, alt: byService.alt || service.name };
+    }
+
     var caption = SERVICE_IMAGE_CAPTIONS[service.name];
     if (gallery && caption) {
       var hit = gallery.find(function (g) { return g.caption === caption; });
