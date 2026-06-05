@@ -296,9 +296,19 @@ address {
 /* Hero */
 .hero {
   position: relative;
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, var(--navy-light) 100%);
+  background-color: var(--navy);
   color: var(--white);
   overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../assets/hero-barber.png") 15% center / cover no-repeat;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .hero::before {
@@ -306,13 +316,16 @@ address {
   position: absolute;
   inset: 0;
   background:
+    linear-gradient(135deg, rgba(10, 22, 40, 0.92) 0%, rgba(26, 39, 68, 0.82) 45%, rgba(42, 63, 107, 0.65) 100%),
     radial-gradient(circle at 20% 80%, rgba(212, 160, 23, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(196, 30, 58, 0.08) 0%, transparent 50%);
   pointer-events: none;
+  z-index: 1;
 }
 
 .hero-inner {
   position: relative;
+  z-index: 2;
   width: min(1120px, 92vw);
   margin-inline: auto;
   display: grid;
@@ -320,6 +333,11 @@ address {
   gap: 3rem;
   align-items: center;
   padding: 4rem 0 3.5rem;
+}
+
+.hero > .kente-strip {
+  position: relative;
+  z-index: 2;
 }
 
 .hero-eyebrow {
