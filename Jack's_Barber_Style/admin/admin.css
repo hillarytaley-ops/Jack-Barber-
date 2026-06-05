@@ -435,6 +435,32 @@ body { font-family: "Segoe UI", system-ui, sans-serif; background: #eef1f5; colo
   background: #fff;
 }
 
+.gallery-admin-empty,
+.gallery-admin-note {
+  margin: 0 0 1rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.gallery-admin-subheading {
+  margin: 1.5rem 0 0.35rem;
+  font-size: 1rem;
+}
+
+.gallery-admin-missing {
+  aspect-ratio: 4 / 5;
+  display: grid;
+  place-items: center;
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.gallery-admin-grid--muted .gallery-admin-item {
+  opacity: 0.85;
+}
+
 .table-wrap { overflow-x: auto; background: var(--white); border-radius: 10px; }
 .admin-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 .admin-table th, .admin-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }

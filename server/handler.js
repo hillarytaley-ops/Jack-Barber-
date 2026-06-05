@@ -58,20 +58,23 @@ async function getSettings() {
   if (settings.hours) {
     normalizeHoursSchedule(settings.hours);
   }
-  if (!settings.homeService) {
-    settings.homeService = {
-      enabled: true,
-      label: 'We Come to You',
-      title: 'Home Service Haircut',
-      travelFee: 15,
-      serviceArea: 'Wodonga and surrounding areas',
-      coverageNote: '',
-      parkingNote: '',
-      minNoticeHours: 24,
-      steps: []
-    };
-  }
-  return settings;
+    if (!settings.homeService) {
+      settings.homeService = {
+        enabled: true,
+        label: 'We Come to You',
+        title: 'Home Service Haircut',
+        travelFee: 15,
+        serviceArea: 'Wodonga and surrounding areas',
+        coverageNote: '',
+        parkingNote: '',
+        minNoticeHours: 24,
+        steps: []
+      };
+    }
+    if (!Array.isArray(settings.gallery)) {
+      settings.gallery = [];
+    }
+    return settings;
 }
 
 async function saveSettings(data) {

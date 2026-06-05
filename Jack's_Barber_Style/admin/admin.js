@@ -55,6 +55,7 @@
       if (btn.dataset.panel === 'reports') loadReport();
       if (btn.dataset.panel === 'clients') loadBookings();
       if (btn.dataset.panel === 'finances') loadTransactions();
+      if (btn.dataset.panel === 'gallery' && settings) renderGalleryAdmin();
     });
   });
 
@@ -69,12 +70,13 @@
   function loadSettings() {
     return api('/api/admin/settings').then(function (data) {
       settings = data;
-      renderContentForm();
-      renderHoursEditor();
-      renderServicesEditor();
-      renderHomeServiceEditor();
-      renderGalleryAdmin();
-      renderClosedDates();
+      if (!Array.isArray(settings.gallery)) settings.gallery = [];
+      try { renderContentForm(); } catch (err) { console.error('Content editor failed', err); }
+      try { renderHoursEditor(); } catch (err) { console.error('Hours editor failed', err); }
+      try { renderServicesEditor(); } catch (err) { console.error('Services editor failed', err); }
+      try { renderHomeServiceEditor(); } catch (err) { console.error('Home service editor failed', err); }
+      try { renderGalleryAdmin(); } catch (err) { console.error('Gallery admin failed', err); }
+      try { renderClosedDates(); } catch (err) { console.error('Closed dates failed', err); }
     });
   }
 
@@ -97,7 +99,8 @@
   function renderContentForm() {
     var c = settings.contact;
     var h = settings.hero;
-    var r = settings.roots;
+    var r = settings.roots || {};
+    var paragraphs = r.paragraphs || ['', ''];
     document.getElementById('content-form').innerHTML =
       '<h3>Contact</h3>' +
       field('contact-phone', 'Phone', c.phone) +
@@ -112,8 +115,8 @@
       '<h3>Our Roots</h3>' +
       field('roots-label', 'Section label', r.label) +
       field('roots-title', 'Section title', r.title) +
-      field('roots-p1', 'Paragraph 1', r.paragraphs[0], true) +
-      field('roots-p2', 'Paragraph 2', r.paragraphs[1], true) +
+      field('roots-p1', 'Paragraph 1', paragraphs[0], true) +
+      field('roots-p2', 'Paragraph 2', paragraphs[1], true) +
       field('roots-quote', 'Quote', r.quote);
   }
 
@@ -345,27 +348,66 @@
       }).join('');
   }
 
-  function renderGalleryAdmin() {
-    renderGalleryServiceSelect();
-    document.getElementById('gallery-admin-grid').innerHTML = settings.gallery.map(function (item) {
-      var src = item.src || (
-        item.filename.startsWith('photo-') && item.filename.endsWith('.svg')
-          ? '/assets/gallery/' + item.filename
-          : '/api/gallery/' + encodeURIComponent(item.filename)
-      );
-      var serviceNote = item.service ? '<small>Books: ' + escHtml(item.service) + '</small>' : '';
-      return '<figure class="gallery-admin-item">' +
-        '<img src="' + src + '" alt="">' +
-        '<figcaption>' + escHtml(item.caption) + serviceNote + '</figcaption>' +
-        '<button type="button" data-id="' + item.id + '">Delete</button></figure>';
-    }).join('');
+  function isUploadedPhoto(item) {
+    var name = item && item.filename ? item.filename : '';
+    return name && !/^photo-\d+\.svg$/i.test(name);
+  }
 
+  function galleryItemHtml(item) {
+    var filename = item.filename || '';
+    var src = item.src || (
+      filename.startsWith('photo-') && filename.endsWith('.svg')
+        ? '/assets/gallery/' + filename
+        : filename
+          ? '/api/gallery/' + encodeURIComponent(filename)
+          : ''
+    );
+    var serviceNote = item.service ? '<small>Books: ' + escHtml(item.service) + '</small>' : '';
+    var badge = isUploadedPhoto(item) ? '' : '<small>Template placeholder</small>';
+    return '<figure class="gallery-admin-item">' +
+      (src ? '<img src="' + src + '" alt="">' : '<div class="gallery-admin-missing">No image file</div>') +
+      '<figcaption>' + escHtml(item.caption || 'Untitled') + serviceNote + badge + '</figcaption>' +
+      '<button type="button" data-id="' + escAttr(item.id) + '">Delete</button></figure>';
+  }
+
+  function bindGalleryDeleteButtons() {
     document.querySelectorAll('.gallery-admin-item button').forEach(function (btn) {
       btn.addEventListener('click', function () {
         if (!confirm('Delete this photo?')) return;
         api('/api/admin/gallery/' + btn.dataset.id, { method: 'DELETE' }).then(loadSettings);
       });
     });
+  }
+
+  function renderGalleryAdmin() {
+    renderGalleryServiceSelect();
+    var uploadsEl = document.getElementById('gallery-admin-uploads');
+    var templatesEl = document.getElementById('gallery-admin-templates');
+    if (!uploadsEl || !settings) return;
+
+    var all = Array.isArray(settings.gallery) ? settings.gallery : [];
+    var uploads = all.filter(isUploadedPhoto);
+    var templates = all.filter(function (item) { return !isUploadedPhoto(item); });
+
+    if (uploads.length) {
+      uploadsEl.innerHTML = uploads.map(galleryItemHtml).join('');
+    } else {
+      uploadsEl.innerHTML = '<p class="gallery-admin-empty">No uploaded photos yet. Add one with the form above — it will appear on the public Style Gallery.</p>';
+    }
+
+    if (templatesEl) {
+      if (templates.length) {
+        templatesEl.hidden = false;
+        templatesEl.innerHTML = '<h3 class="gallery-admin-subheading">Built-in placeholders</h3>' +
+          '<p class="gallery-admin-note">Default template images for service cards until real photos are uploaded.</p>' +
+          '<div class="gallery-admin-grid">' + templates.map(galleryItemHtml).join('') + '</div>';
+      } else {
+        templatesEl.hidden = true;
+        templatesEl.innerHTML = '';
+      }
+    }
+
+    bindGalleryDeleteButtons();
   }
 
   document.getElementById('gallery-upload-form').addEventListener('submit', function (e) {
