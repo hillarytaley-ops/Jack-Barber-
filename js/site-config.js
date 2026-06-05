@@ -62,8 +62,7 @@
       }).join('<br>');
     }
 
-    renderServices(cfg.services);
-    renderGallery(cfg.gallery);
+    renderStyleGallery(cfg.services, cfg.gallery);
     renderHomeService(cfg.homeService);
     populateServiceSelect(cfg.services);
 
@@ -71,33 +70,60 @@
     document.dispatchEvent(new CustomEvent('site-config-loaded'));
   }
 
-  function renderServices(services) {
-    var grid = document.querySelector('.services-grid');
-    if (!grid || !services) return;
+  var SERVICE_IMAGE_CAPTIONS = {
+    'Afro Cut': 'Afro Shape',
+    'Skin Fade': 'Skin Fade',
+    'Taper Fade': 'Skin Fade',
+    'Scissor Cut': 'Afro Shape',
+    'Twists & Retwist': 'Afro Shape',
+    'Beard Trim & Shape': 'Beard Trim',
+    'Blade Line-Up': 'Line-Up',
+    'Hair Design': 'Hair Design'
+  };
 
-    var menuHtml = services.map(function (s) {
-      var featured = s.featured;
-      return '<article class="service-row' + (featured ? ' service-row--featured' : '') + '">' +
-        '<span class="service-row-name">' + s.name +
-        (featured ? ' <span class="service-badge">Signature</span>' : '') + '</span>' +
-        '<span class="service-row-meta">' + s.duration + ' min</span>' +
-        '<span class="service-row-price">From <strong>$' + s.price + '</strong></span>' +
-        '<a class="btn ' + (featured ? 'btn-primary' : 'btn-outline-light') + ' btn-sm" href="#book">Book</a>' +
-        '</article>';
-    }).join('');
+  var FALLBACK_IMAGES = [
+    'assets/gallery/photo-2.svg',
+    'assets/gallery/photo-1.svg',
+    'assets/gallery/photo-1.svg',
+    'assets/gallery/photo-2.svg',
+    'assets/gallery/photo-2.svg',
+    'assets/gallery/photo-5.svg',
+    'assets/gallery/photo-3.svg',
+    'assets/gallery/photo-4.svg'
+  ];
 
-    grid.innerHTML = '<div class="services-menu">' + menuHtml + '</div>';
+  function imageForService(service, gallery, index) {
+    var caption = SERVICE_IMAGE_CAPTIONS[service.name];
+    if (gallery && caption) {
+      var hit = gallery.find(function (g) { return g.caption === caption; });
+      if (hit) return { src: hit.src, alt: hit.alt || service.name };
+    }
+    if (gallery && gallery[index]) {
+      return { src: gallery[index].src, alt: gallery[index].alt || service.name };
+    }
+    return {
+      src: FALLBACK_IMAGES[index % FALLBACK_IMAGES.length],
+      alt: service.name
+    };
   }
 
-  function renderGallery(items) {
-    var grid = document.getElementById('gallery-grid');
-    if (!grid || !items) return;
+  function renderStyleGallery(services, gallery) {
+    var grid = document.getElementById('gallery');
+    if (!grid || !services) return;
 
-    grid.innerHTML = items.map(function (item) {
-      return '<figure class="gallery-item">' +
+    grid.innerHTML = services.map(function (s, index) {
+      var img = imageForService(s, gallery, index);
+      var featured = s.featured;
+      return '<article class="style-card' + (featured ? ' style-card--featured' : '') + '">' +
+        '<figure class="style-card-media">' +
         '<button type="button" class="gallery-trigger">' +
-        '<img src="' + item.src + '" alt="' + item.alt + '" loading="lazy">' +
-        '</button><figcaption>' + item.caption + '</figcaption></figure>';
+        '<img src="' + img.src + '" alt="' + img.alt.replace(/"/g, '&quot;') + '" loading="lazy">' +
+        '</button></figure>' +
+        '<div class="style-card-body">' +
+        '<h3>' + s.name + (featured ? ' <span class="service-badge">Signature</span>' : '') + '</h3>' +
+        '<p class="style-card-price">From <strong>$' + s.price + '</strong> · ' + s.duration + ' min</p>' +
+        '<a class="btn ' + (featured ? 'btn-primary' : 'btn-outline-light') + ' btn-sm btn-full" href="#book">Book</a>' +
+        '</div></article>';
     }).join('');
   }
 

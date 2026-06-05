@@ -1,6 +1,6 @@
 (function () {
   function initGallery() {
-    document.querySelectorAll('.gallery-item img[data-fallback]').forEach(function (img) {
+    document.querySelectorAll('.style-card img[data-fallback]').forEach(function (img) {
       img.addEventListener('error', function () {
         if (img.dataset.fallback && img.src.indexOf(img.dataset.fallback) === -1) {
           img.src = img.dataset.fallback;
@@ -8,7 +8,7 @@
       });
     });
 
-    var gallery = document.getElementById('gallery-grid');
+    var gallery = document.getElementById('gallery');
     var lightbox = document.getElementById('gallery-lightbox');
     if (!gallery || !lightbox) return;
 
@@ -31,11 +31,13 @@
       document.body.style.overflow = '';
     }
 
-    gallery.querySelectorAll('.gallery-item button').forEach(function (btn) {
+    gallery.querySelectorAll('.gallery-trigger').forEach(function (btn) {
       btn.onclick = function () {
         var img = btn.querySelector('img');
-        var caption = btn.closest('.gallery-item').querySelector('figcaption');
-        openLightbox(img.src, img.alt, caption ? caption.textContent : img.alt);
+        var title = btn.closest('.style-card');
+        var heading = title ? title.querySelector('.style-card-body h3') : null;
+        var caption = heading ? heading.textContent.replace(/\s*Signature\s*/i, '').trim() : img.alt;
+        openLightbox(img.src, img.alt, caption);
       };
     });
 

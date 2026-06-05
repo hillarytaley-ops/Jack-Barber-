@@ -85,150 +85,107 @@
   font-size: 0.84rem;
 }
 
-/* Services + Gallery — integrated craft section */
+/* Services + Gallery — unified style cards */
 .craft {
   background: var(--navy);
   color: var(--white);
 }
 
-.craft-layout {
+.style-gallery {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 2rem 2.5rem;
-  align-items: start;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
 }
 
-.craft-block-title {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--gold-light);
-  margin-bottom: 0.85rem;
-  letter-spacing: 0.02em;
-}
-
-.services-board {
-  max-width: none;
-  margin-inline: 0;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.services-menu {
+.style-card {
   display: flex;
   flex-direction: column;
-}
-
-.service-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 4.5rem 5.5rem auto;
-  gap: 0.75rem 1rem;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.service-row:last-child {
-  border-bottom: none;
-}
-
-.service-row:hover {
   background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
-.service-row--featured {
-  background: rgba(212, 160, 23, 0.12);
-  border-left: 3px solid var(--gold);
+.style-card:hover {
+  border-color: rgba(212, 160, 23, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-.service-row-name {
+.style-card--featured {
+  border-color: rgba(212, 160, 23, 0.45);
+  box-shadow: inset 0 3px 0 var(--gold);
+}
+
+.style-card-media {
+  margin: 0;
+}
+
+.style-card .gallery-trigger {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.style-card .gallery-trigger img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.style-card .gallery-trigger:hover img {
+  transform: scale(1.03);
+}
+
+.style-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.85rem 0.9rem 1rem;
+  flex: 1;
+}
+
+.style-card-body h3 {
   font-family: var(--font-display);
   font-size: 0.98rem;
   font-weight: 600;
+  color: var(--white);
+  line-height: 1.3;
+}
+
+.style-card-price {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 0.15rem;
+}
+
+.style-card-price strong {
+  color: var(--gold-light);
+  font-size: 0.95rem;
+}
+
+.style-card-body .btn {
+  margin-top: auto;
 }
 
 .service-badge {
   display: inline-block;
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: var(--gold);
   color: var(--navy);
-  padding: 0.15rem 0.45rem;
+  padding: 0.12rem 0.4rem;
   border-radius: 999px;
-  margin-left: 0.35rem;
+  margin-left: 0.25rem;
   vertical-align: middle;
-}
-
-.service-row-meta {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.5);
-  text-align: right;
-}
-
-.service-row-price {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.65);
-  text-align: right;
-  white-space: nowrap;
-}
-
-.service-row-price strong {
-  color: var(--gold-light);
-}
-
-.service-row .btn {
-  justify-self: end;
-  min-width: 4.5rem;
-  text-align: center;
-}
-
-.craft-gallery .gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.craft-gallery .gallery-item {
-  margin: 0;
-}
-
-.craft-gallery .gallery-trigger {
-  display: block;
-  width: 100%;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-}
-
-.craft-gallery .gallery-trigger:hover {
-  transform: translateY(-2px);
-  border-color: rgba(212, 160, 23, 0.45);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
-
-.craft-gallery .gallery-trigger img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  display: block;
-}
-
-.craft-gallery .gallery-item figcaption {
-  margin-top: 0.35rem;
-  font-family: var(--font-display);
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.75);
-  text-align: center;
 }
 
 /* Home service */
@@ -602,31 +559,10 @@
   .roots-pillars,
   .process-steps,
   .extras-grid,
-  .craft-layout,
+  .style-gallery,
   .home-banner,
   .visit-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .craft-gallery .gallery-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .service-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto auto;
-  }
-
-  .service-row-meta,
-  .service-row-price {
-    grid-column: 1;
-    text-align: left;
-  }
-
-  .service-row .btn {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .site-footer-main {
@@ -649,18 +585,7 @@
     gap: 0.75rem;
   }
 
-  .craft-gallery .gallery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .service-row {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-
-  .service-row .btn {
-    grid-column: 1;
-    grid-row: auto;
-    width: 100%;
+  .style-gallery {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
