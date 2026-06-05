@@ -3,6 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
 const { readJSON, writeJSON, DATA_DIR, ensureDefaults, saveImage, getImage, deleteImage } = require('./store');
+const { normalizeHoursSchedule } = require('./hours');
 const { createSession, verifyToken } = require('./auth-token');
 const { paymentsEnabled, createCheckoutSession, getServicePrice, getBookingTotal, getTravelFee } = require('./payments');
 
@@ -54,6 +55,9 @@ async function ensureReady() {
 
 async function getSettings() {
   const settings = await readJSON('settings.json');
+  if (settings.hours) {
+    normalizeHoursSchedule(settings.hours);
+  }
   if (!settings.homeService) {
     settings.homeService = {
       enabled: true,
@@ -71,6 +75,9 @@ async function getSettings() {
 }
 
 async function saveSettings(data) {
+  if (data.hours) {
+    normalizeHoursSchedule(data.hours);
+  }
   return writeJSON('settings.json', data);
 }
 

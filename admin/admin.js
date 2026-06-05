@@ -156,6 +156,15 @@
         '<label><input type="checkbox" class="hr-closed" ' + (row.closed ? 'checked' : '') + '> Closed</label>' +
         '</div>';
     }).join('');
+
+    document.querySelectorAll('.hours-row .hr-closed').forEach(function (checkbox) {
+      checkbox.addEventListener('change', function () {
+        var row = checkbox.closest('.hours-row');
+        var closed = checkbox.checked;
+        row.querySelector('.hr-open').disabled = closed;
+        row.querySelector('.hr-close').disabled = closed;
+      });
+    });
   }
 
   function renderClosedDates() {
