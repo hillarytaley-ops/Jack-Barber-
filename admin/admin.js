@@ -111,6 +111,10 @@
       field('contact-email', 'Email', c.email) +
       field('contact-address', 'Address', c.address) +
       field('contact-city', 'City', c.city) +
+      '<h3>Social media</h3>' +
+      field('social-facebook', 'Facebook page URL', (settings.social && settings.social.facebook) || '') +
+      field('social-tiktok', 'TikTok profile URL', (settings.social && settings.social.tiktok) || '') +
+      '<p style="font-size:0.85rem;color:#6b7280;margin:-0.25rem 0 1rem;">WhatsApp uses your phone number automatically. Add Facebook and TikTok links to show those icons on the site.</p>' +
       '<h3>Hero</h3>' +
       field('hero-eyebrow', 'Eyebrow', h.eyebrow) +
       field('hero-title', 'Headline', h.title) +
@@ -141,6 +145,9 @@
     settings.contact.email = val('contact-email');
     settings.contact.address = val('contact-address');
     settings.contact.city = val('contact-city');
+    if (!settings.social) settings.social = {};
+    settings.social.facebook = val('social-facebook');
+    settings.social.tiktok = val('social-tiktok');
     settings.hero.eyebrow = val('hero-eyebrow');
     settings.hero.title = val('hero-title');
     settings.hero.lead = val('hero-lead');

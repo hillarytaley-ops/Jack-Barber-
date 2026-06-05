@@ -920,9 +920,78 @@ body.policy-modal-open {
   margin-bottom: 0.75rem;
 }
 
-/* Footer shell — details in page-sections.css */
+/* Site footer — details in page-sections.css */
 .site-footer {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Floating social links */
+.social-float {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.social-float-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 50%;
+  color: var(--white);
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(10, 22, 40, 0.28);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.social-float-link:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 10px 28px rgba(10, 22, 40, 0.32);
+}
+
+.social-float-link:focus-visible {
+  outline: 3px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+.social-float-link--facebook {
+  background: #1877f2;
+}
+
+.social-float-link--whatsapp {
+  background: #25d366;
+}
+
+.social-float-link--tiktok {
+  background: #010101;
+}
+
+.social-float-link[aria-disabled="true"] {
+  cursor: default;
+}
+
+@media (max-width: 767px) {
+  .social-float {
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    gap: 0.45rem;
+  }
+
+  .social-float-link {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+
+  .social-float-link svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 /* Scroll reveal — fade up with staggered delay on cards */
@@ -1035,6 +1104,7 @@ body.policy-modal-open {
   .extra-card:hover,
   .home-step-card:hover,
   .home-info-card:hover,
+  .social-float-link:hover,
   .gallery-trigger:hover,
   .btn:hover {
     transform: none;

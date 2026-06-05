@@ -244,6 +244,7 @@ async function handleRequest(req, res) {
       const settings = await getSettings();
       return send(res, 200, {
         contact: settings.contact,
+        social: settings.social || { facebook: '', tiktok: '' },
         brand: settings.brand,
         hero: settings.hero,
         roots: settings.roots,

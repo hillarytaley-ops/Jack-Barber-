@@ -47,6 +47,34 @@
       el.innerHTML = c.address + '<br>' + c.city + (c.country ? '<br>' + c.country : '');
     });
 
+    var social = cfg.social || {};
+    var phoneDigits = String(c.phone || '').replace(/\D/g, '');
+    if (phoneDigits.charAt(0) === '0') phoneDigits = phoneDigits.slice(1);
+    var waMsg = encodeURIComponent("Hi, I'd like to book at Jack's Barber Style.");
+    document.querySelectorAll('[data-config="social-whatsapp"]').forEach(function (el) {
+      if (phoneDigits) {
+        el.href = 'https://wa.me/61' + phoneDigits + '?text=' + waMsg;
+      }
+    });
+    function applySocialLink(selector, url) {
+      document.querySelectorAll(selector).forEach(function (el) {
+        el.hidden = false;
+        if (url) {
+          el.href = url;
+          el.removeAttribute('aria-disabled');
+          el.style.pointerEvents = '';
+          el.style.opacity = '';
+        } else {
+          el.href = '#';
+          el.setAttribute('aria-disabled', 'true');
+          el.style.pointerEvents = 'none';
+          el.style.opacity = '0.55';
+        }
+      });
+    }
+    applySocialLink('[data-config="social-facebook"]', social.facebook);
+    applySocialLink('[data-config="social-tiktok"]', social.tiktok);
+
     var brand = cfg.brand;
     var brandName = document.querySelector('.brand-name');
     var brandTag = document.querySelector('.brand-tag');
