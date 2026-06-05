@@ -1491,13 +1491,11 @@ address {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Scroll reveal & motion */
+/* Scroll reveal & motion — content stays visible; only position animates */
 .reveal {
-  opacity: 0;
+  opacity: 1;
   transform: translateY(28px);
-  transition:
-    opacity var(--transition-slow),
-    transform var(--transition-slow);
+  transition: transform var(--transition-slow);
   transition-delay: var(--reveal-delay, 0s);
 }
 
@@ -1512,7 +1510,6 @@ address {
 .reveal.is-visible,
 .reveal-left.is-visible,
 .reveal-right.is-visible {
-  opacity: 1;
   transform: translate(0, 0);
 }
 
@@ -1551,7 +1548,6 @@ address {
   .reveal,
   .reveal-left,
   .reveal-right {
-    opacity: 1;
     transform: none;
     transition: none;
   }
