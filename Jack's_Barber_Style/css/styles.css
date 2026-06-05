@@ -533,17 +533,32 @@ address {
 /* Booking */
 .booking-layout {
   display: grid;
-  grid-template-columns: 0.95fr 1.05fr;
-  gap: 1.25rem;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 34rem;
+  margin: 0 auto;
 }
 
-.policy-panel {
-  background: var(--white);
-  border-radius: var(--radius);
-  padding: 1.35rem 1.5rem;
-  box-shadow: var(--shadow);
-  border-left: 4px solid var(--navy);
+.policy-consent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  background: var(--cream);
+  border-radius: 8px;
+  border: 1px solid rgba(10, 22, 40, 0.08);
+}
+
+.policy-consent-status {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.policy-consent-status.is-accepted {
+  color: #227846;
+  font-weight: 600;
 }
 
 .policy-block {
@@ -737,6 +752,81 @@ address {
   color: var(--red);
   font-weight: 600;
   text-decoration: underline;
+}
+
+/* Policy modal */
+body.policy-modal-open {
+  overflow: hidden;
+}
+
+.policy-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.policy-modal[hidden] {
+  display: none;
+}
+
+.policy-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 22, 40, 0.72);
+}
+
+.policy-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 34rem);
+  max-height: min(90vh, 720px);
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 1.35rem 1.5rem 1.5rem;
+  box-shadow: 0 24px 64px rgba(10, 22, 40, 0.28);
+  border-top: 4px solid var(--red);
+}
+
+.policy-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--cream);
+  color: var(--navy);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.policy-modal-close:hover {
+  background: rgba(196, 30, 58, 0.12);
+  color: var(--red);
+}
+
+.policy-modal-body {
+  overflow-y: auto;
+  margin: 0.5rem 0 1rem;
+  padding-right: 0.25rem;
+}
+
+.policy-modal-body .policy-block:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.policy-modal-agree {
+  margin-bottom: 0.75rem;
 }
 
 /* Footer shell — details in page-sections.css */
@@ -1195,7 +1285,7 @@ address {
     grid-template-columns: 1fr;
   }
 
-  .policy-panel,
+  .policy-modal-panel,
   .booking-panel {
     padding: 1.5rem;
   }

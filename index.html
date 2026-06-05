@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260616">
+  <link rel="stylesheet" href="css/styles.css?v=20260617">
   <link rel="stylesheet" href="css/page-sections.css?v=20260616">
   <link rel="icon" href="assets/logo.png" type="image/png">
 </head>
@@ -327,42 +327,6 @@
       <div class="kente-strip" aria-hidden="true"></div>
       <div class="container">
         <div class="booking-layout">
-          <div class="policy-panel" id="policy">
-            <div class="section-header section-header-left">
-              <span class="section-label">Before You Book</span>
-              <h2>Booking &amp; Payment Policy</h2>
-            </div>
-
-            <div class="policy-block">
-              <h3>Payment required in advance</h3>
-              <ul>
-                <li>Full payment is required to secure your appointment.</li>
-                <li>Your booking is only confirmed once payment has been received.</li>
-              </ul>
-            </div>
-
-            <div class="policy-block">
-              <h3>Cancellation policy</h3>
-              <ul>
-                <li>Appointments cancelled more than 30 minutes before the scheduled time may be eligible for rescheduling.</li>
-                <li>Appointments cancelled within 30 minutes of the scheduled appointment may incur a cancellation fee.</li>
-                <li>Clients who do not attend their appointment without prior notice ("no-show") will be charged the full service fee.</li>
-              </ul>
-            </div>
-
-            <div class="policy-block">
-              <h3>Home service requirements</h3>
-              <ul>
-                <li>Please ensure there is adequate space and lighting available for the service.</li>
-                <li>Parking fees (if applicable) may be added to the service cost.</li>
-              </ul>
-            </div>
-
-            <p class="policy-note">
-              By confirming your booking, you agree to the above terms and conditions.
-            </p>
-          </div>
-
           <div class="booking-panel">
             <h2 id="book-heading">Book an appointment</h2>
             <p class="booking-intro">Complete the form below, then pay securely by Visa, Mastercard, or other credit/debit card.</p>
@@ -427,10 +391,16 @@
                 <p class="home-fee-note" id="home-fee-note" hidden></p>
               </div>
 
-              <label class="checkbox-label">
-                <input type="checkbox" id="terms-agree" name="terms" required>
-                <span>I understand that payment is required before my appointment and that cancellations made within 30 minutes of the appointment time or no-shows may incur charges.</span>
-              </label>
+              <div class="policy-consent" id="policy">
+                <p class="policy-consent-status" id="policy-status">
+                  Please read and accept our booking policy before continuing.
+                </p>
+                <button type="button" class="btn btn-outline btn-sm" id="policy-open-btn">
+                  Read booking &amp; payment policy
+                </button>
+              </div>
+
+              <input type="checkbox" id="terms-agree" name="terms" required hidden aria-hidden="true" tabindex="-1">
 
               <p class="booking-error" id="booking-error" hidden role="alert"></p>
 
@@ -455,6 +425,54 @@
       <img class="lightbox-img" src="" alt="">
       <figcaption class="lightbox-caption"></figcaption>
     </figure>
+  </div>
+
+  <div class="policy-modal" id="policy-modal" hidden role="dialog" aria-modal="true" aria-labelledby="policy-modal-title">
+    <div class="policy-modal-backdrop" data-policy-close></div>
+    <div class="policy-modal-panel">
+      <button type="button" class="policy-modal-close" data-policy-close aria-label="Close policy">&times;</button>
+      <div class="section-header section-header-left">
+        <span class="section-label">Before You Book</span>
+        <h2 id="policy-modal-title">Booking &amp; Payment Policy</h2>
+      </div>
+
+      <div class="policy-modal-body">
+        <div class="policy-block">
+          <h3>Payment required in advance</h3>
+          <ul>
+            <li>Full payment is required to secure your appointment.</li>
+            <li>Your booking is only confirmed once payment has been received.</li>
+          </ul>
+        </div>
+
+        <div class="policy-block">
+          <h3>Cancellation policy</h3>
+          <ul>
+            <li>Appointments cancelled more than 30 minutes before the scheduled time may be eligible for rescheduling.</li>
+            <li>Appointments cancelled within 30 minutes of the scheduled appointment may incur a cancellation fee.</li>
+            <li>Clients who do not attend their appointment without prior notice ("no-show") will be charged the full service fee.</li>
+          </ul>
+        </div>
+
+        <div class="policy-block">
+          <h3>Home service requirements</h3>
+          <ul>
+            <li>Please ensure there is adequate space and lighting available for the service.</li>
+            <li>Parking fees (if applicable) may be added to the service cost.</li>
+          </ul>
+        </div>
+
+        <p class="policy-note">
+          By confirming your booking, you agree to the above terms and conditions.
+        </p>
+      </div>
+
+      <label class="checkbox-label policy-modal-agree">
+        <input type="checkbox" id="policy-modal-agree">
+        <span>I have read and agree to the booking &amp; payment terms above.</span>
+      </label>
+      <button type="button" class="btn btn-primary btn-full" id="policy-accept-btn" disabled>Accept &amp; continue booking</button>
+    </div>
   </div>
 
   <footer class="site-footer" id="visit" aria-labelledby="visit-heading">
@@ -516,7 +534,7 @@
 
   <script src="js/site-config.js?v=20260614"></script>
   <script src="js/main.js?v=20260614"></script>
-  <script src="js/booking.js?v=20260614"></script>
+  <script src="js/booking.js?v=20260617"></script>
   <script src="js/gallery.js?v=20260614"></script>
 </body>
 </html>

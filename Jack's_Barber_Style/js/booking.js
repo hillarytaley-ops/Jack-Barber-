@@ -6,6 +6,12 @@
   var homeFeeNote = document.getElementById('home-fee-note');
   var serviceTypeInputs = form.querySelectorAll('input[name="service-type"]');
   var terms = form.querySelector('#terms-agree');
+  var policyModal = document.getElementById('policy-modal');
+  var policyOpenBtn = document.getElementById('policy-open-btn');
+  var policyStatus = document.getElementById('policy-status');
+  var policyModalAgree = document.getElementById('policy-modal-agree');
+  var policyAcceptBtn = document.getElementById('policy-accept-btn');
+  var lastFocus = null;
   var success = document.getElementById('booking-success');
   var successTitle = document.getElementById('booking-success-title');
   var successText = document.getElementById('booking-success-text');
@@ -48,6 +54,87 @@
       bookSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
+
+  function updatePolicyStatus() {
+    if (!policyStatus || !terms) return;
+    if (terms.checked) {
+      policyStatus.textContent = 'Booking policy accepted.';
+      policyStatus.classList.add('is-accepted');
+      if (policyOpenBtn) policyOpenBtn.textContent = 'Review booking policy';
+    } else {
+      policyStatus.textContent = 'Please read and accept our booking policy before continuing.';
+      policyStatus.classList.remove('is-accepted');
+      if (policyOpenBtn) policyOpenBtn.textContent = 'Read booking & payment policy';
+    }
+  }
+
+  function openPolicyModal() {
+    if (!policyModal) return;
+    lastFocus = document.activeElement;
+    policyModal.hidden = false;
+    document.body.classList.add('policy-modal-open');
+    if (policyModalAgree && terms) {
+      policyModalAgree.checked = terms.checked;
+    }
+    if (policyAcceptBtn) {
+      policyAcceptBtn.disabled = !(policyModalAgree && policyModalAgree.checked);
+    }
+    var closeBtn = policyModal.querySelector('.policy-modal-close');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closePolicyModal() {
+    if (!policyModal) return;
+    policyModal.hidden = true;
+    document.body.classList.remove('policy-modal-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function acceptPolicy() {
+    if (!policyModalAgree || !policyModalAgree.checked || !terms) return;
+    terms.checked = true;
+    terms.removeAttribute('aria-invalid');
+    updatePolicyStatus();
+    closePolicyModal();
+    clearError();
+    if (submitBtn) submitBtn.focus();
+  }
+
+  function handlePolicyHash() {
+    if (window.location.hash === '#policy') {
+      scrollToBooking();
+      openPolicyModal();
+    }
+  }
+
+  if (policyOpenBtn) {
+    policyOpenBtn.addEventListener('click', openPolicyModal);
+  }
+
+  if (policyModalAgree && policyAcceptBtn) {
+    policyModalAgree.addEventListener('change', function () {
+      policyAcceptBtn.disabled = !policyModalAgree.checked;
+    });
+  }
+
+  if (policyAcceptBtn) {
+    policyAcceptBtn.addEventListener('click', acceptPolicy);
+  }
+
+  if (policyModal) {
+    policyModal.querySelectorAll('[data-policy-close]').forEach(function (el) {
+      el.addEventListener('click', closePolicyModal);
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && policyModal && !policyModal.hidden) {
+      closePolicyModal();
+    }
+  });
+
+  window.addEventListener('hashchange', handlePolicyHash);
+  updatePolicyStatus();
 
   function selectHomeService() {
     var homeRadio = form.querySelector('input[name="service-type"][value="home"]');
@@ -191,9 +278,8 @@
     if (payAgainBtn) payAgainBtn.hidden = true;
 
     if (terms && !terms.checked) {
-      showError('Please agree to the booking and payment terms before continuing.');
-      terms.focus();
-      terms.setAttribute('aria-invalid', 'true');
+      showError('Please read and accept the booking policy before continuing.');
+      openPolicyModal();
       return;
     }
     if (terms) terms.removeAttribute('aria-invalid');
@@ -313,6 +399,7 @@
     .finally(function () {
       handleReturnFromPayment();
       applyHomeFromUrl();
+      handlePolicyHash();
     });
 
   var homeBookBtn = document.getElementById('home-service-book-btn');

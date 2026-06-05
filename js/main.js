@@ -79,7 +79,7 @@
 
   document.querySelectorAll(
     '.feature-card, .style-card, .home-banner, ' +
-    '.process-step, .extra-card, .visit-info, .visit-map, .policy-panel, .booking-panel'
+    '.process-step, .extra-card, .visit-info, .visit-map, .booking-panel'
   ).forEach(function (el) {
     el.classList.add('reveal');
 
