@@ -55,7 +55,10 @@
       if (btn.dataset.panel === 'reports') loadReport();
       if (btn.dataset.panel === 'clients') loadBookings();
       if (btn.dataset.panel === 'finances') loadTransactions();
-      if (btn.dataset.panel === 'gallery' && settings) renderGalleryAdmin();
+      if (btn.dataset.panel === 'gallery' && settings) {
+        renderGalleryAdmin();
+        renderGalleryPricesEditor();
+      }
     });
   });
 
@@ -228,13 +231,16 @@
 
   function collectServicesFromDOM() {
     return Array.from(document.querySelectorAll('#services-editor .service-row')).map(function (row) {
+      var id = row.dataset.id;
+      var existing = (settings.services || []).find(function (s) { return s.id === id; }) || {};
       return {
-        id: row.dataset.id,
+        id: id,
         name: row.querySelector('.svc-name').value.trim(),
         price: Number(row.querySelector('.svc-price').value) || 0,
         duration: Number(row.querySelector('.svc-duration').value) || 30,
         description: row.querySelector('.svc-desc').value.trim(),
-        featured: row.querySelector('.svc-featured').checked
+        featured: row.querySelector('.svc-featured').checked,
+        category: existing.category || ''
       };
     }).filter(function (s) { return s.name; });
   }
@@ -348,6 +354,42 @@
       }).join('');
   }
 
+  function serviceByName(name) {
+    return (settings.services || []).find(function (s) { return s.name === name; });
+  }
+
+  function renderGalleryPricesEditor() {
+    var el = document.getElementById('gallery-prices-editor');
+    if (!el || !settings || !settings.services) return;
+    el.innerHTML = settings.services.map(function (s, index) {
+      return '<div class="price-row" data-index="' + index + '">' +
+        '<span class="price-row-name">' + escHtml(s.name) + '</span>' +
+        '<input class="price-row-price" type="number" min="0" step="1" value="' + s.price + '" aria-label="Price for ' + escAttr(s.name) + '">' +
+        '<input class="price-row-duration" type="number" min="5" step="5" value="' + s.duration + '" aria-label="Duration for ' + escAttr(s.name) + '">' +
+        '</div>';
+    }).join('');
+  }
+
+  function collectGalleryPricesFromDOM() {
+    document.querySelectorAll('#gallery-prices-editor .price-row').forEach(function (row) {
+      var index = Number(row.dataset.index);
+      if (!settings.services[index]) return;
+      settings.services[index].price = Number(row.querySelector('.price-row-price').value) || 0;
+      settings.services[index].duration = Number(row.querySelector('.price-row-duration').value) || 30;
+    });
+  }
+
+  document.getElementById('save-gallery-prices-btn').addEventListener('click', function () {
+    collectGalleryPricesFromDOM();
+    api('/api/admin/settings', { method: 'PUT', body: JSON.stringify(settings) })
+      .then(function () {
+        renderGalleryPricesEditor();
+        renderGalleryAdmin();
+        alert('Prices saved. Refresh the public site to see updates.');
+      })
+      .catch(function (err) { alert(err.message); });
+  });
+
   function isUploadedPhoto(item) {
     var name = item && item.filename ? item.filename : '';
     return name && !/^photo-\d+\.svg$/i.test(name);
@@ -363,6 +405,10 @@
           : ''
     );
     var serviceNote = item.service ? '<small>Books: ' + escHtml(item.service) + '</small>' : '';
+    var linked = item.service ? serviceByName(item.service) : null;
+    if (linked) {
+      serviceNote += '<small>$' + linked.price + ' · ' + linked.duration + ' min</small>';
+    }
     var badge = isUploadedPhoto(item) ? '' : '<small>Template placeholder</small>';
     return '<figure class="gallery-admin-item">' +
       (src ? '<img src="' + src + '" alt="">' : '<div class="gallery-admin-missing">No image file</div>') +
@@ -381,6 +427,7 @@
 
   function renderGalleryAdmin() {
     renderGalleryServiceSelect();
+    renderGalleryPricesEditor();
     var uploadsEl = document.getElementById('gallery-admin-uploads');
     var templatesEl = document.getElementById('gallery-admin-templates');
     if (!uploadsEl || !settings) return;
