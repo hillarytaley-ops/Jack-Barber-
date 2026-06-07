@@ -154,9 +154,10 @@ function galleryUrl(item) {
   return '/api/gallery/' + encodeURIComponent(item.filename);
 }
 
-function adminResourceId(pathname, basePath, searchParams) {
+function adminResourceId(pathname, basePath, searchParams, body) {
   const fromQuery = searchParams.get('id');
   if (fromQuery) return decodeURIComponent(fromQuery);
+  if (body && body.id) return String(body.id);
   if (pathname.startsWith(basePath + '/')) {
     return decodeURIComponent(pathname.slice(basePath.length + 1).replace(/\/$/, ''));
   }
@@ -477,7 +478,8 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'DELETE' && (pathname === '/api/admin/gallery' || pathname.startsWith('/api/admin/gallery/'))) {
-      const id = adminResourceId(pathname, '/api/admin/gallery', searchParams);
+      const body = await parseBody(req);
+      const id = adminResourceId(pathname, '/api/admin/gallery', searchParams, body);
       if (!id) return send(res, 400, { error: 'Gallery id required' });
       const settings = await getSettings();
       const item = settings.gallery.find(function (g) { return g.id === id; });
@@ -495,7 +497,8 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'DELETE' && (pathname === '/api/admin/bookings' || pathname.startsWith('/api/admin/bookings/'))) {
-      const id = adminResourceId(pathname, '/api/admin/bookings', searchParams);
+      const body = await parseBody(req);
+      const id = adminResourceId(pathname, '/api/admin/bookings', searchParams, body);
       if (!id) return send(res, 400, { error: 'Booking id required' });
       const bookings = await readJSON('bookings.json', []);
       await writeJSON('bookings.json', bookings.filter(function (b) { return b.id !== id; }));
@@ -503,9 +506,9 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'PATCH' && (pathname === '/api/admin/bookings' || pathname.startsWith('/api/admin/bookings/'))) {
-      const id = adminResourceId(pathname, '/api/admin/bookings', searchParams);
-      if (!id) return send(res, 400, { error: 'Booking id required' });
       const body = await parseBody(req);
+      const id = adminResourceId(pathname, '/api/admin/bookings', searchParams, body);
+      if (!id) return send(res, 400, { error: 'Booking id required' });
       const bookings = await readJSON('bookings.json', []);
       const idx = bookings.findIndex(function (b) { return b.id === id; });
       if (idx === -1) return send(res, 404, { error: 'Not found' });
@@ -515,7 +518,8 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'DELETE' && (pathname === '/api/admin/transactions' || pathname.startsWith('/api/admin/transactions/'))) {
-      const id = adminResourceId(pathname, '/api/admin/transactions', searchParams);
+      const body = await parseBody(req);
+      const id = adminResourceId(pathname, '/api/admin/transactions', searchParams, body);
       if (!id) return send(res, 400, { error: 'Transaction id required' });
       const transactions = await readJSON('transactions.json', []);
       await writeJSON('transactions.json', transactions.filter(function (t) { return t.id !== id; }));

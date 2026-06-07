@@ -430,7 +430,10 @@
     if (!id) return;
     if (!confirm('Delete this photo?')) return;
     if (btn) btn.disabled = true;
-    api('/api/admin/gallery?id=' + encodeURIComponent(id), { method: 'DELETE' })
+    api('/api/admin/gallery', {
+      method: 'DELETE',
+      body: JSON.stringify({ id: id })
+    })
       .then(function () { return loadSettings(); })
       .catch(function (err) {
         alert(err.message || 'Could not delete photo.');
@@ -533,16 +536,19 @@
 
       document.querySelectorAll('.status-select').forEach(function (sel) {
         sel.addEventListener('change', function () {
-          api('/api/admin/bookings?id=' + encodeURIComponent(sel.dataset.id), {
+          api('/api/admin/bookings', {
             method: 'PATCH',
-            body: JSON.stringify({ status: sel.value })
+            body: JSON.stringify({ id: sel.dataset.id, status: sel.value })
           });
         });
       });
       document.querySelectorAll('.del-booking').forEach(function (btn) {
         btn.addEventListener('click', function () {
           if (confirm('Delete booking?')) {
-            api('/api/admin/bookings?id=' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' }).then(loadBookings);
+            api('/api/admin/bookings', {
+              method: 'DELETE',
+              body: JSON.stringify({ id: btn.dataset.id })
+            }).then(loadBookings);
           }
         });
       });
@@ -565,7 +571,10 @@
       document.querySelectorAll('.del-txn').forEach(function (btn) {
         btn.addEventListener('click', function () {
           if (confirm('Delete transaction?')) {
-            api('/api/admin/transactions?id=' + encodeURIComponent(btn.dataset.id), { method: 'DELETE' }).then(loadTransactions);
+            api('/api/admin/transactions', {
+              method: 'DELETE',
+              body: JSON.stringify({ id: btn.dataset.id })
+            }).then(loadTransactions);
           }
         });
       });
