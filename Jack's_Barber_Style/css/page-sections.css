@@ -126,9 +126,9 @@
   padding: 0.4rem 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 999px;
-  background: rgba(10, 22, 40, 0.18);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  background: rgba(10, 22, 40, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   color: rgba(255, 255, 255, 0.82);
   font-size: 0.78rem;
   font-weight: 600;
@@ -157,17 +157,17 @@
   gap: 0.65rem 1rem;
   align-items: center;
   padding: 0.75rem 0.85rem;
-  background: rgba(10, 22, 40, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(10, 22, 40, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: var(--radius);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   transition: border-color var(--transition), background var(--transition);
 }
 
 .service-price-row:hover {
   border-color: rgba(212, 160, 23, 0.45);
-  background: rgba(10, 22, 40, 0.34);
+  background: rgba(10, 22, 40, 0.58);
 }
 
 .service-price-row__name {
