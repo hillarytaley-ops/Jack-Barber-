@@ -477,6 +477,44 @@ async function handleRequest(req, res) {
       return send(res, 200, { ok: true, item: Object.assign({}, item, { src: galleryUrl(item) }) });
     }
 
+    if (req.method === 'PATCH' && (pathname === '/api/admin/gallery' || pathname.startsWith('/api/admin/gallery/'))) {
+      const body = await parseBody(req);
+      const id = adminResourceId(pathname, '/api/admin/gallery', searchParams, body);
+      if (!id) return send(res, 400, { error: 'Gallery id required' });
+      const settings = await getSettings();
+      const idx = settings.gallery.findIndex(function (g) { return g.id === id; });
+      if (idx === -1) return send(res, 404, { error: 'Photo not found' });
+      const item = settings.gallery[idx];
+      if (body.caption !== undefined) {
+        item.caption = String(body.caption).trim() || item.caption;
+        item.alt = item.caption;
+      }
+      if (body.service !== undefined) {
+        item.service = String(body.service || '');
+      }
+      if (body.image && body.filename) {
+        const ext = path.extname(body.filename).toLowerCase() || '.jpg';
+        const name = 'gallery-' + Date.now() + ext;
+        const buffer = Buffer.from(body.image.replace(/^data:image\/[^;]+;base64,/, ''), 'base64');
+        if (buffer.length > 5 * 1024 * 1024) {
+          return send(res, 400, { error: 'Image must be 5 MB or smaller' });
+        }
+        const mimeType = MIME[ext] || 'image/jpeg';
+        await saveImage(name, buffer, mimeType);
+        if (item.filename && !item.filename.endsWith('.svg')) {
+          try {
+            await deleteImage(item.filename);
+          } catch (err) {
+            console.error('deleteImage failed:', err.message);
+          }
+        }
+        item.filename = name;
+      }
+      settings.gallery[idx] = item;
+      await saveSettings(settings);
+      return send(res, 200, { ok: true, item: Object.assign({}, item, { src: galleryUrl(item) }) });
+    }
+
     if (req.method === 'DELETE' && (pathname === '/api/admin/gallery' || pathname.startsWith('/api/admin/gallery/'))) {
       const body = await parseBody(req);
       const id = adminResourceId(pathname, '/api/admin/gallery', searchParams, body);

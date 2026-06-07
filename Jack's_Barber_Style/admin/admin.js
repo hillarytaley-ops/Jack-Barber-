@@ -364,6 +364,16 @@
       }).join('');
   }
 
+  function renderGalleryEditServiceSelect(selected) {
+    var select = document.getElementById('gallery-edit-service');
+    if (!select || !settings || !settings.services) return;
+    select.innerHTML = '<option value="">No linked service</option>' +
+      settings.services.map(function (s) {
+        var sel = s.name === selected ? ' selected' : '';
+        return '<option value="' + escAttr(s.name) + '"' + sel + '>' + escHtml(s.name) + '</option>';
+      }).join('');
+  }
+
   function serviceByName(name) {
     return (settings.services || []).find(function (s) { return s.name === name; });
   }
@@ -423,7 +433,91 @@
     return '<figure class="gallery-admin-item">' +
       (src ? '<img src="' + src + '" alt="">' : '<div class="gallery-admin-missing">No image file</div>') +
       '<figcaption>' + escHtml(item.caption || 'Untitled') + serviceNote + badge + '</figcaption>' +
-      '<button type="button" class="del-gallery btn btn-danger btn-sm" data-id="' + escAttr(item.id) + '">Delete</button></figure>';
+      '<div class="gallery-admin-actions">' +
+      '<button type="button" class="edit-gallery btn btn-secondary btn-sm" data-id="' + escAttr(item.id) + '">Edit</button>' +
+      '<button type="button" class="del-gallery btn btn-danger btn-sm" data-id="' + escAttr(item.id) + '">Delete</button>' +
+      '</div></figure>';
+  }
+
+  var galleryEditModal = document.getElementById('gallery-edit-modal');
+  var galleryEditForm = document.getElementById('gallery-edit-form');
+  var galleryEditCancel = document.getElementById('gallery-edit-cancel');
+
+  function closeGalleryEditModal() {
+    if (!galleryEditModal) return;
+    galleryEditModal.hidden = true;
+    if (galleryEditForm) galleryEditForm.reset();
+  }
+
+  function openGalleryEditModal(id) {
+    if (!galleryEditModal || !galleryEditForm || !settings) return;
+    var item = (settings.gallery || []).find(function (g) { return g.id === id; });
+    if (!item) return;
+    document.getElementById('gallery-edit-id').value = item.id;
+    document.getElementById('gallery-edit-caption').value = item.caption || '';
+    renderGalleryEditServiceSelect(item.service || '');
+    galleryEditModal.hidden = false;
+    document.getElementById('gallery-edit-caption').focus();
+  }
+
+  function saveGalleryEdit(e) {
+    e.preventDefault();
+    var id = document.getElementById('gallery-edit-id').value;
+    var caption = document.getElementById('gallery-edit-caption').value.trim();
+    var service = document.getElementById('gallery-edit-service').value;
+    var fileInput = document.getElementById('gallery-edit-photo');
+    var file = fileInput && fileInput.files[0];
+    var submitBtn = galleryEditForm.querySelector('button[type=submit]');
+
+    if (!id || !caption) return;
+    if (submitBtn) submitBtn.disabled = true;
+
+    function sendPatch(payload) {
+      return api('/api/admin/gallery', {
+        method: 'PATCH',
+        body: JSON.stringify(payload)
+      })
+        .then(function () {
+          closeGalleryEditModal();
+          return loadSettings();
+        })
+        .catch(function (err) {
+          alert(err.message || 'Could not save changes.');
+        })
+        .finally(function () {
+          if (submitBtn) submitBtn.disabled = false;
+        });
+    }
+
+    var payload = { id: id, caption: caption, service: service };
+    if (!file) {
+      sendPatch(payload);
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      payload.image = reader.result;
+      payload.filename = file.name;
+      sendPatch(payload);
+    };
+    reader.onerror = function () {
+      alert('Could not read the selected photo.');
+      if (submitBtn) submitBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  if (galleryEditForm) {
+    galleryEditForm.addEventListener('submit', saveGalleryEdit);
+  }
+  if (galleryEditCancel) {
+    galleryEditCancel.addEventListener('click', closeGalleryEditModal);
+  }
+  if (galleryEditModal) {
+    galleryEditModal.addEventListener('click', function (e) {
+      if (e.target === galleryEditModal) closeGalleryEditModal();
+    });
   }
 
   function deleteGalleryPhoto(id, btn) {
@@ -444,6 +538,11 @@
   var galleryPanel = document.getElementById('panel-gallery');
   if (galleryPanel) {
     galleryPanel.addEventListener('click', function (e) {
+      var editBtn = e.target.closest('.edit-gallery');
+      if (editBtn) {
+        openGalleryEditModal(editBtn.getAttribute('data-id'));
+        return;
+      }
       var btn = e.target.closest('.del-gallery');
       if (!btn) return;
       deleteGalleryPhoto(btn.getAttribute('data-id'), btn);

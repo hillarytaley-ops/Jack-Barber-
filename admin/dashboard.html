@@ -118,6 +118,27 @@
         </form>
         <div id="gallery-admin-uploads" class="gallery-admin-grid"></div>
         <div id="gallery-admin-templates"></div>
+
+        <div class="gallery-edit-modal" id="gallery-edit-modal" hidden>
+          <div class="gallery-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="gallery-edit-title">
+            <h3 id="gallery-edit-title">Edit photo</h3>
+            <form id="gallery-edit-form" class="admin-form">
+              <input type="hidden" name="id" id="gallery-edit-id">
+              <label for="gallery-edit-caption">Style name</label>
+              <input type="text" name="caption" id="gallery-edit-caption" required>
+              <label for="gallery-edit-service">Link to booking service</label>
+              <select name="service" id="gallery-edit-service">
+                <option value="">No linked service</option>
+              </select>
+              <label for="gallery-edit-photo">Replace photo (optional)</label>
+              <input type="file" name="photo" id="gallery-edit-photo" accept="image/*">
+              <div class="gallery-edit-actions">
+                <button type="button" class="btn btn-secondary" id="gallery-edit-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </section>
 
       <!-- Clients -->
@@ -194,6 +215,6 @@
       </section>
     </main>
   </div>
-  <script src="admin.js?v=20260709"></script>
+  <script src="admin.js?v=20260710"></script>
 </body>
 </html>
