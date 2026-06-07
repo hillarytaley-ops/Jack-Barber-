@@ -251,7 +251,7 @@
       var desc = s.description
         ? '<p class="service-price-row__desc">' + s.description.replace(/</g, '&lt;') + '</p>'
         : '';
-      return '<article class="service-price-row reveal" role="listitem" data-category="' + cat + '">' +
+      return '<article class="service-price-row" role="listitem" data-category="' + cat + '">' +
         '<div class="service-price-row__info">' +
         '<h3 class="service-price-row__name">' + s.name + badge + '</h3>' +
         desc +

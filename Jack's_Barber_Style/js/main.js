@@ -3,6 +3,7 @@
   const siteNav = document.querySelector('.site-nav');
   const navOverlay = document.getElementById('nav-overlay');
   const siteTop = document.querySelector('.site-top');
+  let revealObserver = null;
 
   function setNavOpen(isOpen) {
     if (!siteNav || !navToggle) return;
@@ -120,15 +121,38 @@
     }
   }
 
-  function initRevealAnimations() {
-    if (document.body.dataset.revealInit) return;
-    document.body.dataset.revealInit = '1';
+  function revealIfInView(el) {
+    var rect = el.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    if (rect.top < vh * 0.95 && rect.bottom > vh * 0.05) {
+      el.classList.add('is-visible');
+      return true;
+    }
+    return false;
+  }
+
+  function observeRevealElements(root) {
+    var scope = root || document;
+    var selector = '.reveal:not(.is-visible), .reveal-left:not(.is-visible), .reveal-right:not(.is-visible)';
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      scope.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function (el) {
+        el.classList.add('is-visible');
+      });
       return;
     }
 
-    const staggerParents = [
+    scope.querySelectorAll(selector).forEach(function (el) {
+      if (el.dataset.revealBound) return;
+      el.dataset.revealBound = '1';
+      if (!revealIfInView(el) && revealObserver) {
+        revealObserver.observe(el);
+      }
+    });
+  }
+
+  function initRevealAnimations() {
+    var staggerParents = [
       '.roots-pillars',
       '.service-price-list',
       '.hairstyle-gallery',
@@ -139,55 +163,53 @@
       '.testimonials-grid'
     ];
 
-    document.querySelectorAll('.section-header').forEach(function (el) {
-      el.classList.add('reveal');
-    });
+    if (!document.body.dataset.revealStaticInit) {
+      document.body.dataset.revealStaticInit = '1';
 
-    document.querySelectorAll(
-      '.feature-card, .service-price-row, .hair-photo, .home-step-card, .home-info-card, ' +
-      '.process-step, .extra-card, .visit-card, .booking-panel, .testimonial-card, ' +
-      '.meet-jack-photo, .meet-jack-copy, .featured-cut-inner'
-    ).forEach(function (el) {
-      el.classList.add('reveal');
-
-      const parent = el.parentElement;
-      if (parent && staggerParents.some(function (sel) { return parent.matches(sel); })) {
-        const index = Array.prototype.indexOf.call(parent.children, el);
-        el.style.setProperty('--reveal-delay', (index * 0.08) + 's');
-      }
-    });
-
-    const revealObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        revealObserver.unobserve(entry.target);
+      document.querySelectorAll('.section-header').forEach(function (el) {
+        el.classList.add('reveal');
       });
-    }, {
-      threshold: 0.08,
-      rootMargin: '0px 0px -2% 0px'
-    });
 
-    function revealIfInView(el) {
-      var rect = el.getBoundingClientRect();
-      var vh = window.innerHeight || document.documentElement.clientHeight;
-      if (rect.top < vh * 0.95 && rect.bottom > vh * 0.05) {
-        el.classList.add('is-visible');
-        return true;
-      }
-      return false;
+      document.querySelectorAll(
+        '.feature-card, .home-step-card, .home-info-card, ' +
+        '.process-step, .extra-card, .visit-card, .booking-panel, .testimonial-card, ' +
+        '.meet-jack-photo, .meet-jack-copy, .featured-cut-inner'
+      ).forEach(function (el) {
+        el.classList.add('reveal');
+      });
     }
 
-    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function (el) {
-      if (!revealIfInView(el)) {
-        revealObserver.observe(el);
-      }
-    });
-
-    window.addEventListener('load', function () {
-      document.querySelectorAll('.reveal:not(.is-visible), .reveal-left:not(.is-visible), .reveal-right:not(.is-visible)').forEach(function (el) {
-        revealIfInView(el);
+    if (!revealObserver && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      revealObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        });
+      }, {
+        threshold: 0.08,
+        rootMargin: '0px 0px -2% 0px'
       });
+    }
+
+    observeRevealElements(document);
+  }
+
+  function initDynamicRevealAnimations() {
+    var priceList = document.getElementById('service-price-list');
+    var gallery = document.getElementById('hairstyle-gallery');
+    var staggerParents = ['.service-price-list', '.hairstyle-gallery'];
+
+    [priceList, gallery].forEach(function (parent) {
+      if (!parent) return;
+      parent.querySelectorAll('.service-price-row, .hair-photo').forEach(function (el) {
+        if (!el.classList.contains('reveal')) {
+          el.classList.add('reveal');
+        }
+        var index = Array.prototype.indexOf.call(parent.children, el);
+        el.style.setProperty('--reveal-delay', (index * 0.08) + 's');
+      });
+      observeRevealElements(parent);
     });
   }
 
@@ -199,5 +221,8 @@
   }
 
   initPageEnhancements();
-  document.addEventListener('site-config-loaded', initPageEnhancements);
+  document.addEventListener('site-config-loaded', function () {
+    initPageEnhancements();
+    initDynamicRevealAnimations();
+  });
 })();
