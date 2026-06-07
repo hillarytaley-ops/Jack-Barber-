@@ -2,6 +2,7 @@
   const navToggle = document.querySelector('.nav-toggle');
   const siteNav = document.querySelector('.site-nav');
   const navOverlay = document.getElementById('nav-overlay');
+  const siteTop = document.querySelector('.site-top');
 
   function setNavOpen(isOpen) {
     if (!siteNav || !navToggle) return;
@@ -9,6 +10,9 @@
     navToggle.setAttribute('aria-expanded', String(isOpen));
     navToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
     document.body.classList.toggle('nav-open', isOpen);
+    if (siteTop) {
+      siteTop.classList.toggle('is-nav-open', isOpen);
+    }
     if (navOverlay) {
       navOverlay.hidden = !isOpen;
       navOverlay.classList.toggle('is-visible', isOpen);
@@ -50,10 +54,9 @@
     });
   });
 
-  const siteHeader = document.querySelector('.site-header');
-  if (siteHeader) {
+  if (siteTop) {
     window.addEventListener('scroll', function () {
-      siteHeader.classList.toggle('is-scrolled', window.scrollY > 12);
+      siteTop.classList.toggle('is-scrolled', window.scrollY > 12);
     }, { passive: true });
   }
 
