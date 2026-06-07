@@ -122,7 +122,7 @@
   var SERVICE_IMAGE_CAPTIONS = {
     'Afro Cut': 'Afro Shape',
     'Skin Fade': 'Skin Fade',
-    'Taper Fade': 'Skin Fade',
+    'Taper Fade': 'Taper Fade',
     'Scissor Cut': 'Afro Shape',
     'Twists & Retwist': 'Afro Shape',
     'Beard Trim & Shape': 'Beard Trim',
@@ -158,15 +158,42 @@
 
   function findUploadedGalleryForService(serviceName, gallery) {
     if (!gallery || !gallery.length) return null;
-    var caption = SERVICE_IMAGE_CAPTIONS[serviceName];
-    return gallery.find(function (g) {
-      if (!isUploadedGalleryItem(g)) return false;
-      if (g.service === serviceName) return true;
-      if (caption && (g.service === caption || g.caption === caption)) return true;
-      if (serviceName === 'Afro Cut' && (g.service === 'Afro Shape' || g.caption === 'Afro Shape')) return true;
-      if (serviceName === 'Skin Fade' && /skin\s*fade/i.test(g.caption || '')) return true;
-      return false;
-    }) || null;
+    var uploaded = gallery.filter(isUploadedGalleryItem);
+
+    var exactService = uploaded.find(function (g) { return g.service === serviceName; });
+    if (exactService) return exactService;
+
+    var exactCaption = uploaded.find(function (g) { return g.caption === serviceName; });
+    if (exactCaption) return exactCaption;
+
+    if (serviceName === 'Afro Cut') {
+      return uploaded.find(function (g) {
+        return g.service === 'Afro Shape' || g.caption === 'Afro Shape';
+      }) || null;
+    }
+
+    if (serviceName === 'Skin Fade') {
+      return uploaded.find(function (g) {
+        var c = g.caption || '';
+        return /skin\s*fade/i.test(c) && !/taper/i.test(c);
+      }) || null;
+    }
+
+    if (serviceName === 'Taper Fade') {
+      return uploaded.find(function (g) {
+        var c = g.caption || '';
+        return g.service === 'Taper Fade' || /taper\s*fade/i.test(c);
+      }) || null;
+    }
+
+    var aliasCaption = SERVICE_IMAGE_CAPTIONS[serviceName];
+    if (aliasCaption && aliasCaption !== serviceName) {
+      return uploaded.find(function (g) {
+        return g.caption === aliasCaption && !g.service;
+      }) || null;
+    }
+
+    return null;
   }
 
   function galleryItemBookingKey(item, services) {
