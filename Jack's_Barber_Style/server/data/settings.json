@@ -209,18 +209,6 @@
   ],
   "gallery": [
     {
-      "id": "g1",
-      "caption": "Skin Fade",
-      "filename": "photo-1.svg",
-      "alt": "Skin fade haircut"
-    },
-    {
-      "id": "g2",
-      "caption": "Afro Shape",
-      "filename": "photo-2.svg",
-      "alt": "Shaped afro haircut"
-    },
-    {
       "id": "g3",
       "caption": "Line-Up",
       "filename": "photo-3.svg",

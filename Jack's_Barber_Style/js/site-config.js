@@ -130,33 +130,72 @@
     'Hair Design': 'Hair Design'
   };
 
+  var GALLERY_BOOKING_ALIASES = {
+    'Afro Shape': 'Afro Cut'
+  };
+
   var FALLBACK_IMAGES = [
-    'assets/gallery/photo-2.svg',
-    'assets/gallery/photo-1.svg',
-    'assets/gallery/photo-1.svg',
-    'assets/gallery/photo-2.svg',
-    'assets/gallery/photo-2.svg',
-    'assets/gallery/photo-5.svg',
     'assets/gallery/photo-3.svg',
-    'assets/gallery/photo-4.svg'
+    'assets/gallery/photo-4.svg',
+    'assets/gallery/photo-5.svg',
+    'assets/gallery/photo-6.svg',
+    'assets/gallery/photo-3.svg',
+    'assets/gallery/photo-4.svg',
+    'assets/gallery/photo-5.svg',
+    'assets/gallery/photo-6.svg'
   ];
 
+  function isTemplateGalleryItem(item) {
+    if (!item) return false;
+    var name = item.filename || item.src || '';
+    return /photo-\d+\.svg/i.test(name);
+  }
+
+  function resolveBookingService(serviceLink) {
+    if (!serviceLink) return '';
+    return GALLERY_BOOKING_ALIASES[serviceLink] || serviceLink;
+  }
+
+  function findUploadedGalleryForService(serviceName, gallery) {
+    if (!gallery || !gallery.length) return null;
+    var caption = SERVICE_IMAGE_CAPTIONS[serviceName];
+    return gallery.find(function (g) {
+      if (!isUploadedGalleryItem(g)) return false;
+      if (g.service === serviceName) return true;
+      if (caption && (g.service === caption || g.caption === caption)) return true;
+      if (serviceName === 'Afro Cut' && (g.service === 'Afro Shape' || g.caption === 'Afro Shape')) return true;
+      if (serviceName === 'Skin Fade' && /skin\s*fade/i.test(g.caption || '')) return true;
+      return false;
+    }) || null;
+  }
+
+  function galleryItemBookingKey(item, services) {
+    var link = item.service || matchServiceByCaption(item.caption, services);
+    return resolveBookingService(link) || item.caption || item.src || '';
+  }
+
+  function dedupeGalleryDisplayItems(items, services) {
+    var seen = {};
+    return items.filter(function (item) {
+      var key = galleryItemBookingKey(item, services);
+      if (!key || seen[key]) return false;
+      seen[key] = true;
+      return true;
+    });
+  }
+
   function imageForService(service, gallery, index) {
-    if (gallery && gallery.length) {
-      var byService = gallery.find(function (g) {
-        return g.service === service.name && isUploadedGalleryItem(g);
-      });
-      if (byService) return { src: byService.src, alt: byService.alt || service.name };
-    }
+    var uploaded = findUploadedGalleryForService(service.name, gallery);
+    if (uploaded) return { src: uploaded.src, alt: uploaded.alt || service.name };
 
     var caption = SERVICE_IMAGE_CAPTIONS[service.name];
     if (gallery && caption) {
-      var hit = gallery.find(function (g) { return g.caption === caption; });
+      var hit = gallery.find(function (g) {
+        return g.caption === caption && !isTemplateGalleryItem(g);
+      });
       if (hit) return { src: hit.src, alt: hit.alt || service.name };
     }
-    if (gallery && gallery[index]) {
-      return { src: gallery[index].src, alt: gallery[index].alt || service.name };
-    }
+
     return {
       src: FALLBACK_IMAGES[index % FALLBACK_IMAGES.length],
       alt: service.name
@@ -248,6 +287,7 @@
 
   function matchServiceByCaption(caption, services) {
     if (!caption || !services) return '';
+    if (caption === 'Afro Shape') return 'Afro Cut';
     var exact = services.find(function (s) { return s.name === caption; });
     if (exact) return exact.name;
     var partial = services.find(function (s) {
@@ -260,16 +300,20 @@
     var grid = document.getElementById('hairstyle-gallery');
     if (!grid) return;
 
-    var uploaded = (gallery || []).filter(isUploadedGalleryItem);
+    var uploaded = dedupeGalleryDisplayItems(
+      (gallery || []).filter(isUploadedGalleryItem),
+      services
+    );
     var items;
 
     if (uploaded.length) {
       items = uploaded.map(function (item) {
+        var serviceLink = item.service || matchServiceByCaption(item.caption, services);
         return {
           src: item.src,
           caption: item.caption,
           alt: item.alt || item.caption,
-          service: item.service || matchServiceByCaption(item.caption, services)
+          service: resolveBookingService(serviceLink)
         };
       });
     } else if (services && services.length) {

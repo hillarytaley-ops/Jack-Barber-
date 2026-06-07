@@ -61,8 +61,6 @@
     { "id": "hair-design", "name": "Hair Design", "price": 15, "duration": 15, "featured": false, "category": "design", "description": "Custom parts, tracks, and patterns." }
   ],
   "gallery": [
-    { "id": "g1", "caption": "Skin Fade", "filename": "photo-1.svg", "alt": "Skin fade haircut" },
-    { "id": "g2", "caption": "Afro Shape", "filename": "photo-2.svg", "alt": "Shaped afro haircut" },
     { "id": "g3", "caption": "Line-Up", "filename": "photo-3.svg", "alt": "Blade line-up" },
     { "id": "g4", "caption": "Hair Design", "filename": "photo-4.svg", "alt": "Custom hair design" },
     { "id": "g5", "caption": "Beard Trim", "filename": "photo-5.svg", "alt": "Beard trim and shape" },

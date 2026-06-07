@@ -355,23 +355,39 @@
   });
 
   /* Gallery */
+  var GALLERY_EXTRA_SERVICE_LINKS = ['Afro Shape'];
+
+  function serviceForGalleryLink(name) {
+    if (name === 'Afro Shape') return serviceByName('Afro Cut');
+    return serviceByName(name);
+  }
+
+  function galleryServiceOptionsHtml(selected) {
+    var html = '';
+    (settings.services || []).forEach(function (s) {
+      var sel = s.name === selected ? ' selected' : '';
+      html += '<option value="' + escAttr(s.name) + '"' + sel + '>' + escHtml(s.name) + '</option>';
+    });
+    GALLERY_EXTRA_SERVICE_LINKS.forEach(function (name) {
+      if ((settings.services || []).some(function (s) { return s.name === name; })) return;
+      var sel = name === selected ? ' selected' : '';
+      html += '<option value="' + escAttr(name) + '"' + sel + '>' + escHtml(name) + '</option>';
+    });
+    return html;
+  }
+
   function renderGalleryServiceSelect() {
     var select = document.getElementById('gallery-service-select');
     if (!select || !settings || !settings.services) return;
     select.innerHTML = '<option value="">Link to booking service (optional)</option>' +
-      settings.services.map(function (s) {
-        return '<option value="' + escAttr(s.name) + '">' + escHtml(s.name) + '</option>';
-      }).join('');
+      galleryServiceOptionsHtml('');
   }
 
   function renderGalleryEditServiceSelect(selected) {
     var select = document.getElementById('gallery-edit-service');
     if (!select || !settings || !settings.services) return;
     select.innerHTML = '<option value="">No linked service</option>' +
-      settings.services.map(function (s) {
-        var sel = s.name === selected ? ' selected' : '';
-        return '<option value="' + escAttr(s.name) + '"' + sel + '>' + escHtml(s.name) + '</option>';
-      }).join('');
+      galleryServiceOptionsHtml(selected);
   }
 
   function serviceByName(name) {
@@ -425,7 +441,7 @@
           : ''
     );
     var serviceNote = item.service ? '<small>Books: ' + escHtml(item.service) + '</small>' : '';
-    var linked = item.service ? serviceByName(item.service) : null;
+    var linked = item.service ? serviceForGalleryLink(item.service) : null;
     if (linked) {
       serviceNote += '<small>$' + linked.price + ' · ' + linked.duration + ' min</small>';
     }
