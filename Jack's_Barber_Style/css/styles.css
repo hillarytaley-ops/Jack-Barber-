@@ -455,12 +455,17 @@ address {
 
 .hero-emblem {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  --emblem-ring-offset: 20px;
 }
 
 .hero-logo {
+  display: block;
   width: clamp(150px, 22vw, 220px);
   height: auto;
   aspect-ratio: 1;
@@ -471,10 +476,16 @@ address {
 
 .emblem-ring {
   position: absolute;
-  inset: -20px;
+  top: 50%;
+  left: 50%;
+  width: calc(100% + (var(--emblem-ring-offset) * 2));
+  height: calc(100% + (var(--emblem-ring-offset) * 2));
+  translate: -50% -50%;
   border: 2px dashed rgba(212, 160, 23, 0.55);
   border-radius: 50%;
-  animation: spin-slow 30s linear infinite;
+  box-sizing: border-box;
+  pointer-events: none;
+  animation: emblem-spin 30s linear infinite;
 }
 
 .emblem-ring::before {
@@ -483,7 +494,7 @@ address {
   inset: -14px;
   border: 1px dashed rgba(196, 30, 58, 0.4);
   border-radius: 50%;
-  animation: spin-slow 22s linear infinite reverse;
+  animation: emblem-spin-rev 22s linear infinite;
 }
 
 .emblem-ring::after {
@@ -498,6 +509,14 @@ address {
 @keyframes pulse-ring {
   0%, 100% { opacity: 0.4; transform: scale(1); }
   50% { opacity: 0.9; transform: scale(1.02); }
+}
+
+@keyframes emblem-spin {
+  to { rotate: 360deg; }
+}
+
+@keyframes emblem-spin-rev {
+  to { rotate: -360deg; }
 }
 
 @keyframes spin-slow {
@@ -1085,6 +1104,9 @@ body.policy-modal-open {
 
   .hero-content,
   .hero-visual,
+  .emblem-ring,
+  .emblem-ring::before,
+  .emblem-ring::after,
   .kente-strip,
   .pattern-divider,
   .service-featured {
@@ -1268,7 +1290,6 @@ body.policy-modal-open {
   }
 
   .hero-emblem {
-    width: min(100%, 280px);
     margin-inline: auto;
   }
 
@@ -1406,8 +1427,8 @@ body.policy-modal-open {
     width: min(72vw, 220px);
   }
 
-  .emblem-ring {
-    inset: -12px;
+  .hero-emblem {
+    --emblem-ring-offset: 14px;
   }
 
   .hero-stats {
