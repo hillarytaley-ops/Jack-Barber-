@@ -85,12 +85,266 @@
   font-size: 0.84rem;
 }
 
-/* Services + Gallery — unified style cards */
+/* Services — compact price list */
 .craft {
   background: var(--navy);
   color: var(--white);
 }
 
+.service-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.service-tab {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.service-tab:hover,
+.service-tab.is-active {
+  background: rgba(212, 160, 23, 0.15);
+  border-color: rgba(212, 160, 23, 0.45);
+  color: var(--gold-light);
+}
+
+.service-price-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
+.service-price-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  gap: 0.65rem 1rem;
+  align-items: center;
+  padding: 0.75rem 0.85rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.service-price-row:hover {
+  border-color: rgba(212, 160, 23, 0.3);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.service-price-row__name {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--white);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.service-price-row__desc {
+  margin: 0.2rem 0 0;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.35;
+}
+
+.service-price-row__price {
+  font-weight: 700;
+  color: var(--gold-light);
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.service-price-row__duration {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.service-price-row__book {
+  min-width: 4.25rem;
+  text-align: center;
+}
+
+/* Meet Jack */
+.meet-jack {
+  background: var(--white);
+}
+
+.meet-jack-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 2rem;
+  align-items: center;
+  max-width: 920px;
+  margin-inline: auto;
+}
+
+.meet-jack-photo {
+  margin: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.meet-jack-photo img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+}
+
+.meet-jack-copy .section-label {
+  text-align: left;
+}
+
+.meet-jack-copy h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  color: var(--navy);
+  margin-bottom: 0.65rem;
+}
+
+.meet-jack-lead {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin-bottom: 1rem;
+}
+
+.meet-jack-tags {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.meet-jack-tags li {
+  padding: 0.35rem 0.7rem;
+  background: var(--cream);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+/* Featured cut spotlight */
+.featured-cut {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  color: var(--white);
+  padding: 1.75rem 0;
+}
+
+.featured-cut-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 1.25rem;
+  align-items: center;
+  max-width: 920px;
+  margin-inline: auto;
+}
+
+.featured-cut-copy .section-label {
+  color: var(--gold-light);
+  text-align: left;
+}
+
+.featured-cut-copy h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  margin-bottom: 0.35rem;
+}
+
+.featured-cut-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.featured-cut-price {
+  color: var(--gold-light);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.featured-cut-media {
+  margin: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.featured-cut-media img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+}
+
+/* Testimonials */
+.testimonials {
+  background: var(--cream);
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.testimonial-card {
+  margin: 0;
+  padding: 1.1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border-top: 3px solid var(--gold);
+}
+
+.testimonial-stars {
+  color: var(--gold);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.testimonial-card p {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text);
+  margin-bottom: 0.65rem;
+}
+
+.testimonial-card footer {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.testimonial-card cite {
+  font-style: normal;
+  font-weight: 600;
+}
+
+.testimonials-cta {
+  text-align: center;
+  margin: 0;
+}
+
+/* Legacy service cards — kept for reference if needed elsewhere */
 .style-gallery {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -231,7 +485,8 @@
   background: var(--cream);
 }
 
-.hairstyle-showcase .section-sub {
+.hairstyle-showcase .section-sub,
+.hairstyle-showcase .gallery-sub {
   max-width: 36rem;
   margin-inline: auto;
   color: var(--text-muted);
@@ -240,7 +495,7 @@
 .hairstyle-gallery {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
 .hair-photo {
@@ -473,7 +728,7 @@
 }
 
 .site-footer-main {
-  padding: 1.5rem 0 1.25rem;
+  padding: 1.25rem 0 1rem;
 }
 
 .site-footer .section-label {
@@ -649,12 +904,12 @@
 
 /* Book section shell */
 .book {
-  padding: 2.75rem 0 3.5rem;
+  padding: 2rem 0 1.75rem;
   background: var(--cream);
 }
 
 .book .kente-strip {
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
 .gallery-trigger:focus-visible {
@@ -681,11 +936,26 @@
   .home-info-cards,
   .process-steps,
   .extras-grid,
-  .style-gallery,
   .hairstyle-gallery,
-  .visit-grid {
+  .visit-grid,
+  .meet-jack-inner,
+  .featured-cut-inner,
+  .testimonials-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .service-price-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "info info"
+      "price duration"
+      "book book";
+  }
+
+  .service-price-row__info { grid-area: info; }
+  .service-price-row__price { grid-area: price; }
+  .service-price-row__duration { grid-area: duration; }
+  .service-price-row__book { grid-area: book; justify-self: start; }
 
   .visit-detail-contact {
     grid-template-columns: 1fr;
@@ -707,7 +977,13 @@
   .home-steps-cards,
   .home-info-cards,
   .process-steps,
-  .extras-grid {
+  .extras-grid,
+  .testimonials-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .meet-jack-inner,
+  .featured-cut-inner {
     grid-template-columns: minmax(0, 1fr);
   }
 

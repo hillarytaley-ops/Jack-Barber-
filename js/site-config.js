@@ -110,8 +110,10 @@
       hoursEl.innerHTML = formatHoursCompact(cfg.hoursDisplay);
     }
 
-    renderStyleGallery(cfg.services, cfg.gallery);
+    renderServicePriceList(cfg.services);
     renderHairstyleGallery(cfg.gallery, cfg.services);
+    renderFeaturedCut(cfg.gallery, cfg.services);
+    renderOpenBadge(cfg.hours);
     renderHomeService(cfg.homeService);
     populateServiceSelect(cfg.services);
 
@@ -229,26 +231,110 @@
     };
   }
 
-  function renderStyleGallery(services, gallery) {
-    var grid = document.getElementById('service-grid');
-    if (!grid || !services) return;
+  function serviceLookup(services, name) {
+    if (!name || !services) return null;
+    return services.find(function (s) { return s.name === name; }) || null;
+  }
 
-    grid.innerHTML = services.map(function (s, index) {
-      var img = imageForService(s, gallery, index);
-      var featured = s.featured;
-      return '<article class="style-card' + (featured ? ' style-card--featured' : '') + '">' +
-        '<figure class="style-card-media">' +
-        '<button type="button" class="gallery-trigger">' +
-        '<img src="' + img.src + '" alt="' + img.alt.replace(/"/g, '&quot;') + '" loading="lazy">' +
-        '</button></figure>' +
-        '<div class="style-card-footer">' +
-        '<div class="style-card-meta">' +
-        '<h3>' + s.name + (featured ? ' <span class="service-badge">Signature</span>' : '') + '</h3>' +
-        '<p class="style-card-price">From <strong>$' + s.price + '</strong> · ' + s.duration + ' min</p>' +
-        '</div>' +
-        '<a class="btn btn-outline-light btn-sm" href="#book?service=' + encodeURIComponent(s.name) + '">Book</a>' +
-        '</div></article>';
+  function renderServicePriceList(services) {
+    var tabsEl = document.getElementById('service-tabs');
+    var listEl = document.getElementById('service-price-list');
+    if (!tabsEl || !listEl || !services) return;
+
+    tabsEl.innerHTML = SERVICE_TABS.map(function (tab, i) {
+      return '<button type="button" class="service-tab' + (i === 0 ? ' is-active' : '') + '" role="tab" data-tab="' + tab.id + '" aria-selected="' + (i === 0 ? 'true' : 'false') + '">' + tab.label + '</button>';
     }).join('');
+
+    listEl.innerHTML = services.map(function (s) {
+      var cat = s.category || 'other';
+      var badge = s.featured ? ' <span class="service-badge">Signature</span>' : '';
+      var desc = s.description
+        ? '<p class="service-price-row__desc">' + s.description.replace(/</g, '&lt;') + '</p>'
+        : '';
+      return '<article class="service-price-row reveal" role="listitem" data-category="' + cat + '">' +
+        '<div class="service-price-row__info">' +
+        '<h3 class="service-price-row__name">' + s.name + badge + '</h3>' +
+        desc +
+        '</div>' +
+        '<span class="service-price-row__price">$' + s.price + '</span>' +
+        '<span class="service-price-row__duration">' + s.duration + ' min</span>' +
+        '<a class="btn btn-outline-light btn-sm service-price-row__book" href="#book?service=' + encodeURIComponent(s.name) + '">Book</a>' +
+        '</article>';
+    }).join('');
+  }
+
+  function renderFeaturedCut(gallery, services) {
+    var section = document.getElementById('featured-cut');
+    if (!section) return;
+
+    var uploaded = dedupeGalleryDisplayItems(
+      (gallery || []).filter(isUploadedGalleryItem),
+      services
+    );
+    if (!uploaded.length) {
+      section.hidden = true;
+      return;
+    }
+
+    var pick = null;
+    var featuredSvc = (services || []).find(function (s) { return s.featured; });
+    if (featuredSvc) {
+      pick = findUploadedGalleryForService(featuredSvc.name, gallery);
+    }
+    if (!pick) pick = uploaded[0];
+
+    var bookName = resolveBookingService(
+      pick.service || matchServiceByCaption(pick.caption, services)
+    );
+    var svc = serviceLookup(services, bookName);
+    var nameEl = document.getElementById('featured-cut-name');
+    var priceEl = document.getElementById('featured-cut-price');
+    var imgEl = document.getElementById('featured-cut-img');
+    var bookEl = document.getElementById('featured-cut-book');
+
+    section.hidden = false;
+    if (nameEl) nameEl.textContent = pick.caption || (svc && svc.name) || 'Featured style';
+    if (priceEl) priceEl.textContent = svc ? '$' + svc.price + ' · ' + svc.duration + ' min' : '';
+    if (imgEl) {
+      imgEl.src = pick.src;
+      imgEl.alt = pick.alt || pick.caption || 'Featured haircut';
+    }
+    if (bookEl && bookName) {
+      bookEl.href = '#book?service=' + encodeURIComponent(bookName);
+    }
+  }
+
+  function renderOpenBadge(hours) {
+    var badge = document.getElementById('open-badge');
+    if (!badge || !hours || !hours.schedule) return;
+
+    var days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    var now = new Date();
+    var row = hours.schedule.find(function (r) { return r.id === days[now.getDay()]; });
+
+    if (!row || row.closed) {
+      badge.textContent = '· Closed today';
+      badge.className = 'open-badge open-badge--closed';
+      badge.hidden = false;
+      return;
+    }
+
+    var parts = (row.open || '').split(':');
+    var closeParts = (row.close || '').split(':');
+    if (parts.length < 2 || closeParts.length < 2) return;
+
+    var mins = now.getHours() * 60 + now.getMinutes();
+    var openMins = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    var closeMins = parseInt(closeParts[0], 10) * 60 + parseInt(closeParts[1], 10);
+
+    if (mins >= openMins && mins < closeMins) {
+      badge.textContent = '· Open now';
+      badge.className = 'open-badge open-badge--open';
+    } else {
+      badge.textContent = '· Closed now';
+      badge.className = 'open-badge open-badge--closed';
+    }
+    badge.hidden = false;
   }
 
   function renderHomeService(hs) {
@@ -367,14 +453,27 @@
       var caption = item.caption || 'Style';
       var service = item.service || '';
       var alt = item.alt || caption;
+      var svc = service ? serviceLookup(services, service) : null;
+      var metaAttrs = svc
+        ? ' data-price="' + svc.price + '" data-duration="' + svc.duration + '"'
+        : '';
       return '<article class="hair-photo">' +
         '<button type="button" class="gallery-trigger hair-photo-trigger" data-caption="' + caption.replace(/"/g, '&quot;') + '" ' +
-        (service ? 'data-service="' + service.replace(/"/g, '&quot;') + '"' : '') + '>' +
+        (service ? 'data-service="' + service.replace(/"/g, '&quot;') + '"' : '') +
+        metaAttrs + '>' +
         '<img src="' + item.src + '" alt="' + alt.replace(/"/g, '&quot;') + '" loading="lazy">' +
-        '<span class="hair-photo-label">' + caption + '</span>' +
+        '<span class="hair-photo-label">' + caption + (svc ? ' · $' + svc.price : '') + '</span>' +
         '</button></article>';
     }).join('');
   }
+
+  var SERVICE_TABS = [
+    { id: 'all', label: 'All' },
+    { id: 'fades', label: 'Fades & Cuts' },
+    { id: 'afro', label: 'Afro & Texture' },
+    { id: 'design', label: 'Line-Up & Design' },
+    { id: 'beard', label: 'Beard' }
+  ];
 
   var SERVICE_GROUPS = [
     { label: 'Fades & Cuts', categories: ['fades'] },

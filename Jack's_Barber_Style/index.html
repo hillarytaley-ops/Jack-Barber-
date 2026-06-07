@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260707">
-  <link rel="stylesheet" href="css/page-sections.css?v=20260630">
+  <link rel="stylesheet" href="css/styles.css?v=20260713">
+  <link rel="stylesheet" href="css/page-sections.css?v=20260713">
   <link rel="icon" href="assets/logo.png" type="image/png">
 </head>
 <body>
@@ -22,7 +22,7 @@
         <img src="assets/logo.png" alt="Jack's Barber Style logo" class="brand-logo" width="52" height="52">
         <span class="brand-text">
           <span class="brand-name">Jack's Barber Style</span>
-          <span class="brand-tag">Wodonga · African Hair Specialists</span>
+          <span class="brand-tag">Wodonga · African Hair Specialists <span class="open-badge" id="open-badge" hidden></span></span>
         </span>
       </a>
       <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
@@ -34,8 +34,10 @@
   <nav class="site-nav" id="site-nav">
     <ul>
       <li><a href="#roots">Our Roots</a></li>
-      <li><a href="#craft">The Craft</a></li>
+      <li><a href="#meet-jack">Meet Jack</a></li>
       <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#craft">Services</a></li>
+      <li><a href="#reviews">Reviews</a></li>
       <li><a href="#home-service">Home Service</a></li>
       <li><a href="#process">Process</a></li>
       <li><a href="#extras">Extras</a></li>
@@ -110,128 +112,43 @@
       </div>
     </section>
 
-    <!-- Services -->
-    <section class="section craft" id="craft" aria-labelledby="craft-heading">
-      <div class="container">
-        <header class="section-header section-header-light">
-          <span class="section-label">The Craft</span>
-          <h2 id="craft-heading">Our Services</h2>
-          <p class="section-sub">Every appointment includes a consultation. Choose your style when you book below.</p>
-        </header>
-        <div class="style-gallery" id="service-grid">
-          <article class="style-card style-card--featured">
-            <figure class="style-card-media">
-              <button type="button" class="gallery-trigger">
-                <img src="assets/gallery/photo-2.svg" alt="Afro cut" loading="lazy">
-              </button>
-            </figure>
-            <div class="style-card-footer">
-              <div class="style-card-meta">
-                <h3>Afro Cut <span class="service-badge">Signature</span></h3>
-                <p class="style-card-price">From <strong>$45</strong> · 45 min</p>
-              </div>
-              <a class="btn btn-outline-light btn-sm" href="#book">Book</a>
-            </div>
-          </article>
-          <article class="style-card">
-            <figure class="style-card-media">
-              <button type="button" class="gallery-trigger">
-                <img src="assets/gallery/photo-1.svg" alt="Skin fade" loading="lazy">
-              </button>
-            </figure>
-            <div class="style-card-footer">
-              <div class="style-card-meta">
-                <h3>Skin Fade</h3>
-                <p class="style-card-price">From <strong>$40</strong> · 30 min</p>
-              </div>
-              <a class="btn btn-outline-light btn-sm" href="#book">Book</a>
-            </div>
-          </article>
-          <article class="style-card">
-            <figure class="style-card-media">
-              <button type="button" class="gallery-trigger">
-                <img src="assets/gallery/photo-1.svg" alt="Taper fade" loading="lazy">
-              </button>
-            </figure>
-            <div class="style-card-footer">
-              <div class="style-card-meta">
-                <h3>Taper Fade</h3>
-                <p class="style-card-price">From <strong>$35</strong> · 25 min</p>
-              </div>
-              <a class="btn btn-outline-light btn-sm" href="#book">Book</a>
-            </div>
-          </article>
-          <article class="style-card">
-            <figure class="style-card-media">
-              <button type="button" class="gallery-trigger">
-                <img src="assets/gallery/photo-2.svg" alt="Scissor cut" loading="lazy">
-              </button>
-            </figure>
-            <div class="style-card-footer">
-              <div class="style-card-meta">
-                <h3>Scissor Cut</h3>
-                <p class="style-card-price">From <strong>$40</strong> · 30 min</p>
-              </div>
-              <a class="btn btn-outline-light btn-sm" href="#book">Book</a>
-            </div>
-          </article>
-          <article class="style-card">
-            <figure class="style-card-media">
-              <button type="button" class="gallery-trigger">
-                <img src="assets/gallery/photo-2.svg" alt="Twists and retwist" loading="lazy">
-              </button>
-            </figure>
-            <div class="style-card-footer">
-              <div class="style-card-meta">
-                <h3>Twists &amp; Retwist</h3>
-                <p class="style-card-price">From <strong>$50</strong> · 45 min</p>
-              </div>
-              <a class="btn btn-outline-light btn-sm" href="#book">Book</a>
-            </div>
-          </article>
-          <article class="style-card">
-            <figure class="style-card-media">
-              <button type="button" class="gallery-trigger">
-                <img src="assets/gallery/photo-5.svg" alt="Beard trim and shape" loading="lazy">
-              </button>
-            </figure>
-            <div class="style-card-footer">
-              <div class="style-card-meta">
-                <h3>Beard Trim &amp; Shape</h3>
-                <p class="style-card-price">From <strong>$25</strong> · 15 min</p>
-              </div>
-              <a class="btn btn-outline-light btn-sm" href="#book">Book</a>
-            </div>
-          </article>
-          <article class="style-card">
-            <figure class="style-card-media">
-              <button type="button" class="gallery-trigger">
-                <img src="assets/gallery/photo-3.svg" alt="Blade line-up" loading="lazy">
-              </button>
-            </figure>
-            <div class="style-card-footer">
-              <div class="style-card-meta">
-                <h3>Blade Line-Up</h3>
-                <p class="style-card-price">From <strong>$15</strong> · 10 min</p>
-              </div>
-              <a class="btn btn-outline-light btn-sm" href="#book">Book</a>
-            </div>
-          </article>
-          <article class="style-card">
-            <figure class="style-card-media">
-              <button type="button" class="gallery-trigger">
-                <img src="assets/gallery/photo-4.svg" alt="Hair design" loading="lazy">
-              </button>
-            </figure>
-            <div class="style-card-footer">
-              <div class="style-card-meta">
-                <h3>Hair Design</h3>
-                <p class="style-card-price">From <strong>$15</strong> · 15 min</p>
-              </div>
-              <a class="btn btn-outline-light btn-sm" href="#book">Book</a>
-            </div>
-          </article>
+    <!-- Meet Jack -->
+    <section class="section meet-jack" id="meet-jack" aria-labelledby="meet-jack-heading">
+      <div class="container meet-jack-inner">
+        <figure class="meet-jack-photo reveal-left">
+          <img src="assets/hero-barber.png" alt="Jack at the barber chair" width="480" height="560" loading="lazy">
+        </figure>
+        <div class="meet-jack-copy reveal-right">
+          <span class="section-label">Your Barber</span>
+          <h2 id="meet-jack-heading">Meet Jack</h2>
+          <p class="meet-jack-lead">
+            Jack specialises in afro-textured hair — crisp skin fades, shaped afros, clean line-ups,
+            and styles rooted in African barbering tradition. Every cut starts with a consultation
+            so you leave looking sharp and feeling confident.
+          </p>
+          <ul class="meet-jack-tags">
+            <li>Skin &amp; taper fades</li>
+            <li>Afro shape &amp; texture</li>
+            <li>Blade line-ups &amp; design</li>
+          </ul>
+          <a class="btn btn-primary" href="#book">Book with Jack</a>
         </div>
+      </div>
+    </section>
+
+    <!-- Featured cut spotlight (populated from gallery) -->
+    <section class="featured-cut" id="featured-cut" hidden aria-labelledby="featured-cut-heading">
+      <div class="container featured-cut-inner">
+        <div class="featured-cut-copy">
+          <span class="section-label">Spotlight</span>
+          <h2 id="featured-cut-heading">Featured Style</h2>
+          <p class="featured-cut-name" id="featured-cut-name"></p>
+          <p class="featured-cut-price" id="featured-cut-price"></p>
+          <a class="btn btn-primary" id="featured-cut-book" href="#book">Book this style</a>
+        </div>
+        <figure class="featured-cut-media">
+          <img id="featured-cut-img" src="" alt="" loading="lazy">
+        </figure>
       </div>
     </section>
 
@@ -241,9 +158,52 @@
         <header class="section-header">
           <span class="section-label">Real Cuts</span>
           <h2 id="gallery-heading">Style Gallery</h2>
-          <p class="section-sub">Browse fades, afros, waves, and line-ups. Tap a photo to view larger, then book the same style from the form.</p>
+          <p class="section-sub gallery-sub">Tap a photo to view larger, see the price, and book the same style.</p>
         </header>
         <div class="hairstyle-gallery" id="hairstyle-gallery"></div>
+      </div>
+    </section>
+
+    <!-- Services price list -->
+    <section class="section craft" id="craft" aria-labelledby="craft-heading">
+      <div class="container">
+        <header class="section-header section-header-light">
+          <span class="section-label">The Craft</span>
+          <h2 id="craft-heading">Services &amp; Prices</h2>
+          <p class="section-sub">Every appointment includes a consultation. Pick your style from the gallery above, then book below.</p>
+        </header>
+        <div class="service-tabs" id="service-tabs" role="tablist" aria-label="Filter services by category"></div>
+        <div class="service-price-list" id="service-price-list" role="list"></div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section testimonials" id="reviews" aria-labelledby="reviews-heading">
+      <div class="container">
+        <header class="section-header">
+          <span class="section-label">Client Love</span>
+          <h2 id="reviews-heading">What Clients Say</h2>
+        </header>
+        <div class="testimonials-grid">
+          <blockquote class="testimonial-card reveal">
+            <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+            <p>&ldquo;Best skin fade in Wodonga — always consistent and clean. Jack knows textured hair.&rdquo;</p>
+            <footer>— <cite>James M.</cite></footer>
+          </blockquote>
+          <blockquote class="testimonial-card reveal">
+            <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+            <p>&ldquo;Professional, friendly, and my afro has never looked sharper. Highly recommend.&rdquo;</p>
+            <footer>— <cite>David K.</cite></footer>
+          </blockquote>
+          <blockquote class="testimonial-card reveal">
+            <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+            <p>&ldquo;Home service was easy to book and the cut was exactly what I wanted. Will be back.&rdquo;</p>
+            <footer>— <cite>Sam T.</cite></footer>
+          </blockquote>
+        </div>
+        <p class="testimonials-cta">
+          <a class="btn btn-outline" href="https://maps.google.com/?q=Jack%27s+Barber+Style+Wodonga" target="_blank" rel="noopener noreferrer">Leave a review on Google</a>
+        </p>
       </div>
     </section>
 
@@ -455,8 +415,9 @@
     <figure class="lightbox-figure">
       <img class="lightbox-img" src="" alt="">
       <figcaption class="lightbox-caption"></figcaption>
+      <p class="lightbox-meta" id="lightbox-meta" hidden></p>
     </figure>
-    <a class="btn btn-primary lightbox-book" href="#book" hidden>Book this style</a>
+    <a class="btn btn-primary lightbox-book" href="#book">Book this style</a>
   </div>
 
   <div class="policy-modal" id="policy-modal" hidden role="dialog" aria-modal="true" aria-labelledby="policy-modal-title">
@@ -557,6 +518,7 @@
         <nav class="footer-nav" aria-label="Footer">
           <a href="#craft">Services</a>
           <a href="#gallery">Gallery</a>
+          <a href="#reviews">Reviews</a>
           <a href="#home-service">Home Service</a>
           <a href="#book">Book</a>
         </nav>
@@ -577,9 +539,15 @@
     </a>
   </aside>
 
-  <script src="js/site-config.js?v=20260712"></script>
-  <script src="js/main.js?v=20260706"></script>
+  <div class="mobile-action-bar" id="mobile-action-bar" aria-label="Quick booking actions">
+    <a class="mobile-action-bar__btn mobile-action-bar__btn--primary" href="#book">Book</a>
+    <a class="mobile-action-bar__btn" href="tel:+61478268399" data-config="phone">Call</a>
+    <a class="mobile-action-bar__btn" href="#" data-config="social-whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+  </div>
+
+  <script src="js/site-config.js?v=20260713"></script>
+  <script src="js/main.js?v=20260713"></script>
   <script src="js/booking.js?v=20260625"></script>
-  <script src="js/gallery.js?v=20260626"></script>
+  <script src="js/gallery.js?v=20260713"></script>
 </body>
 </html>

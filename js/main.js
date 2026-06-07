@@ -60,67 +60,144 @@
     }, { passive: true });
   }
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    return;
+  function initServiceTabs() {
+    var tabs = document.getElementById('service-tabs');
+    var list = document.getElementById('service-price-list');
+    if (!tabs || !list || tabs.dataset.bound) return;
+    tabs.dataset.bound = '1';
+
+    tabs.addEventListener('click', function (e) {
+      var tab = e.target.closest('[data-tab]');
+      if (!tab) return;
+      tabs.querySelectorAll('[data-tab]').forEach(function (btn) {
+        btn.classList.remove('is-active');
+        btn.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('is-active');
+      tab.setAttribute('aria-selected', 'true');
+      var category = tab.dataset.tab;
+      list.querySelectorAll('.service-price-row').forEach(function (row) {
+        row.hidden = category !== 'all' && row.dataset.category !== category;
+      });
+    });
   }
 
-  const staggerParents = [
-    '.roots-pillars',
-    '.style-gallery',
-    '.hairstyle-gallery',
-    '.home-steps-cards',
-    '.home-info-cards',
-    '.process-steps',
-    '.extras-grid'
-  ];
+  function initNavScrollSpy() {
+    if (!siteNav || siteNav.dataset.spyBound) return;
+    siteNav.dataset.spyBound = '1';
 
-  document.querySelectorAll('.section-header').forEach(function (el) {
-    el.classList.add('reveal');
-  });
+    var links = Array.prototype.slice.call(siteNav.querySelectorAll('a[href^="#"]'));
+    var sections = links.map(function (link) {
+      var id = link.getAttribute('href').split('?')[0];
+      var el = document.querySelector(id);
+      return el ? { link: link, el: el } : null;
+    }).filter(Boolean);
 
-  document.querySelectorAll(
-    '.feature-card, .style-card, .hair-photo, .home-step-card, .home-info-card, ' +
-    '.process-step, .extra-card, .visit-card, .booking-panel'
-  ).forEach(function (el) {
-    el.classList.add('reveal');
+    if (!sections.length) return;
 
-    const parent = el.parentElement;
-    if (parent && staggerParents.some(function (sel) { return parent.matches(sel); })) {
-      const index = Array.prototype.indexOf.call(parent.children, el);
-      el.style.setProperty('--reveal-delay', (index * 0.1) + 's');
+    function setActive(link) {
+      links.forEach(function (l) { l.classList.remove('is-active'); });
+      if (link) link.classList.add('is-active');
     }
-  });
 
-  const revealObserver = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('is-visible');
-      revealObserver.unobserve(entry.target);
-    });
-  }, {
-    threshold: 0.08,
-    rootMargin: '0px 0px -2% 0px'
-  });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var hit = sections.find(function (s) { return s.el === entry.target; });
+        if (hit) setActive(hit.link);
+      });
+    }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
 
-  function revealIfInView(el) {
-    var rect = el.getBoundingClientRect();
-    var vh = window.innerHeight || document.documentElement.clientHeight;
-    if (rect.top < vh * 0.95 && rect.bottom > vh * 0.05) {
-      el.classList.add('is-visible');
-      return true;
-    }
-    return false;
+    sections.forEach(function (s) { observer.observe(s.el); });
   }
 
-  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function (el) {
-    if (!revealIfInView(el)) {
-      revealObserver.observe(el);
+  function initMobileActionBar() {
+    var bar = document.getElementById('mobile-action-bar');
+    if (!bar || bar.dataset.bound) return;
+    bar.dataset.bound = '1';
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      document.body.classList.add('has-mobile-bar');
     }
-  });
+  }
 
-  window.addEventListener('load', function () {
-    document.querySelectorAll('.reveal:not(.is-visible), .reveal-left:not(.is-visible), .reveal-right:not(.is-visible)').forEach(function (el) {
-      revealIfInView(el);
+  function initRevealAnimations() {
+    if (document.body.dataset.revealInit) return;
+    document.body.dataset.revealInit = '1';
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const staggerParents = [
+      '.roots-pillars',
+      '.service-price-list',
+      '.hairstyle-gallery',
+      '.home-steps-cards',
+      '.home-info-cards',
+      '.process-steps',
+      '.extras-grid',
+      '.testimonials-grid'
+    ];
+
+    document.querySelectorAll('.section-header').forEach(function (el) {
+      el.classList.add('reveal');
     });
-  });
+
+    document.querySelectorAll(
+      '.feature-card, .service-price-row, .hair-photo, .home-step-card, .home-info-card, ' +
+      '.process-step, .extra-card, .visit-card, .booking-panel, .testimonial-card, ' +
+      '.meet-jack-photo, .meet-jack-copy, .featured-cut-inner'
+    ).forEach(function (el) {
+      el.classList.add('reveal');
+
+      const parent = el.parentElement;
+      if (parent && staggerParents.some(function (sel) { return parent.matches(sel); })) {
+        const index = Array.prototype.indexOf.call(parent.children, el);
+        el.style.setProperty('--reveal-delay', (index * 0.08) + 's');
+      }
+    });
+
+    const revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.08,
+      rootMargin: '0px 0px -2% 0px'
+    });
+
+    function revealIfInView(el) {
+      var rect = el.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      if (rect.top < vh * 0.95 && rect.bottom > vh * 0.05) {
+        el.classList.add('is-visible');
+        return true;
+      }
+      return false;
+    }
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function (el) {
+      if (!revealIfInView(el)) {
+        revealObserver.observe(el);
+      }
+    });
+
+    window.addEventListener('load', function () {
+      document.querySelectorAll('.reveal:not(.is-visible), .reveal-left:not(.is-visible), .reveal-right:not(.is-visible)').forEach(function (el) {
+        revealIfInView(el);
+      });
+    });
+  }
+
+  function initPageEnhancements() {
+    initServiceTabs();
+    initNavScrollSpy();
+    initMobileActionBar();
+    initRevealAnimations();
+  }
+
+  initPageEnhancements();
+  document.addEventListener('site-config-loaded', initPageEnhancements);
 })();

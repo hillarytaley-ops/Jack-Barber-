@@ -1,33 +1,27 @@
 (function () {
   function initGallery() {
-    document.querySelectorAll('.style-card img[data-fallback]').forEach(function (img) {
-      img.addEventListener('error', function () {
-        if (img.dataset.fallback && img.src.indexOf(img.dataset.fallback) === -1) {
-          img.src = img.dataset.fallback;
-        }
-      });
-    });
-
     var lightbox = document.getElementById('gallery-lightbox');
     if (!lightbox) return;
 
     var lightboxFigure = lightbox.querySelector('.lightbox-figure');
     var lightboxImg = lightbox.querySelector('.lightbox-img');
     var lightboxCaption = lightbox.querySelector('.lightbox-caption');
+    var lightboxMeta = document.getElementById('lightbox-meta');
     var lightboxBook = lightbox.querySelector('.lightbox-book');
     var closeBtn = lightbox.querySelector('.lightbox-close');
 
-    function openLightbox(src, alt, caption, crop) {
+    function openLightbox(src, alt, caption, options) {
+      options = options || {};
       lightboxImg.src = src;
       lightboxImg.alt = alt;
       lightboxCaption.textContent = caption || '';
 
-      if (crop && crop.cols && lightboxFigure) {
+      if (options.crop && options.crop.cols && lightboxFigure) {
         lightboxFigure.classList.add('lightbox-figure--crop');
-        lightboxFigure.style.setProperty('--hair-cols', crop.cols);
-        lightboxFigure.style.setProperty('--hair-rows', crop.rows);
-        lightboxFigure.style.setProperty('--col', crop.col);
-        lightboxFigure.style.setProperty('--row', crop.row);
+        lightboxFigure.style.setProperty('--hair-cols', options.crop.cols);
+        lightboxFigure.style.setProperty('--hair-rows', options.crop.rows);
+        lightboxFigure.style.setProperty('--col', options.crop.col);
+        lightboxFigure.style.setProperty('--row', options.crop.row);
         lightboxImg.classList.add('lightbox-img--crop');
       } else if (lightboxFigure) {
         lightboxFigure.classList.remove('lightbox-figure--crop');
@@ -38,12 +32,29 @@
         lightboxImg.classList.remove('lightbox-img--crop');
       }
 
+      var service = options.service || (options.crop && options.crop.service) || '';
+      var price = options.price || '';
+      var duration = options.duration || '';
+
+      if (lightboxMeta) {
+        if (price && duration) {
+          lightboxMeta.textContent = '$' + price + ' · ' + duration + ' min';
+          lightboxMeta.hidden = false;
+        } else {
+          lightboxMeta.textContent = '';
+          lightboxMeta.hidden = true;
+        }
+      }
+
       if (lightboxBook) {
-        if (crop && crop.service) {
-          lightboxBook.href = '#book?service=' + encodeURIComponent(crop.service);
+        if (service) {
+          lightboxBook.href = '#book?service=' + encodeURIComponent(service);
+          lightboxBook.textContent = 'Book ' + service + (price ? ' — $' + price : '');
           lightboxBook.hidden = false;
         } else {
-          lightboxBook.hidden = true;
+          lightboxBook.href = '#book';
+          lightboxBook.textContent = 'Book an appointment';
+          lightboxBook.hidden = false;
         }
       }
 
@@ -57,24 +68,17 @@
       lightboxImg.src = '';
       lightboxImg.classList.remove('lightbox-img--crop');
       if (lightboxFigure) lightboxFigure.classList.remove('lightbox-figure--crop');
+      if (lightboxMeta) lightboxMeta.hidden = true;
       document.body.style.overflow = '';
     }
-
-    document.querySelectorAll('.style-card .gallery-trigger').forEach(function (btn) {
-      btn.onclick = function () {
-        var img = btn.querySelector('img');
-        var card = btn.closest('.style-card');
-        var heading = card ? card.querySelector('.style-card-meta h3') : null;
-        var caption = heading ? heading.textContent.replace(/\s*Signature\s*/i, '').trim() : img.alt;
-        openLightbox(img.src, img.alt, caption, null);
-      };
-    });
 
     document.querySelectorAll('.hair-photo-trigger').forEach(function (btn) {
       btn.onclick = function () {
         var img = btn.querySelector('img');
         openLightbox(img.src, img.alt, btn.dataset.caption || img.alt, {
-          service: btn.dataset.service || ''
+          service: btn.dataset.service || '',
+          price: btn.dataset.price || '',
+          duration: btn.dataset.duration || ''
         });
       };
     });
