@@ -100,9 +100,9 @@
   background:
     linear-gradient(
       165deg,
-      rgba(10, 22, 40, 0.88) 0%,
-      rgba(10, 22, 40, 0.72) 45%,
-      rgba(10, 22, 40, 0.86) 100%
+      rgba(10, 22, 40, 0.32) 0%,
+      rgba(10, 22, 40, 0.1) 45%,
+      rgba(10, 22, 40, 0.28) 100%
     ),
     url('../assets/hero-shop.png') center center / cover no-repeat;
   z-index: 0;
@@ -124,11 +124,11 @@
 
 .service-tab {
   padding: 0.4rem 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 999px;
-  background: rgba(10, 22, 40, 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(10, 22, 40, 0.18);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   color: rgba(255, 255, 255, 0.82);
   font-size: 0.78rem;
   font-weight: 600;
@@ -157,17 +157,17 @@
   gap: 0.65rem 1rem;
   align-items: center;
   padding: 0.75rem 0.85rem;
-  background: rgba(10, 22, 40, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 22, 40, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: var(--radius);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   transition: border-color var(--transition), background var(--transition);
 }
 
 .service-price-row:hover {
-  border-color: rgba(212, 160, 23, 0.35);
-  background: rgba(10, 22, 40, 0.78);
+  border-color: rgba(212, 160, 23, 0.45);
+  background: rgba(10, 22, 40, 0.34);
 }
 
 .service-price-row__name {
@@ -177,13 +177,15 @@
   color: var(--white);
   margin: 0;
   line-height: 1.25;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
 }
 
 .service-price-row__desc {
   margin: 0.2rem 0 0;
   font-size: 0.76rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.72);
   line-height: 1.35;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .service-price-row__price {
