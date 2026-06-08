@@ -110,6 +110,7 @@ address {
 
 .kente-strip::before {
   content: "";
+  display: block;
   position: absolute;
   top: 0;
   left: 0;
@@ -131,7 +132,10 @@ address {
     var(--navy-mid) 88px
   );
   background-size: 88px 100%;
-  will-change: transform;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   -webkit-animation: kente-slide 10s linear infinite;
   animation: kente-slide 10s linear infinite;
 }
@@ -527,9 +531,11 @@ address {
   border-radius: 50%;
   box-sizing: border-box;
   pointer-events: none;
+  -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   transform-origin: center center;
-  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   -webkit-animation: emblem-spin 18s linear infinite;
   animation: emblem-spin 18s linear infinite;
 }
@@ -541,7 +547,8 @@ address {
   border: 1px dashed rgba(196, 30, 58, 0.4);
   border-radius: 50%;
   transform-origin: center center;
-  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   -webkit-animation: emblem-spin-rev 12s linear infinite;
   animation: emblem-spin-rev 12s linear infinite;
 }
@@ -1261,13 +1268,10 @@ body.policy-modal-open {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 
+  /* Keep slow decorative hero loops running — desktop "Reduce motion" often
+     disables these even though they are ambient, not jarring. */
   .hero-content,
   .hero-visual,
-  .hero-logo,
-  .emblem-ring,
-  .emblem-ring::before,
-  .emblem-ring::after,
-  .kente-strip::before,
   .pattern-divider,
   .service-featured {
     animation: none;
