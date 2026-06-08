@@ -96,7 +96,7 @@ async function createCheckoutSession(booking, settings) {
       bookingId: booking.id,
       service: booking.service
     },
-    success_url: base + '/?booking=success#book',
+    success_url: base + '/?booking=success&session_id={CHECKOUT_SESSION_ID}#book',
     cancel_url: base + '/?booking=cancelled&id=' + encodeURIComponent(booking.id) + '#book'
   });
 
@@ -141,11 +141,27 @@ async function handleStripeWebhook(event) {
   }
 }
 
+async function verifyCheckoutSession(sessionId) {
+  const stripe = getStripe();
+  if (!stripe || !sessionId || typeof sessionId !== 'string') return null;
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    return {
+      paid: session.payment_status === 'paid',
+      bookingId: session.metadata && session.metadata.bookingId,
+      amount: session.amount_total ? session.amount_total / 100 : 0
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
 module.exports = {
   getStripe,
   paymentsEnabled,
   createCheckoutSession,
   handleStripeWebhook,
+  verifyCheckoutSession,
   getServicePrice,
   getTravelFee,
   getBookingTotal,

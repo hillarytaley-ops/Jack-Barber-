@@ -1,4 +1,5 @@
 const { processReminders } = require('../../server/reminders');
+const { isProduction } = require('../../server/env');
 
 module.exports = async function (req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
@@ -6,6 +7,9 @@ module.exports = async function (req, res) {
   }
 
   const secret = process.env.CRON_SECRET;
+  if (isProduction() && !secret) {
+    return res.status(503).json({ error: 'Cron not configured' });
+  }
   if (secret) {
     const auth = req.headers.authorization || '';
     if (auth !== 'Bearer ' + secret) {

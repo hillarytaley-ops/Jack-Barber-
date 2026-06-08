@@ -5,13 +5,16 @@ const { URL } = require('url');
 const { readJSON, writeJSON, DATA_DIR, ensureDefaults, saveImage, getImage, deleteImage } = require('./store');
 const { normalizeHoursSchedule } = require('./hours');
 const { createSession, verifyToken } = require('./auth-token');
-const { paymentsEnabled, createCheckoutSession, getServicePrice, getBookingTotal, getTravelFee } = require('./payments');
+const { isProduction } = require('./env');
+const { paymentsEnabled, createCheckoutSession, verifyCheckoutSession, getServicePrice, getBookingTotal, getTravelFee } = require('./payments');
 
 const ROOT = path.join(__dirname, '..');
 const UPLOADS = process.env.VERCEL
   ? path.join('/tmp', 'jbs-uploads')
   : path.join(ROOT, 'uploads', 'gallery');
-const DEFAULT_PASSWORD = process.env.ADMIN_PASSWORD || 'JackStyle2026';
+const DEFAULT_PASSWORD = isProduction()
+  ? null
+  : (process.env.ADMIN_PASSWORD || 'JackStyle2026');
 
 let ready = false;
 
@@ -43,11 +46,15 @@ function verifyPassword(password, stored) {
 async function ensureReady() {
   if (ready) return;
   ensureDefaults();
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (isProduction() && !adminPassword) {
+    throw new Error('ADMIN_PASSWORD environment variable is required in production.');
+  }
   const admin = await readJSON('admin.json', null);
   if (!admin) {
     await writeJSON('admin.json', {
       username: 'admin',
-      passwordHash: hashPassword(DEFAULT_PASSWORD)
+      passwordHash: hashPassword(adminPassword || DEFAULT_PASSWORD)
     });
   }
   ready = true;
@@ -116,9 +123,19 @@ function sendBinary(res, status, buffer, mimeType) {
 }
 
 function parseBody(req) {
+  const maxBytes = 1024 * 1024;
   return new Promise(function (resolve, reject) {
     var chunks = [];
-    req.on('data', function (c) { chunks.push(c); });
+    var size = 0;
+    req.on('data', function (c) {
+      size += c.length;
+      if (size > maxBytes) {
+        reject(new Error('Request body too large'));
+        req.destroy();
+        return;
+      }
+      chunks.push(c);
+    });
     req.on('end', function () {
       if (!chunks.length) return resolve({});
       try { resolve(JSON.parse(Buffer.concat(chunks).toString())); }
@@ -211,7 +228,10 @@ async function buildReport(period) {
 function resolveStaticFile(pathname) {
   var rel = decodeURIComponent(pathname).replace(/^\/+/, '').replace(/\/+$/, '');
   if (!rel) return path.join(ROOT, 'index.html');
-  var filePath = path.join(ROOT, ...rel.split('/'));
+  var filePath = path.normalize(path.join(ROOT, ...rel.split('/')));
+  if (!filePath.startsWith(ROOT + path.sep) && filePath !== ROOT) {
+    return null;
+  }
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
     return filePath;
   }
@@ -278,6 +298,14 @@ async function handleRequest(req, res) {
         paymentsEnabled: paymentsEnabled(),
         homeService: settings.homeService || {}
       });
+    }
+
+    if (req.method === 'GET' && pathname === '/api/public/payment-status') {
+      const sessionId = searchParams.get('session_id');
+      if (!sessionId) return send(res, 400, { error: 'session_id required' });
+      const status = await verifyCheckoutSession(sessionId);
+      if (!status) return send(res, 404, { error: 'Payment session not found' });
+      return send(res, 200, status);
     }
 
     if (req.method === 'GET' && pathname.startsWith('/api/gallery/')) {
@@ -550,7 +578,8 @@ async function handleRequest(req, res) {
       const bookings = await readJSON('bookings.json', []);
       const idx = bookings.findIndex(function (b) { return b.id === id; });
       if (idx === -1) return send(res, 404, { error: 'Not found' });
-      bookings[idx] = Object.assign({}, bookings[idx], body);
+      if (body.status !== undefined) bookings[idx].status = body.status;
+      if (body.notes !== undefined) bookings[idx].notes = body.notes;
       await writeJSON('bookings.json', bookings);
       return send(res, 200, bookings[idx]);
     }
@@ -573,7 +602,7 @@ async function handleRequest(req, res) {
     }
 
     var filePath = resolveStaticFile(pathname);
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    if (filePath && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
       return serveStatic(req, res, filePath);
     }
 

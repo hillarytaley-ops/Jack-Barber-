@@ -131,9 +131,9 @@
   }
 
   function field(id, label, value, textarea) {
-    var v = (value || '').replace(/"/g, '&quot;');
+    var v = escAttr(value);
     if (textarea) {
-      return '<label for="' + id + '">' + label + '</label><textarea id="' + id + '">' + (value || '') + '</textarea>';
+      return '<label for="' + id + '">' + label + '</label><textarea id="' + id + '">' + escHtml(value || '') + '</textarea>';
     }
     return '<label for="' + id + '">' + label + '</label><input id="' + id + '" value="' + v + '">';
   }
@@ -628,24 +628,24 @@
     api('/api/admin/bookings').then(function (rows) {
       document.querySelector('#bookings-table tbody').innerHTML = rows.map(function (b) {
         var payment = b.paymentStatus === 'paid'
-          ? 'Paid' + (b.amount ? ' ($' + b.amount + ')' : '')
-          : (b.paymentStatus || 'unpaid');
+          ? 'Paid' + (b.amount ? ' ($' + escHtml(b.amount) + ')' : '')
+          : escHtml(b.paymentStatus || 'unpaid');
         var location = b.serviceType === 'home'
-          ? (b.address || '—') + (b.travelFee ? '<br><small>Travel fee: $' + b.travelFee + '</small>' : '')
+          ? escHtml(b.address || '—') + (b.travelFee ? '<br><small>Travel fee: $' + escHtml(b.travelFee) + '</small>' : '')
           : '47 O\'Meara St (in-shop)';
         return '<tr>' +
-          '<td>' + fmtDate(b.createdAt) + '</td>' +
-          '<td><strong>' + b.name + '</strong></td>' +
-          '<td>' + b.phone + '<br>' + b.email + '</td>' +
-          '<td>' + b.service + '<br><small>' + (b.serviceType === 'home' ? 'Home visit' : 'In-shop') + '</small></td>' +
+          '<td>' + escHtml(fmtDate(b.createdAt)) + '</td>' +
+          '<td><strong>' + escHtml(b.name) + '</strong></td>' +
+          '<td>' + escHtml(b.phone) + '<br>' + escHtml(b.email) + '</td>' +
+          '<td>' + escHtml(b.service) + '<br><small>' + (b.serviceType === 'home' ? 'Home visit' : 'In-shop') + '</small></td>' +
           '<td>' + location + '</td>' +
-          '<td>' + b.date + ' ' + b.time + '</td>' +
+          '<td>' + escHtml(b.date) + ' ' + escHtml(b.time) + '</td>' +
           '<td>' + payment + '</td>' +
-          '<td><select class="status-select" data-id="' + b.id + '">' +
+          '<td><select class="status-select" data-id="' + escAttr(b.id) + '">' +
           ['pending', 'confirmed', 'completed', 'cancelled'].map(function (s) {
             return '<option value="' + s + '" ' + (b.status === s ? 'selected' : '') + '>' + s + '</option>';
           }).join('') + '</select></td>' +
-          '<td><button type="button" class="btn btn-danger btn-sm del-booking" data-id="' + b.id + '">Delete</button></td>' +
+          '<td><button type="button" class="btn btn-danger btn-sm del-booking" data-id="' + escAttr(b.id) + '">Delete</button></td>' +
           '</tr>';
       }).join('') || '<tr><td colspan="9">No bookings yet</td></tr>';
 
@@ -675,12 +675,12 @@
     api('/api/admin/transactions').then(function (rows) {
       document.querySelector('#transactions-table tbody').innerHTML = rows.map(function (t) {
         return '<tr>' +
-          '<td>' + t.date + '</td>' +
-          '<td>' + (t.clientName || '—') + '</td>' +
-          '<td>' + (t.service || '—') + '</td>' +
+          '<td>' + escHtml(t.date) + '</td>' +
+          '<td>' + escHtml(t.clientName || '—') + '</td>' +
+          '<td>' + escHtml(t.service || '—') + '</td>' +
           '<td>' + money(t.amount) + '</td>' +
-          '<td>' + (t.notes || '') + '</td>' +
-          '<td><button type="button" class="btn btn-danger btn-sm del-txn" data-id="' + t.id + '">Delete</button></td></tr>';
+          '<td>' + escHtml(t.notes || '') + '</td>' +
+          '<td><button type="button" class="btn btn-danger btn-sm del-txn" data-id="' + escAttr(t.id) + '">Delete</button></td></tr>';
       }).join('') || '<tr><td colspan="6">No payments recorded yet</td></tr>';
 
       document.querySelectorAll('.del-txn').forEach(function (btn) {
@@ -720,12 +720,12 @@
     var period = document.getElementById('report-period').value;
     api('/api/admin/reports?period=' + period).then(function (report) {
       var services = Object.keys(report.byService).map(function (k) {
-        return '<tr><td>' + k + '</td><td>' + money(report.byService[k]) + '</td></tr>';
+        return '<tr><td>' + escHtml(k) + '</td><td>' + money(report.byService[k]) + '</td></tr>';
       }).join('');
 
       document.getElementById('report-output').innerHTML =
-        '<h3>' + report.period.charAt(0).toUpperCase() + report.period.slice(1) + ' Report</h3>' +
-        '<p>' + report.from + ' to ' + report.to + '</p>' +
+        '<h3>' + escHtml(report.period.charAt(0).toUpperCase() + report.period.slice(1)) + ' Report</h3>' +
+        '<p>' + escHtml(report.from) + ' to ' + escHtml(report.to) + '</p>' +
         '<div class="report-summary">' +
         '<div><span>Total revenue</span><strong>' + money(report.summary.totalRevenue) + '</strong></div>' +
         '<div><span>Payments</span><strong>' + report.summary.transactionCount + '</strong></div>' +
@@ -739,7 +739,7 @@
         '<h4 style="margin-top:1.5rem">Bookings in period</h4>' +
         '<table class="admin-table"><thead><tr><th>Client</th><th>Phone</th><th>Service</th><th>Appt</th></tr></thead><tbody>' +
         (report.bookings.map(function (b) {
-          return '<tr><td>' + b.name + '</td><td>' + b.phone + '</td><td>' + b.service + '</td><td>' + b.date + '</td></tr>';
+          return '<tr><td>' + escHtml(b.name) + '</td><td>' + escHtml(b.phone) + '</td><td>' + escHtml(b.service) + '</td><td>' + escHtml(b.date) + '</td></tr>';
         }).join('') || '<tr><td colspan="4">No bookings</td></tr>') +
         '</tbody></table>';
     });

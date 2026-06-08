@@ -374,10 +374,27 @@
     if (window.location.hash !== '#book' || !status) return;
 
     if (status === 'success') {
-      showSuccess(
-        'Payment received',
-        'Thank you — your card payment was successful and your appointment is confirmed. We look forward to seeing you!'
-      );
+      var sessionId = params.get('session_id');
+      if (!sessionId) {
+        showError('Unable to verify payment. Please contact us if you were charged.');
+        history.replaceState(null, '', window.location.pathname + '#book');
+        return;
+      }
+      fetch('/api/public/payment-status?session_id=' + encodeURIComponent(sessionId))
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('Verification failed')); })
+        .then(function (data) {
+          if (data.paid) {
+            showSuccess(
+              'Payment received',
+              'Thank you — your card payment was successful and your appointment is confirmed. We look forward to seeing you!'
+            );
+          } else {
+            showError('Payment is still processing or was not completed. Please contact us if you were charged.');
+          }
+        })
+        .catch(function () {
+          showError('Could not verify payment status. Please contact us to confirm your booking.');
+        });
       history.replaceState(null, '', window.location.pathname + '#book');
       return;
     }

@@ -1,7 +1,12 @@
 const crypto = require('crypto');
+const { isProduction } = require('./env');
 
 function getSecret() {
-  return process.env.ADMIN_SECRET || process.env.ADMIN_PASSWORD || 'JackStyle2026-dev-only';
+  if (process.env.ADMIN_SECRET) return process.env.ADMIN_SECRET;
+  if (isProduction()) {
+    throw new Error('ADMIN_SECRET environment variable is required in production.');
+  }
+  return process.env.ADMIN_PASSWORD || 'JackStyle2026-dev-only';
 }
 
 function signToken(payload) {
