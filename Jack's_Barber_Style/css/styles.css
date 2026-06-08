@@ -100,9 +100,21 @@ address {
   padding-inline: clamp(1rem, 4vw, 2rem);
 }
 
-/* Kente-inspired stripe pattern */
+/* Kente-inspired stripe pattern — transform marquee for reliable cross-browser motion */
 .kente-strip {
+  position: relative;
   height: 12px;
+  overflow: hidden;
+  background: var(--navy);
+}
+
+.kente-strip::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% + 88px);
+  height: 100%;
   background: repeating-linear-gradient(
     90deg,
     var(--gold) 0px,
@@ -119,9 +131,9 @@ address {
     var(--navy-mid) 88px
   );
   background-size: 88px 100%;
-  background-position: 0 0;
-  -webkit-animation: kente-slide 18s linear infinite;
-  animation: kente-slide 18s linear infinite;
+  will-change: transform;
+  -webkit-animation: kente-slide 10s linear infinite;
+  animation: kente-slide 10s linear infinite;
 }
 
 .pattern-divider {
@@ -491,6 +503,18 @@ address {
   object-fit: cover;
   border-radius: 50%;
   box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px rgba(212, 160, 23, 0.28), var(--shadow);
+  -webkit-animation: logo-float 5s ease-in-out infinite;
+  animation: logo-float 5s ease-in-out infinite;
+}
+
+@-webkit-keyframes logo-float {
+  0%, 100% { -webkit-transform: scale(1); transform: scale(1); }
+  50% { -webkit-transform: scale(1.04); transform: scale(1.04); }
+}
+
+@keyframes logo-float {
+  0%, 100% { -webkit-transform: scale(1); transform: scale(1); }
+  50% { -webkit-transform: scale(1.04); transform: scale(1.04); }
 }
 
 .emblem-ring {
@@ -505,8 +529,9 @@ address {
   pointer-events: none;
   transform: translate(-50%, -50%);
   transform-origin: center center;
-  -webkit-animation: emblem-spin 30s linear infinite;
-  animation: emblem-spin 30s linear infinite;
+  will-change: transform;
+  -webkit-animation: emblem-spin 18s linear infinite;
+  animation: emblem-spin 18s linear infinite;
 }
 
 .emblem-ring::before {
@@ -516,8 +541,9 @@ address {
   border: 1px dashed rgba(196, 30, 58, 0.4);
   border-radius: 50%;
   transform-origin: center center;
-  -webkit-animation: emblem-spin-rev 22s linear infinite;
-  animation: emblem-spin-rev 22s linear infinite;
+  will-change: transform;
+  -webkit-animation: emblem-spin-rev 12s linear infinite;
+  animation: emblem-spin-rev 12s linear infinite;
 }
 
 .emblem-ring::after {
@@ -1218,13 +1244,13 @@ body.policy-modal-open {
 }
 
 @-webkit-keyframes kente-slide {
-  from { background-position: 0 0; }
-  to { background-position: 88px 0; }
+  from { -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0); }
+  to { -webkit-transform: translate3d(-88px, 0, 0); transform: translate3d(-88px, 0, 0); }
 }
 
 @keyframes kente-slide {
-  from { background-position: 0 0; }
-  to { background-position: 88px 0; }
+  from { -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0); }
+  to { -webkit-transform: translate3d(-88px, 0, 0); transform: translate3d(-88px, 0, 0); }
 }
 
 @keyframes featured-glow {
@@ -1237,13 +1263,15 @@ body.policy-modal-open {
 
   .hero-content,
   .hero-visual,
+  .hero-logo,
   .emblem-ring,
   .emblem-ring::before,
   .emblem-ring::after,
-  .kente-strip,
+  .kente-strip::before,
   .pattern-divider,
   .service-featured {
     animation: none;
+    -webkit-animation: none;
   }
 
   .reveal,
