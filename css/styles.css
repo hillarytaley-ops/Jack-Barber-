@@ -497,6 +497,8 @@ address {
   max-width: 100%;
   margin-inline: auto;
   --emblem-ring-offset: 20px;
+  -webkit-perspective: 900px;
+  perspective: 900px;
 }
 
 .hero-logo {
@@ -507,18 +509,22 @@ address {
   object-fit: cover;
   border-radius: 50%;
   box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px rgba(212, 160, 23, 0.28), var(--shadow);
-  -webkit-animation: logo-float 5s ease-in-out infinite;
-  animation: logo-float 5s ease-in-out infinite;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-animation: logo-coin-spin 6s linear infinite;
+  animation: logo-coin-spin 6s linear infinite;
 }
 
-@-webkit-keyframes logo-float {
-  0%, 100% { -webkit-transform: scale(1); transform: scale(1); }
-  50% { -webkit-transform: scale(1.04); transform: scale(1.04); }
+@-webkit-keyframes logo-coin-spin {
+  from { -webkit-transform: rotateY(0deg); transform: rotateY(0deg); }
+  to { -webkit-transform: rotateY(360deg); transform: rotateY(360deg); }
 }
 
-@keyframes logo-float {
-  0%, 100% { -webkit-transform: scale(1); transform: scale(1); }
-  50% { -webkit-transform: scale(1.04); transform: scale(1.04); }
+@keyframes logo-coin-spin {
+  from { -webkit-transform: rotateY(0deg); transform: rotateY(0deg); }
+  to { -webkit-transform: rotateY(360deg); transform: rotateY(360deg); }
 }
 
 .emblem-ring {
