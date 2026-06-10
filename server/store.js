@@ -119,11 +119,14 @@ function ensureDefaultsSync() {
 }
 
 async function ensurePg() {
-  if (!hasPg() || pgReady) return;
+  if (!pgUrl() || pgReady) return;
   if (!neonFn) {
     throw new Error('Database driver missing. Redeploy the site after the latest GitHub update.');
   }
   sql = neonFn(pgUrl());
+  if (typeof sql !== 'function') {
+    throw new Error('Database driver did not create a SQL client. Check the Neon dependency and redeploy.');
+  }
   await sql`CREATE TABLE IF NOT EXISTS jbs_store (
     file_key TEXT PRIMARY KEY,
     file_data JSONB NOT NULL,
