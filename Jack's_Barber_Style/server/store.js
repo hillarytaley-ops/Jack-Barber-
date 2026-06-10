@@ -5,14 +5,40 @@ let neonFn = null;
 let blobList = null;
 let blobPut = null;
 
+function requireOptional(name) {
+  try {
+    return require(name);
+  } catch (e) {
+    /* optional dependency may be installed beside the Vercel API functions */
+  }
+
+  const bases = [
+    process.cwd(),
+    path.join(process.cwd(), 'api'),
+    path.join(__dirname, '..'),
+    path.join(__dirname, '..', 'api')
+  ];
+
+  for (let i = 0; i < bases.length; i++) {
+    try {
+      return require(require.resolve(name, { paths: [bases[i]] }));
+    } catch (e) {
+      /* keep looking */
+    }
+  }
+
+  return null;
+}
+
 try {
-  neonFn = require('@neondatabase/serverless').neon;
+  const neon = requireOptional('@neondatabase/serverless');
+  neonFn = neon && neon.neon;
 } catch (e) {
   /* optional on local file-only runs */
 }
 
 try {
-  const blob = require('@vercel/blob');
+  const blob = requireOptional('@vercel/blob');
   blobList = blob.list;
   blobPut = blob.put;
 } catch (e) {
@@ -119,11 +145,14 @@ function ensureDefaultsSync() {
 }
 
 async function ensurePg() {
-  if (!hasPg() || pgReady) return;
+  if (!pgUrl() || pgReady) return;
   if (!neonFn) {
     throw new Error('Database driver missing. Redeploy the site after the latest GitHub update.');
   }
   sql = neonFn(pgUrl());
+  if (typeof sql !== 'function') {
+    throw new Error('Database driver did not create a SQL client. Check the Neon dependency and redeploy.');
+  }
   await sql`CREATE TABLE IF NOT EXISTS jbs_store (
     file_key TEXT PRIMARY KEY,
     file_data JSONB NOT NULL,
