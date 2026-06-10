@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Jack's Barber Style website with staff area",
   "main": "server/server.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "start": "node server/server.js",
     "vercel-build": "npm install"

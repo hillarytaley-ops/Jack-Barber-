@@ -3,7 +3,13 @@
   "functions": {
     "api/**/*.js": {
       "maxDuration": 10,
-      "includeFiles": "server/**"
+      "includeFiles": [
+        "server/**",
+        "node_modules/@neondatabase/serverless/**",
+        "api/node_modules/@neondatabase/serverless/**",
+        "node_modules/@vercel/blob/**",
+        "api/node_modules/@vercel/blob/**"
+      ]
     }
   },
   "headers": [
