@@ -5,18 +5,31 @@ let neonFn = null;
 let blobList = null;
 let blobPut = null;
 
-try {
-  neonFn = require('@neondatabase/serverless').neon;
-} catch (e) {
-  /* optional on local file-only runs */
+function loadOptionalPackage(name) {
+  try {
+    return require(name);
+  } catch (e) {
+    /* optional on local file-only runs */
+  }
+
+  try {
+    return require(path.join(__dirname, '..', 'api', 'node_modules', name));
+  } catch (e) {
+    /* Vercel may install function dependencies under api/node_modules. */
+  }
+
+  return null;
 }
 
-try {
-  const blob = require('@vercel/blob');
+const neonPackage = loadOptionalPackage('@neondatabase/serverless');
+if (neonPackage) {
+  neonFn = neonPackage.neon;
+}
+
+const blob = loadOptionalPackage('@vercel/blob');
+if (blob) {
   blobList = blob.list;
   blobPut = blob.put;
-} catch (e) {
-  /* optional when blob storage not configured */
 }
 
 const DATA_DIR = process.env.VERCEL
@@ -119,7 +132,7 @@ function ensureDefaultsSync() {
 }
 
 async function ensurePg() {
-  if (!hasPg() || pgReady) return;
+  if (!pgUrl() || pgReady) return;
   if (!neonFn) {
     throw new Error('Database driver missing. Redeploy the site after the latest GitHub update.');
   }
