@@ -130,6 +130,35 @@ function sendBinary(res, status, buffer, mimeType) {
   res.end(buffer);
 }
 
+function appendHeader(res, name, value) {
+  if (typeof res.getHeader === 'function' && typeof res.setHeader === 'function') {
+    const existing = res.getHeader(name);
+    if (!existing) return res.setHeader(name, value);
+    return res.setHeader(name, Array.isArray(existing) ? existing.concat(value) : [existing, value]);
+  }
+  if (typeof res.setHeader === 'function') {
+    res.setHeader(name, value);
+  }
+}
+
+function cookieOptions(maxAge) {
+  return [
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    'Max-Age=' + maxAge,
+    isProduction() ? 'Secure' : ''
+  ].filter(Boolean).join('; ');
+}
+
+function setAdminCookie(res, token) {
+  appendHeader(res, 'Set-Cookie', 'jbs_admin_token=' + encodeURIComponent(token) + '; ' + cookieOptions(43200));
+}
+
+function clearAdminCookie(res) {
+  appendHeader(res, 'Set-Cookie', 'jbs_admin_token=; ' + cookieOptions(0));
+}
+
 function parseBody(req) {
   const maxBytes = 1024 * 1024;
   return new Promise(function (resolve, reject) {
@@ -154,7 +183,11 @@ function parseBody(req) {
 
 function getToken(req) {
   const auth = req.headers.authorization || '';
-  return auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (auth.startsWith('Bearer ')) return auth.slice(7);
+
+  const cookie = req.headers.cookie || req.headers.Cookie || '';
+  const match = cookie.match(/(?:^|;\s*)jbs_admin_token=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : '';
 }
 
 function requireAuth(req, res) {
@@ -253,7 +286,11 @@ function serveStatic(req, res, filePath, pathname) {
   fs.readFile(filePath, function (err, data) {
     if (err) return send(res, 404, 'Not found', 'text/plain');
     applyAiHeaders(res, pathname || '');
-    res.writeHead(200, { 'Content-Type': MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream' });
+    const headers = { 'Content-Type': MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream' };
+    if ((pathname || '').startsWith('/admin')) {
+      headers['Cache-Control'] = 'no-store, max-age=0';
+    }
+    res.writeHead(200, headers);
     res.end(data);
   });
 }
@@ -424,12 +461,14 @@ async function handleRequest(req, res) {
         return send(res, 401, { error: 'Invalid username or password' });
       }
       const token = createSession(admin.username);
+      setAdminCookie(res, token);
       return send(res, 200, { token: token, username: admin.username });
     }
 
     if (pathname.startsWith('/api/admin/') && pathname !== '/api/admin/login' && !requireAuth(req, res)) return;
 
     if (req.method === 'POST' && pathname === '/api/admin/logout') {
+      clearAdminCookie(res);
       return send(res, 200, { ok: true });
     }
 

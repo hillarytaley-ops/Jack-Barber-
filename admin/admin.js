@@ -68,10 +68,6 @@
   }
 
   var token = storageGet('jbs_admin_token') || tokenFromHash();
-  if (!token) {
-    window.location.href = 'index.html';
-    return;
-  }
 
   var settings = null;
 
@@ -82,7 +78,8 @@
 
   function api(url, options) {
     options = options || {};
-    var headers = { Authorization: 'Bearer ' + token };
+    var headers = {};
+    if (token) headers.Authorization = 'Bearer ' + token;
     var extraHeaders = options.headers || {};
     Object.keys(extraHeaders).forEach(function (key) {
       headers[key] = extraHeaders[key];
