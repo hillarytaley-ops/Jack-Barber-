@@ -5,11 +5,19 @@ let neonFn = null;
 let blobList = null;
 let blobPut = null;
 
-try {
-  neonFn = require('@neondatabase/serverless').neon;
-} catch (e) {
-  /* optional on local file-only runs */
+function loadNeonFn() {
+  try {
+    const pkg = require('@neondatabase/serverless');
+    const fn = typeof pkg.neon === 'function'
+      ? pkg.neon
+      : (pkg.default && typeof pkg.default.neon === 'function' ? pkg.default.neon : null);
+    return fn;
+  } catch (e) {
+    return null;
+  }
 }
+
+neonFn = loadNeonFn();
 
 try {
   const blob = require('@vercel/blob');
@@ -41,6 +49,12 @@ function pgUrl() {
 
 function hasPg() {
   return !!pgUrl() && !!neonFn;
+}
+
+function requirePgDriver() {
+  if (pgUrl() && !neonFn) {
+    throw new Error('Database driver missing. Redeploy the site after the latest GitHub update.');
+  }
 }
 
 function hasKv() {
@@ -119,11 +133,13 @@ function ensureDefaultsSync() {
 }
 
 async function ensurePg() {
-  if (!hasPg() || pgReady) return;
-  if (!neonFn) {
-    throw new Error('Database driver missing. Redeploy the site after the latest GitHub update.');
-  }
+  if (pgReady) return;
+  requirePgDriver();
+  if (!hasPg()) return;
   sql = neonFn(pgUrl());
+  if (typeof sql !== 'function') {
+    throw new Error('Database driver failed to initialize. Redeploy the site after the latest GitHub update.');
+  }
   await sql`CREATE TABLE IF NOT EXISTS jbs_store (
     file_key TEXT PRIMARY KEY,
     file_data JSONB NOT NULL,
@@ -213,7 +229,8 @@ function memorySet(name, data) {
 }
 
 async function readJSON(name, fallback) {
-  if (pgUrl()) {
+  requirePgDriver();
+  if (hasPg()) {
     let data = await pgGet(name);
     if (data === null || data === undefined) {
       data = readDefaultSync(name, fallback);
@@ -272,8 +289,9 @@ async function readJSON(name, fallback) {
 
 async function writeJSON(name, data) {
   memorySet(name, data);
+  requirePgDriver();
 
-  if (pgUrl()) {
+  if (hasPg()) {
     await pgSet(name, data);
     return;
   }
@@ -311,7 +329,8 @@ function mimeFromExt(ext) {
 }
 
 async function saveImage(filename, buffer, mimeType) {
-  if (pgUrl()) {
+  requirePgDriver();
+  if (hasPg()) {
     await ensurePg();
     const base64 = buffer.toString('base64');
     await sql`
@@ -328,7 +347,8 @@ async function saveImage(filename, buffer, mimeType) {
 }
 
 async function getImage(filename) {
-  if (pgUrl()) {
+  requirePgDriver();
+  if (hasPg()) {
     await ensurePg();
     const rows = await sql`SELECT mime_type, image_data FROM jbs_images WHERE file_key = ${filename}`;
     if (!rows[0]) return null;
@@ -347,7 +367,8 @@ async function getImage(filename) {
 }
 
 async function deleteImage(filename) {
-  if (pgUrl()) {
+  requirePgDriver();
+  if (hasPg()) {
     await ensurePg();
     await sql`DELETE FROM jbs_images WHERE file_key = ${filename}`;
     return;
