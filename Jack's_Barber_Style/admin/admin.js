@@ -1,5 +1,73 @@
 (function () {
-  var token = localStorage.getItem('jbs_admin_token');
+  if (window.NodeList && !NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = Array.prototype.forEach;
+  }
+
+  if (!Array.from) {
+    Array.from = function (items) {
+      return Array.prototype.slice.call(items);
+    };
+  }
+
+  if (window.Element && !Element.prototype.matches) {
+    Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+  }
+
+  if (window.Element && !Element.prototype.closest) {
+    Element.prototype.closest = function (selector) {
+      var node = this;
+      while (node && node.nodeType === 1) {
+        if (node.matches(selector)) return node;
+        node = node.parentElement || node.parentNode;
+      }
+      return null;
+    };
+  }
+
+  function storageGet(key) {
+    try {
+      return localStorage.getItem(key) || sessionStorage.getItem(key);
+    } catch (err) {
+      try { return sessionStorage.getItem(key); } catch (sessionErr) { return ''; }
+    }
+  }
+
+  function storageSet(key, value) {
+    var saved = false;
+    try {
+      localStorage.setItem(key, value);
+      saved = true;
+    } catch (err) {
+      /* Mobile Safari private mode can block persistent storage. */
+    }
+
+    try {
+      sessionStorage.setItem(key, value);
+      saved = true;
+    } catch (err) {
+      /* The current page can continue with the in-memory token. */
+    }
+
+    return saved;
+  }
+
+  function storageRemove(key) {
+    try { localStorage.removeItem(key); } catch (err) {}
+    try { sessionStorage.removeItem(key); } catch (err) {}
+  }
+
+  function tokenFromHash() {
+    var match = window.location.hash.match(/(?:^|[&#])token=([^&]+)/);
+    if (!match) return '';
+    var value = decodeURIComponent(match[1]);
+    storageSet('jbs_admin_token', value);
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+    }
+    return value;
+  }
+
+  var token = storageGet('jbs_admin_token') || tokenFromHash();
   if (!token) {
     window.location.href = 'index.html';
     return;
@@ -14,9 +82,11 @@
 
   function api(url, options) {
     options = options || {};
-    var headers = Object.assign({
-      Authorization: 'Bearer ' + token
-    }, options.headers || {});
+    var headers = { Authorization: 'Bearer ' + token };
+    var extraHeaders = options.headers || {};
+    Object.keys(extraHeaders).forEach(function (key) {
+      headers[key] = extraHeaders[key];
+    });
     if (options.body !== undefined) {
       headers['Content-Type'] = 'application/json';
     }
@@ -28,7 +98,7 @@
       })
       .then(function (r) {
         if (r.status === 401) {
-          localStorage.removeItem('jbs_admin_token');
+          storageRemove('jbs_admin_token');
           window.location.href = 'index.html';
           throw new Error('Session expired');
         }
@@ -66,10 +136,12 @@
   });
 
   document.getElementById('logout-btn').addEventListener('click', function () {
-    api('/api/admin/logout', { method: 'POST' }).finally(function () {
-      localStorage.removeItem('jbs_admin_token');
+    function finishLogout() {
+      storageRemove('jbs_admin_token');
       window.location.href = 'index.html';
-    });
+    }
+
+    api('/api/admin/logout', { method: 'POST' }).then(finishLogout, finishLogout);
   });
 
   /* Load settings */
