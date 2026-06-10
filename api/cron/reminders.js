@@ -1,3 +1,4 @@
+require('@neondatabase/serverless');
 const { processReminders } = require('../../server/reminders');
 const { isProduction } = require('../../server/env');
 

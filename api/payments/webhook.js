@@ -1,3 +1,4 @@
+require('@neondatabase/serverless');
 const { handleStripeWebhook } = require('../../server/payments');
 
 function getStripe() {
