@@ -224,7 +224,7 @@ function memorySet(name, data) {
 }
 
 async function readJSON(name, fallback) {
-  if (pgUrl()) {
+  if (hasPg()) {
     let data = await pgGet(name);
     if (data === null || data === undefined) {
       data = readDefaultSync(name, fallback);
@@ -284,7 +284,7 @@ async function readJSON(name, fallback) {
 async function writeJSON(name, data) {
   memorySet(name, data);
 
-  if (pgUrl()) {
+  if (hasPg()) {
     await pgSet(name, data);
     return;
   }
@@ -304,7 +304,7 @@ async function writeJSON(name, data) {
 }
 
 function hasSharedStorage() {
-  return !!pgUrl() || hasKv() || hasBlob();
+  return hasPg() || hasKv() || hasBlob();
 }
 
 const LOCAL_GALLERY_DIR = path.join(__dirname, '..', 'uploads', 'gallery');
@@ -322,7 +322,7 @@ function mimeFromExt(ext) {
 }
 
 async function saveImage(filename, buffer, mimeType) {
-  if (pgUrl()) {
+  if (hasPg()) {
     await ensurePg();
     const base64 = buffer.toString('base64');
     await sql`
@@ -339,7 +339,7 @@ async function saveImage(filename, buffer, mimeType) {
 }
 
 async function getImage(filename) {
-  if (pgUrl()) {
+  if (hasPg()) {
     await ensurePg();
     const rows = await sql`SELECT mime_type, image_data FROM jbs_images WHERE file_key = ${filename}`;
     if (!rows[0]) return null;
@@ -358,7 +358,7 @@ async function getImage(filename) {
 }
 
 async function deleteImage(filename) {
-  if (pgUrl()) {
+  if (hasPg()) {
     await ensurePg();
     await sql`DELETE FROM jbs_images WHERE file_key = ${filename}`;
     return;
