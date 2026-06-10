@@ -3,7 +3,7 @@
   "functions": {
     "api/**/*.js": {
       "maxDuration": 10,
-      "includeFiles": "server/**"
+      "includeFiles": "{server/**,node_modules/@neondatabase/**}"
     }
   },
   "headers": [
