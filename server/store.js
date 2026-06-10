@@ -5,28 +5,26 @@ let neonFn = null;
 let blobList = null;
 let blobPut = null;
 
-function loadOptionalPackage(name) {
+try {
+  neonFn = require('@neondatabase/serverless').neon;
+} catch (e) {
   try {
-    return require(name);
-  } catch (e) {
-    /* optional on local file-only runs */
-  }
-
-  try {
-    return require(path.join(__dirname, '..', 'api', 'node_modules', name));
-  } catch (e) {
+    neonFn = require('../api/node_modules/@neondatabase/serverless').neon;
+  } catch (apiError) {
     /* Vercel may install function dependencies under api/node_modules. */
   }
-
-  return null;
 }
 
-const neonPackage = loadOptionalPackage('@neondatabase/serverless');
-if (neonPackage) {
-  neonFn = neonPackage.neon;
+let blob = null;
+try {
+  blob = require('@vercel/blob');
+} catch (e) {
+  try {
+    blob = require('../api/node_modules/@vercel/blob');
+  } catch (apiError) {
+    /* optional when blob storage is not configured */
+  }
 }
-
-const blob = loadOptionalPackage('@vercel/blob');
 if (blob) {
   blobList = blob.list;
   blobPut = blob.put;
