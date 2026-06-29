@@ -1,0 +1,88 @@
+PAYID PAYMENTS — Jack's Barber Style
+=====================================
+
+Clients pay by PayID (instant bank transfer from their banking app).
+No card processors. No Stripe.
+
+STEP 1 — REGISTER YOUR PAYID WITH YOUR BANK
+-------------------------------------------
+1. Open your business bank app or internet banking
+2. Go to PayID settings and create a PayID using one of:
+   - Mobile: 0478268399
+   - Email: Jacqueskatumbulu@gmail.com
+   - ABN (if registered for GST)
+3. Link it to your business transaction account
+4. Note the exact business name shown to payers (must match what customers see)
+
+STEP 2 — ADD SETTINGS TO VERCEL
+-------------------------------
+1. Open https://vercel.com/dashboard → project **jack-barber**
+2. **Settings** → **Environment Variables**
+3. Add:
+
+   PAYID = 0478268399
+   (or your email PayID, e.g. Jacqueskatumbulu@gmail.com)
+
+   PAYID_NAME = Jack's Barber Style
+   SITE_URL = https://jack-barber-rho.vercel.app
+
+   Optional — GST on tax invoices and booking receipts:
+   GST_REGISTERED = true
+   BUSINESS_ABN = XX XXX XXX XXX
+
+4. Redeploy after saving.
+
+OPTIONAL — AZUPAY (AUTOMATIC PAYID CONFIRMATION)
+------------------------------------------------
+For automatic booking confirmation when payment arrives (no manual check):
+
+1. Sign up at https://www.azupay.com.au
+2. Get API credentials from the Azupay dashboard
+3. Add to Vercel:
+
+   AZUPAY_CLIENT_ID = ...
+   AZUPAY_SECRET = ...
+   AZUPAY_API_URL = https://api.azupay.com.au
+
+4. Set webhook URL in Azupay dashboard:
+   https://jack-barber-rho.vercel.app/api/payments/webhook
+
+5. Redeploy
+
+If Azupay is not configured, clients still pay via your static PayID and you
+confirm payment in Staff → Bookings when funds appear in your bank.
+
+HOW IT WORKS
+------------
+1. Client fills in the booking form
+2. They see PayID payment instructions:
+   - PayID address
+   - Exact amount (from your Services list)
+   - Booking reference (e.g. b1719567890123)
+   - GST breakdown (if GST_REGISTERED=true)
+3. Client pays from their banking app using PayID
+4. You confirm payment:
+   - Automatically via Azupay webhook (if configured), OR
+   - Manually in Staff area when you see the deposit
+5. Booking status → Confirmed
+6. Payment recorded in Finances with GST split
+
+GST & TAX INVOICES
+------------------
+- Barber services are taxable supplies in Australia
+- Register for GST if turnover is $75,000+ (or voluntarily)
+- Website prices are GST-inclusive when GST_REGISTERED=true
+- GST amount = total price ÷ 11
+- Issue a tax invoice for each paid booking (ABN, description, GST amount)
+- See docs/PayID-GST-Integration-Guide-Jacks-Barber-Style.pdf for full details
+
+LOCAL PC
+--------
+Without PAYID set, bookings work as requests only (no PayID instructions shown).
+Staff can still record payments manually in the admin area.
+
+REMOVING STRIPE
+---------------
+This project no longer uses Stripe. Remove any old environment variables:
+  STRIPE_SECRET_KEY
+  STRIPE_WEBHOOK_SECRET

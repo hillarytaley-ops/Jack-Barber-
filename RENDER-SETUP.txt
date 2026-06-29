@@ -1,0 +1,21 @@
+MAKE LIVE BOOKINGS SHOW IN STAFF AREA (one-time, ~5 minutes)
+============================================================
+
+Bookings need a small online database. Render.com hosts this free for you.
+
+Steps:
+1. Go to https://dashboard.render.com/
+2. Click **New +** → **Blueprint**
+3. Connect GitHub → choose repo **Jack-Barber-**
+4. Render reads `render.yaml` automatically
+5. Click **Apply** and wait until the service shows **Live**
+   (URL: https://jacks-barber-style.onrender.com)
+6. In Vercel, redeploy the website (Deployments → Redeploy)
+
+After that:
+- Customer books on your website → saved automatically
+- You open Staff area → Client Bookings → booking appears
+
+Local PC testing still uses START-SERVER.bat (no Render needed).
+
+Staff login on live site: admin / JackStyle2026 (change in Security after first login)

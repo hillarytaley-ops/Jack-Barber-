@@ -1,0 +1,13 @@
+{
+  "installCommand": "npm install && npm install --prefix api",
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 10,
+      "includeFiles": "server/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/", "destination": "/admin/index.html" }
+  ]
+}

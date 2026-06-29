@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: jacks-barber-style
+    runtime: node
+    plan: free
+    rootDir: Jack's_Barber_Style
+    buildCommand: npm install
+    startCommand: node server/server.js
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jacks-barber-db
+          property: connectionString
+
+databases:
+  - name: jacks-barber-db
+    plan: free
