@@ -1,5 +1,6 @@
 const { readJSON, writeJSON } = require('./store');
 const { breakdown, isGstRegistered } = require('./gst');
+const { sendTaxInvoice } = require('./invoice');
 
 function getPayId() {
   return (process.env.PAYID || process.env.BUSINESS_PAYID || '').trim();
@@ -139,36 +140,60 @@ async function createPaymentRequest(booking, settings) {
 async function markBookingPaid(bookingId, details) {
   const bookings = await readJSON('bookings.json', []);
   const idx = bookings.findIndex(function (b) { return b.id === bookingId; });
-  if (idx === -1) return false;
+  if (idx === -1) return { ok: false, reason: 'not_found' };
 
-  const amount = details.amount || bookings[idx].amount || 0;
+  if (bookings[idx].paymentStatus === 'paid' && !details.force) {
+    return { ok: true, booking: bookings[idx], alreadyPaid: true };
+  }
+
+  const amount = Number(details.amount) || Number(bookings[idx].amount) || 0;
   const gstInfo = breakdown(amount);
 
-  bookings[idx].status = 'confirmed';
+  bookings[idx].status = details.status || 'confirmed';
   bookings[idx].paymentStatus = 'paid';
   bookings[idx].paidAt = new Date().toISOString();
   bookings[idx].amount = amount;
   bookings[idx].paymentMethod = details.method || 'payid';
   bookings[idx].paymentReference = details.reference || bookingId;
+
+  const existingTx = await readJSON('transactions.json', []);
+  const hasTx = existingTx.some(function (t) { return t.bookingId === bookingId; });
+  if (!hasTx) {
+    existingTx.unshift({
+      id: 't' + Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      amount: gstInfo.total,
+      gst: gstInfo.gst,
+      net: gstInfo.net,
+      service: bookings[idx].service,
+      clientName: bookings[idx].name,
+      notes: (details.method || 'PayID') + ' payment - booking ' + bookingId,
+      createdAt: new Date().toISOString(),
+      bookingId: bookingId,
+      paymentMethod: details.method || 'payid',
+      paymentReference: details.reference || bookingId
+    });
+    await writeJSON('transactions.json', existingTx);
+  }
+
   await writeJSON('bookings.json', bookings);
 
-  const transactions = await readJSON('transactions.json', []);
-  transactions.unshift({
-    id: 't' + Date.now(),
-    date: new Date().toISOString().split('T')[0],
-    amount: gstInfo.total,
-    gst: gstInfo.gst,
-    net: gstInfo.net,
-    service: bookings[idx].service,
-    clientName: bookings[idx].name,
-    notes: 'PayID payment - booking ' + bookingId,
-    createdAt: new Date().toISOString(),
-    bookingId: bookingId,
-    paymentMethod: details.method || 'payid',
-    paymentReference: details.reference || bookingId
-  });
-  await writeJSON('transactions.json', transactions);
-  return true;
+  let invoice = null;
+  if (details.sendInvoice !== false && bookings[idx].email) {
+    try {
+      const settings = await readJSON('settings.json', { brand: { name: "Jack's Barber Style" }, contact: {} });
+      invoice = await sendTaxInvoice(bookings[idx], settings);
+      if (invoice && invoice.ok) {
+        bookings[idx].invoiceNumber = invoice.invoiceNumber;
+        bookings[idx].invoiceSentAt = new Date().toISOString();
+        await writeJSON('bookings.json', bookings);
+      }
+    } catch (e) {
+      invoice = { ok: false, error: e.message };
+    }
+  }
+
+  return { ok: true, booking: bookings[idx], invoice: invoice };
 }
 
 async function handlePayIdWebhook(payload) {
@@ -185,12 +210,12 @@ async function handlePayIdWebhook(payload) {
     (payload.PaymentRequest && payload.PaymentRequest.paymentAmount)
   ) || 0;
 
-  await markBookingPaid(bookingId, {
+  const result = await markBookingPaid(bookingId, {
     amount: amount,
     method: 'payid',
     reference: bookingId
   });
-  return true;
+  return result.ok;
 }
 
 module.exports = {

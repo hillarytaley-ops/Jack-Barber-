@@ -547,6 +547,69 @@ body { font-family: "Segoe UI", system-ui, sans-serif; background: #eef1f5; colo
   margin-top: 0.85rem;
 }
 
+.gallery-action-callout {
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  background: #fff8eb;
+  border: 1px solid #e8c878;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.security-status-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.security-status-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.75rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.security-status-row.is-ok {
+  border-color: #b7dfc9;
+  background: #f3fbf6;
+}
+
+.security-status-row.is-pending {
+  border-color: #f0d9a8;
+  background: #fffbf2;
+}
+
+.security-status-dot {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  min-width: 1.75rem;
+  text-align: center;
+  padding-top: 0.1rem;
+}
+
+.security-status-row small {
+  color: #64748b;
+}
+
+.field-hint,
+.panel-intro code {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.booking-actions {
+  white-space: nowrap;
+}
+
+.booking-actions .btn {
+  margin-bottom: 0.25rem;
+}
+
 .gallery-admin-empty,
 .gallery-admin-note {
   margin: 0 0 1rem;

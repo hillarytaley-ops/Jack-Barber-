@@ -14,7 +14,7 @@ The website files live at the repository root (api/, server/, index.html).
 
 STEP BY STEP
 ------------
-1. Open https://vercel.com/dashboard
+1. Open  
 
 2. Open your project: **jack-barber**
    (same project that hosts your live website)
@@ -46,7 +46,7 @@ TEST
 1. Open your live website
 2. Submit a test booking (must pick a **service** from the dropdown)
 3. You should see a green **Request sent** message
-4. Open **Staff area** → sign in (admin / JackStyle2026)
+4. Open **Staff area** → sign in (admin + your ADMIN_PASSWORD from Vercel)
 5. Click **Client Bookings** — your test booking should appear
 
 LOCAL PC (no Neon needed)

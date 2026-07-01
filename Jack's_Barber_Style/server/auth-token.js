@@ -1,7 +1,8 @@
 const crypto = require('crypto');
+const { getRequiredAdminPassword } = require('./admin-auth');
 
 function getSecret() {
-  return process.env.ADMIN_SECRET || process.env.ADMIN_PASSWORD || 'JackStyle2026-dev-only';
+  return process.env.ADMIN_SECRET || getRequiredAdminPassword() || 'local-dev-ChangeMe1';
 }
 
 function signToken(payload) {

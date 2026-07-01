@@ -1,8 +1,10 @@
 const http = require('http');
 const { handleRequest } = require('./handler');
 
+const { getRequiredAdminPassword } = require('./admin-auth');
+
 const PORT = process.env.PORT || 3000;
-const DEFAULT_PASSWORD = process.env.ADMIN_PASSWORD || 'JackStyle2026';
+const DEFAULT_PASSWORD = getRequiredAdminPassword() || 'local-dev-ChangeMe1';
 
 const server = http.createServer(handleRequest);
 

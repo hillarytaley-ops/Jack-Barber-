@@ -93,7 +93,10 @@
         <header class="panel-head">
           <h2>Style Gallery</h2>
         </header>
-        <p class="panel-intro">Upload hairstyle photos here. They appear in the public Style Gallery and on matching Our Services cards when you link each photo to a service below.</p>
+        <p class="panel-intro">Upload real hairstyle photos here — they replace the grey placeholder images on the public site. Link each photo to a booking service so it appears on the matching service card.</p>
+        <div class="gallery-action-callout" id="gallery-action-callout">
+          <strong>Action for Jack:</strong> Upload at least one photo per main service (Skin Fade, Afro Cut, Beard Trim, etc.). JPG or PNG, good lighting, portrait orientation works best.
+        </div>
 
         <div class="gallery-prices-block">
           <h3>Service prices</h3>
@@ -143,7 +146,7 @@
 
       <!-- Clients -->
       <section class="panel" id="panel-clients">
-        <header class="panel-head"><h2>Client Bookings</h2><p>PayID payments confirm bookings. Reminders send for <strong>Confirmed</strong> appointments (day before and 1 hour before).</p></header>
+        <header class="panel-head"><h2>Client Bookings</h2><p>When a client pays via PayID, click <strong>Mark paid</strong> to confirm, record income, and email a tax invoice. Set status to <strong>Confirmed</strong> for reminders.</p></header>
         <div class="table-wrap">
           <table class="admin-table" id="bookings-table">
             <thead>
@@ -203,18 +206,21 @@
 
       <!-- Security -->
       <section class="panel" id="panel-security">
-        <header class="panel-head"><h2>Change password</h2></header>
+        <header class="panel-head"><h2>Security &amp; setup</h2></header>
+        <div class="security-status" id="security-status"></div>
+        <h3 class="sub-head">Change password</h3>
+        <p class="panel-intro">On the live website, your developer sets the first password using <code>ADMIN_PASSWORD</code> on Vercel. Change it here after first login.</p>
         <form id="password-form" class="admin-form">
           <label>Current password</label>
-          <input type="password" name="currentPassword" required>
+          <input type="password" name="currentPassword" required autocomplete="current-password">
           <label>New password</label>
-          <input type="password" name="newPassword" required minlength="8">
+          <input type="password" name="newPassword" required minlength="8" autocomplete="new-password">
           <button type="submit" class="btn btn-primary">Update password</button>
           <p class="form-msg" id="password-msg"></p>
         </form>
       </section>
     </main>
   </div>
-  <script src="admin.js?v=20260711"></script>
+  <script src="admin.js?v=20260712"></script>
 </body>
 </html>

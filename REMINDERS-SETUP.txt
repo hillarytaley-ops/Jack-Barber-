@@ -5,7 +5,7 @@ Clients get reminders when a booking is set to **Confirmed** in Staff area:
 - **24 hours before** the appointment (email + optional SMS)
 - **1 hour before** the appointment (email + optional SMS)
 
-STEP 1 — EMAIL (required, free tier available)
+STEP 1 — EMAIL (required for reminders and tax invoices)
 ----------------------------------------------
 1. Create a free account at https://resend.com
 2. Copy your **API Key**
@@ -29,7 +29,12 @@ STEP 2 — SMS (optional, paid Twilio account)
    - TWILIO_AUTH_TOKEN
    - TWILIO_PHONE_NUMBER  (e.g. +614XXXXXXXX)
 
-STEP 3 — CRON SECURITY (recommended)
+STEP 3 — CRON SCHEDULE (automatic)
+----------------------------------
+The website runs reminder checks every 15 minutes (configured in vercel.json).
+No extra setup needed once RESEND_API_KEY is set.
+
+STEP 4 — CRON SECURITY (recommended)
 ------------------------------------
 1. In Vercel → Environment Variables, add:
    - Name: CRON_SECRET

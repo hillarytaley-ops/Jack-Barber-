@@ -115,9 +115,9 @@
       field('contact-address', 'Address', c.address) +
       field('contact-city', 'City', c.city) +
       '<h3>Social media</h3>' +
-      field('social-facebook', 'Facebook page URL', (settings.social && settings.social.facebook) || '') +
-      field('social-tiktok', 'TikTok profile URL', (settings.social && settings.social.tiktok) || '') +
-      '<p style="font-size:0.85rem;color:#6b7280;margin:-0.25rem 0 1rem;">WhatsApp uses your phone number automatically. Add Facebook and TikTok links to show those icons on the site.</p>' +
+      field('social-facebook', 'Facebook page URL (full link)', (settings.social && settings.social.facebook) || '', false, 'https://www.facebook.com/yourpage') +
+      field('social-tiktok', 'TikTok profile URL (full link)', (settings.social && settings.social.tiktok) || '', false, 'https://www.tiktok.com/@yourprofile') +
+      '<p class="field-hint">WhatsApp uses your phone number automatically. Paste full Facebook and TikTok URLs — leave blank to hide those icons on the site.</p>' +
       '<h3>Hero</h3>' +
       field('hero-eyebrow', 'Eyebrow', h.eyebrow) +
       field('hero-title', 'Headline', h.title) +
@@ -130,12 +130,13 @@
       field('roots-quote', 'Quote', r.quote);
   }
 
-  function field(id, label, value, textarea) {
+  function field(id, label, value, textarea, placeholder) {
     var v = (value || '').replace(/"/g, '&quot;');
+    var ph = placeholder ? ' placeholder="' + placeholder.replace(/"/g, '&quot;') + '"' : '';
     if (textarea) {
       return '<label for="' + id + '">' + label + '</label><textarea id="' + id + '">' + (value || '') + '</textarea>';
     }
-    return '<label for="' + id + '">' + label + '</label><input id="' + id + '" value="' + v + '">';
+    return '<label for="' + id + '">' + label + '</label><input id="' + id + '" value="' + v + '"' + ph + '>';
   }
 
   function val(id) {
@@ -628,11 +629,12 @@
     api('/api/admin/bookings').then(function (rows) {
       document.querySelector('#bookings-table tbody').innerHTML = rows.map(function (b) {
         var payment = b.paymentStatus === 'paid'
-          ? 'Paid' + (b.amount ? ' ($' + b.amount + ')' : '')
+          ? 'Paid' + (b.amount ? ' ($' + b.amount + ')' : '') + (b.invoiceNumber ? '<br><small>Invoice ' + b.invoiceNumber + '</small>' : '')
           : (b.paymentStatus || 'unpaid');
         var location = b.serviceType === 'home'
           ? (b.address || '—') + (b.travelFee ? '<br><small>Travel fee: $' + b.travelFee + '</small>' : '')
           : '47 O\'Meara St (in-shop)';
+        var paid = b.paymentStatus === 'paid';
         return '<tr>' +
           '<td>' + fmtDate(b.createdAt) + '</td>' +
           '<td><strong>' + b.name + '</strong></td>' +
@@ -645,7 +647,12 @@
           ['pending', 'confirmed', 'completed', 'cancelled'].map(function (s) {
             return '<option value="' + s + '" ' + (b.status === s ? 'selected' : '') + '>' + s + '</option>';
           }).join('') + '</select></td>' +
-          '<td><button type="button" class="btn btn-danger btn-sm del-booking" data-id="' + b.id + '">Delete</button></td>' +
+          '<td class="booking-actions">' +
+          (paid
+            ? '<button type="button" class="btn btn-secondary btn-sm resend-invoice" data-id="' + b.id + '">Resend invoice</button>'
+            : '<button type="button" class="btn btn-primary btn-sm mark-paid" data-id="' + b.id + '">Mark paid</button>') +
+          ' <button type="button" class="btn btn-danger btn-sm del-booking" data-id="' + b.id + '">Delete</button>' +
+          '</td>' +
           '</tr>';
       }).join('') || '<tr><td colspan="9">No bookings yet</td></tr>';
 
@@ -654,6 +661,43 @@
           api('/api/admin/bookings', {
             method: 'PATCH',
             body: JSON.stringify({ id: sel.dataset.id, status: sel.value })
+          });
+        });
+      });
+      document.querySelectorAll('.mark-paid').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (!confirm('Mark this booking as paid? This records the payment and emails a tax invoice to the client.')) return;
+          btn.disabled = true;
+          api('/api/admin/bookings/mark-paid', {
+            method: 'POST',
+            body: JSON.stringify({ id: btn.dataset.id })
+          }).then(function (result) {
+            var msg = result.alreadyPaid ? 'Already marked paid.' : 'Payment recorded.';
+            if (result.invoice && result.invoice.ok) msg += ' Tax invoice emailed.';
+            else if (result.invoice && result.invoice.skipped) msg += ' (Invoice not sent: ' + result.invoice.reason + ')';
+            else if (result.invoice && result.invoice.error) msg += ' (Invoice email failed — add RESEND_API_KEY on Vercel.)';
+            alert(msg);
+            loadBookings();
+            loadTransactions();
+            loadOverview();
+          }).catch(function (err) {
+            alert(err.message);
+            btn.disabled = false;
+          });
+        });
+      });
+      document.querySelectorAll('.resend-invoice').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          btn.disabled = true;
+          api('/api/admin/bookings/send-invoice', {
+            method: 'POST',
+            body: JSON.stringify({ id: btn.dataset.id, resend: true })
+          }).then(function () {
+            alert('Tax invoice sent.');
+            loadBookings();
+          }).catch(function (err) {
+            alert(err.message);
+            btn.disabled = false;
           });
         });
       });
@@ -748,7 +792,28 @@
   document.getElementById('report-period').addEventListener('change', loadReport);
   document.getElementById('print-report').addEventListener('click', function () { window.print(); });
 
-  /* Password */
+  /* Password & security status */
+  function loadSecurityStatus() {
+    var el = document.getElementById('security-status');
+    if (!el) return;
+    api('/api/admin/security-status').then(function (s) {
+      var items = [
+        statusRow('Live admin password (ADMIN_PASSWORD on Vercel)', s.adminPasswordConfigured, 'Set by your developer before first login'),
+        statusRow('Email reminders (RESEND_API_KEY)', s.remindersConfigured, 'Required for tax invoices and appointment reminders'),
+        statusRow('PayID payments (PAYID on Vercel)', s.payIdConfigured, 'Required for online PayID instructions')
+      ];
+      el.innerHTML = '<div class="security-status-grid">' + items.join('') + '</div>';
+    }).catch(function () {
+      el.innerHTML = '';
+    });
+  }
+
+  function statusRow(label, ok, hint) {
+    return '<div class="security-status-row ' + (ok ? 'is-ok' : 'is-pending') + '">' +
+      '<span class="security-status-dot">' + (ok ? 'OK' : '!') + '</span>' +
+      '<div><strong>' + label + '</strong><br><small>' + hint + '</small></div></div>';
+  }
+
   document.getElementById('password-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var fd = new FormData(e.target);
@@ -772,6 +837,7 @@
       loadOverview();
       loadBookings();
       loadTransactions();
+      loadSecurityStatus();
     })
     .catch(function () { /* server alert already shown */ });
 })();

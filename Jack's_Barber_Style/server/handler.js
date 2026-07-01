@@ -5,13 +5,14 @@ const { URL } = require('url');
 const { readJSON, writeJSON, DATA_DIR, ensureDefaults, saveImage, getImage, deleteImage } = require('./store');
 const { normalizeHoursSchedule } = require('./hours');
 const { createSession, verifyToken } = require('./auth-token');
-const { paymentsEnabled, createPaymentRequest, getServicePrice, getBookingTotal, getTravelFee } = require('./payments');
+const { paymentsEnabled, createPaymentRequest, getServicePrice, getBookingTotal, getTravelFee, markBookingPaid } = require('./payments');
+const { getRequiredAdminPassword, adminPasswordConfigured, isProductionHost } = require('./admin-auth');
 
 const ROOT = path.join(__dirname, '..');
 const UPLOADS = process.env.VERCEL
   ? path.join('/tmp', 'jbs-uploads')
   : path.join(ROOT, 'uploads', 'gallery');
-const DEFAULT_PASSWORD = process.env.ADMIN_PASSWORD || 'JackStyle2026';
+const DEFAULT_PASSWORD = getRequiredAdminPassword();
 
 let ready = false;
 
@@ -44,10 +45,15 @@ async function ensureReady() {
   if (ready) return;
   ensureDefaults();
   const admin = await readJSON('admin.json', null);
+  const initPassword = getRequiredAdminPassword();
   if (!admin) {
+    if (!initPassword) {
+      ready = true;
+      return;
+    }
     await writeJSON('admin.json', {
       username: 'admin',
-      passwordHash: hashPassword(DEFAULT_PASSWORD)
+      passwordHash: hashPassword(initPassword)
     });
   }
   ready = true;
@@ -394,7 +400,14 @@ async function handleRequest(req, res) {
 
     if (req.method === 'POST' && pathname === '/api/admin/login') {
       const body = await parseBody(req);
-      const admin = await readJSON('admin.json');
+      const admin = await readJSON('admin.json', null);
+      if (!admin) {
+        return send(res, 503, {
+          error: isProductionHost() && !adminPasswordConfigured()
+            ? 'Staff login is not configured yet. Set ADMIN_PASSWORD in Vercel environment variables, then redeploy.'
+            : 'Staff account is not set up yet.'
+        });
+      }
       if (body.username !== admin.username || !verifyPassword(body.password, admin.passwordHash)) {
         return send(res, 401, { error: 'Invalid username or password' });
       }
@@ -403,6 +416,61 @@ async function handleRequest(req, res) {
     }
 
     if (pathname.startsWith('/api/admin/') && pathname !== '/api/admin/login' && !requireAuth(req, res)) return;
+
+    if (req.method === 'GET' && pathname === '/api/admin/security-status') {
+      return send(res, 200, {
+        adminPasswordConfigured: adminPasswordConfigured(),
+        isProduction: isProductionHost(),
+        remindersConfigured: !!process.env.RESEND_API_KEY,
+        payIdConfigured: paymentsEnabled()
+      });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/admin/bookings/mark-paid') {
+      const body = await parseBody(req);
+      if (!body.id) return send(res, 400, { error: 'Booking id required' });
+      const bookings = await readJSON('bookings.json', []);
+      const booking = bookings.find(function (b) { return b.id === body.id; });
+      if (!booking) return send(res, 404, { error: 'Booking not found' });
+      const settings = await getSettings();
+      const amount = body.amount != null ? Number(body.amount) : (booking.amount || getBookingTotal(settings, booking));
+      const result = await markBookingPaid(body.id, {
+        amount: amount,
+        method: body.method || 'payid',
+        reference: body.reference || booking.id,
+        sendInvoice: body.sendInvoice !== false
+      });
+      if (!result.ok) return send(res, 404, { error: 'Booking not found' });
+      return send(res, 200, {
+        ok: true,
+        booking: result.booking,
+        alreadyPaid: !!result.alreadyPaid,
+        invoice: result.invoice || null
+      });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/admin/bookings/send-invoice') {
+      const body = await parseBody(req);
+      if (!body.id) return send(res, 400, { error: 'Booking id required' });
+      const bookings = await readJSON('bookings.json', []);
+      const booking = bookings.find(function (b) { return b.id === body.id; });
+      if (!booking) return send(res, 404, { error: 'Booking not found' });
+      const { sendTaxInvoice } = require('./invoice');
+      const settings = await getSettings();
+      const invoice = await sendTaxInvoice(booking, settings, { resend: !!body.resend });
+      if (invoice.skipped && !invoice.ok) {
+        return send(res, 400, { error: invoice.reason || 'Could not send invoice' });
+      }
+      if (!invoice.ok) {
+        return send(res, 502, { error: invoice.reason || invoice.error || 'Email failed. Add RESEND_API_KEY on Vercel.' });
+      }
+      booking.invoiceNumber = invoice.invoiceNumber;
+      booking.invoiceSentAt = new Date().toISOString();
+      const idx = bookings.findIndex(function (b) { return b.id === body.id; });
+      bookings[idx] = booking;
+      await writeJSON('bookings.json', bookings);
+      return send(res, 200, { ok: true, invoice: invoice });
+    }
 
     if (req.method === 'POST' && pathname === '/api/admin/logout') {
       return send(res, 200, { ok: true });
@@ -413,7 +481,8 @@ async function handleRequest(req, res) {
       if (!body.newPassword || body.newPassword.length < 8) {
         return send(res, 400, { error: 'New password must be at least 8 characters' });
       }
-      const admin = await readJSON('admin.json');
+      const admin = await readJSON('admin.json', null);
+      if (!admin) return send(res, 503, { error: 'Staff account is not set up.' });
       if (!verifyPassword(body.currentPassword, admin.passwordHash)) {
         return send(res, 401, { error: 'Current password is incorrect' });
       }
