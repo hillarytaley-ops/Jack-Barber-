@@ -1,0 +1,45 @@
+{
+  "blocked": [
+    "GPTBot",
+    "ChatGPT-User",
+    "Claude-Web",
+    "anthropic-ai",
+    "Google-Extended",
+    "Applebot-Extended",
+    "CCBot",
+    "Bytespider",
+    "PerplexityBot",
+    "Amazonbot",
+    "Meta-ExternalAgent",
+    "FacebookBot",
+    "Diffbot",
+    "ImagesiftBot",
+    "Omgilibot",
+    "YouBot",
+    "cohere-ai",
+    "Ai2Bot",
+    "Timpibot",
+    "Webzio-Extended",
+    "img2dataset"
+  ],
+  "allowed": [
+    "Googlebot",
+    "Googlebot-Image",
+    "Googlebot-News",
+    "Googlebot-Video",
+    "bingbot",
+    "BingPreview",
+    "DuckDuckBot",
+    "Slurp",
+    "Twitterbot",
+    "facebookexternalhit",
+    "LinkedInBot",
+    "WhatsApp",
+    "Stripe",
+    "Vercel"
+  ],
+  "skipPaths": [
+    "/api/payments/webhook",
+    "/api/health"
+  ]
+}
