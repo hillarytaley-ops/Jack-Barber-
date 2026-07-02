@@ -479,16 +479,61 @@ address {
   max-width: 100%;
   margin-inline: auto;
   --emblem-ring-offset: 20px;
+  -webkit-perspective: 900px;
+  perspective: 900px;
 }
 
-.hero-logo {
-  display: block;
+.hero-logo-coin {
+  position: relative;
   width: clamp(150px, 22vw, 220px);
-  height: auto;
   aspect-ratio: 1;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  -webkit-animation: logo-coin-spin 6s linear infinite;
+  animation: logo-coin-spin 6s linear infinite;
+}
+
+.hero-logo-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px rgba(212, 160, 23, 0.28), var(--shadow);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.hero-logo-front {
+  -webkit-transform: rotateY(0deg);
+  transform: rotateY(0deg);
+}
+
+.hero-logo-back {
+  -webkit-transform: rotateY(180deg);
+  transform: rotateY(180deg);
+}
+
+.hero-logo-face img {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px rgba(212, 160, 23, 0.28), var(--shadow);
+}
+
+.hero-logo-back img {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+@-webkit-keyframes logo-coin-spin {
+  from { -webkit-transform: rotateY(0deg); transform: rotateY(0deg); }
+  to { -webkit-transform: rotateY(360deg); transform: rotateY(360deg); }
+}
+
+@keyframes logo-coin-spin {
+  from { -webkit-transform: rotateY(0deg); transform: rotateY(0deg); }
+  to { -webkit-transform: rotateY(360deg); transform: rotateY(360deg); }
 }
 
 .emblem-ring {
@@ -497,12 +542,17 @@ address {
   left: 50%;
   width: calc(100% + (var(--emblem-ring-offset) * 2));
   height: calc(100% + (var(--emblem-ring-offset) * 2));
-  translate: -50% -50%;
   border: 2px dashed rgba(212, 160, 23, 0.55);
   border-radius: 50%;
   box-sizing: border-box;
   pointer-events: none;
-  animation: emblem-spin 30s linear infinite;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-animation: emblem-spin 18s linear infinite;
+  animation: emblem-spin 18s linear infinite;
 }
 
 .emblem-ring::before {
@@ -511,7 +561,11 @@ address {
   inset: -14px;
   border: 1px dashed rgba(196, 30, 58, 0.4);
   border-radius: 50%;
-  animation: emblem-spin-rev 22s linear infinite;
+  transform-origin: center center;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-animation: emblem-spin-rev 12s linear infinite;
+  animation: emblem-spin-rev 12s linear infinite;
 }
 
 .emblem-ring::after {
@@ -520,20 +574,39 @@ address {
   inset: 6px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
+  transform-origin: center center;
+  -webkit-animation: pulse-ring 3s ease-in-out infinite;
   animation: pulse-ring 3s ease-in-out infinite;
 }
 
+@-webkit-keyframes pulse-ring {
+  0%, 100% { opacity: 0.4; -webkit-transform: scale(1); transform: scale(1); }
+  50% { opacity: 0.9; -webkit-transform: scale(1.02); transform: scale(1.02); }
+}
+
 @keyframes pulse-ring {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.02); }
+  0%, 100% { opacity: 0.4; -webkit-transform: scale(1); transform: scale(1); }
+  50% { opacity: 0.9; -webkit-transform: scale(1.02); transform: scale(1.02); }
+}
+
+@-webkit-keyframes emblem-spin {
+  from { -webkit-transform: translate(-50%, -50%) rotate(0deg); transform: translate(-50%, -50%) rotate(0deg); }
+  to { -webkit-transform: translate(-50%, -50%) rotate(360deg); transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 @keyframes emblem-spin {
-  to { rotate: 360deg; }
+  from { -webkit-transform: translate(-50%, -50%) rotate(0deg); transform: translate(-50%, -50%) rotate(0deg); }
+  to { -webkit-transform: translate(-50%, -50%) rotate(360deg); transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@-webkit-keyframes emblem-spin-rev {
+  from { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+  to { -webkit-transform: rotate(-360deg); transform: rotate(-360deg); }
 }
 
 @keyframes emblem-spin-rev {
-  to { rotate: -360deg; }
+  from { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+  to { -webkit-transform: rotate(-360deg); transform: rotate(-360deg); }
 }
 
 @keyframes spin-slow {
@@ -1253,15 +1326,15 @@ body.policy-modal-open {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 
+  /* Keep slow decorative hero loops running — desktop "Reduce motion" often
+     disables these even though they are ambient, not jarring. */
   .hero-content,
   .hero-visual,
-  .emblem-ring,
-  .emblem-ring::before,
-  .emblem-ring::after,
   .kente-strip,
   .pattern-divider,
   .service-featured {
     animation: none;
+    -webkit-animation: none;
   }
 
   .reveal,
@@ -1688,7 +1761,7 @@ body.policy-modal-open {
     min-height: 2.85rem;
   }
 
-  .hero-logo {
+  .hero-logo-coin {
     width: min(72vw, 220px);
   }
 
@@ -1834,7 +1907,7 @@ body.policy-modal-open {
 }
 
 @media (max-width: 360px) {
-  .hero-logo {
+  .hero-logo-coin {
     width: min(68vw, 190px);
   }
 
