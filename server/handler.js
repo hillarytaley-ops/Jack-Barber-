@@ -284,7 +284,7 @@ async function handleRequest(req, res) {
         hero: settings.hero,
         roots: settings.roots,
         hours: settings.hours,
-        hoursDisplay: settings.hours.schedule.map(function (row) {
+        hoursDisplay: ((settings.hours && settings.hours.schedule) || []).map(function (row) {
           if (row.closed) return { label: row.label, text: 'Closed' };
           return { label: row.label, text: formatTime(row.open) + ' – ' + formatTime(row.close) };
         }),

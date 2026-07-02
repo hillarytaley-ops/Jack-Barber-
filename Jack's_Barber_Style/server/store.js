@@ -8,7 +8,15 @@ let blobPut = null;
 try {
   neonFn = require('@neondatabase/serverless').neon;
 } catch (e) {
-  /* optional on local file-only runs */
+  try {
+    neonFn = require(path.join(__dirname, '..', 'node_modules', '@neondatabase/serverless')).neon;
+  } catch (e2) {
+    try {
+      neonFn = require(path.join(__dirname, '..', 'api', 'node_modules', '@neondatabase/serverless')).neon;
+    } catch (e3) {
+      /* optional on local file-only runs */
+    }
+  }
 }
 
 try {
@@ -120,10 +128,10 @@ function ensureDefaultsSync() {
 
 async function ensurePg() {
   if (!hasPg() || pgReady) return;
-  if (!neonFn) {
-    throw new Error('Database driver missing. Redeploy the site after the latest GitHub update.');
-  }
   sql = neonFn(pgUrl());
+  if (typeof sql !== 'function') {
+    throw new Error('Database driver failed to initialize. Redeploy after connecting Neon.');
+  }
   await sql`CREATE TABLE IF NOT EXISTS jbs_store (
     file_key TEXT PRIMARY KEY,
     file_data JSONB NOT NULL,
@@ -213,7 +221,7 @@ function memorySet(name, data) {
 }
 
 async function readJSON(name, fallback) {
-  if (pgUrl()) {
+  if (hasPg()) {
     let data = await pgGet(name);
     if (data === null || data === undefined) {
       data = readDefaultSync(name, fallback);
@@ -273,7 +281,7 @@ async function readJSON(name, fallback) {
 async function writeJSON(name, data) {
   memorySet(name, data);
 
-  if (pgUrl()) {
+  if (hasPg()) {
     await pgSet(name, data);
     return;
   }
@@ -293,7 +301,7 @@ async function writeJSON(name, data) {
 }
 
 function hasSharedStorage() {
-  return !!pgUrl() || hasKv() || hasBlob();
+  return hasPg() || hasKv() || hasBlob();
 }
 
 const LOCAL_GALLERY_DIR = path.join(__dirname, '..', 'uploads', 'gallery');
@@ -311,7 +319,7 @@ function mimeFromExt(ext) {
 }
 
 async function saveImage(filename, buffer, mimeType) {
-  if (pgUrl()) {
+  if (hasPg()) {
     await ensurePg();
     const base64 = buffer.toString('base64');
     await sql`
@@ -328,7 +336,7 @@ async function saveImage(filename, buffer, mimeType) {
 }
 
 async function getImage(filename) {
-  if (pgUrl()) {
+  if (hasPg()) {
     await ensurePg();
     const rows = await sql`SELECT mime_type, image_data FROM jbs_images WHERE file_key = ${filename}`;
     if (!rows[0]) return null;
@@ -347,7 +355,7 @@ async function getImage(filename) {
 }
 
 async function deleteImage(filename) {
-  if (pgUrl()) {
+  if (hasPg()) {
     await ensurePg();
     await sql`DELETE FROM jbs_images WHERE file_key = ${filename}`;
     return;

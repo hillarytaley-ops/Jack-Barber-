@@ -7,6 +7,7 @@ const { normalizeHoursSchedule } = require('./hours');
 const { createSession, verifyToken } = require('./auth-token');
 const { paymentsEnabled, createPaymentRequest, getServicePrice, getBookingTotal, getTravelFee, markBookingPaid } = require('./payments');
 const { getRequiredAdminPassword, adminPasswordConfigured, isProductionHost } = require('./admin-auth');
+const { isBlockedBot, shouldSkipBotGuard, aiProtectionHeaders } = require('./bot-guard');
 
 const ROOT = path.join(__dirname, '..');
 const UPLOADS = process.env.VERCEL
@@ -88,6 +89,13 @@ async function saveSettings(data) {
     normalizeHoursSchedule(data.hours);
   }
   return writeJSON('settings.json', data);
+}
+
+function applyAiHeaders(res, pathname) {
+  const headers = aiProtectionHeaders(pathname.indexOf('/admin') === 0);
+  Object.keys(headers).forEach(function (key) {
+    if (typeof res.setHeader === 'function') res.setHeader(key, headers[key]);
+  });
 }
 
 function send(res, status, data, type) {
@@ -227,9 +235,10 @@ function resolveStaticFile(pathname) {
   return filePath;
 }
 
-function serveStatic(req, res, filePath) {
+function serveStatic(req, res, filePath, pathname) {
   fs.readFile(filePath, function (err, data) {
     if (err) return send(res, 404, 'Not found', 'text/plain');
+    applyAiHeaders(res, pathname || '');
     res.writeHead(200, { 'Content-Type': MIME[path.extname(filePath).toLowerCase()] || 'application/octet-stream' });
     res.end(data);
   });
@@ -253,6 +262,16 @@ async function handleRequest(req, res) {
   const pathname = getPathname(req);
   const searchParams = getSearchParams(req);
 
+  if (!shouldSkipBotGuard(pathname)) {
+    const ua = req.headers['user-agent'] || req.headers['User-Agent'] || '';
+    if (isBlockedBot(ua)) {
+      applyAiHeaders(res, pathname);
+      return send(res, 403, 'Access denied — automated AI/scraper access is not permitted.', 'text/plain');
+    }
+  }
+
+  applyAiHeaders(res, pathname);
+
   try {
     await ensureReady();
 
@@ -265,7 +284,7 @@ async function handleRequest(req, res) {
         hero: settings.hero,
         roots: settings.roots,
         hours: settings.hours,
-        hoursDisplay: settings.hours.schedule.map(function (row) {
+        hoursDisplay: ((settings.hours && settings.hours.schedule) || []).map(function (row) {
           if (row.closed) return { label: row.label, text: 'Closed' };
           return { label: row.label, text: formatTime(row.open) + ' – ' + formatTime(row.close) };
         }),
@@ -660,12 +679,12 @@ async function handleRequest(req, res) {
     }
 
     if (pathname === '/admin' || pathname === '/admin/') {
-      return serveStatic(req, res, path.join(ROOT, 'admin', 'index.html'));
+      return serveStatic(req, res, path.join(ROOT, 'admin', 'index.html'), pathname);
     }
 
     var filePath = resolveStaticFile(pathname);
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-      return serveStatic(req, res, filePath);
+      return serveStatic(req, res, filePath, pathname);
     }
 
     send(res, 404, 'Not found', 'text/plain');
