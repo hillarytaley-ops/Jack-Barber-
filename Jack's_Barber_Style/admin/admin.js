@@ -708,12 +708,22 @@
       });
       document.querySelectorAll('.del-booking').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          if (confirm('Delete booking?')) {
-            api('/api/admin/bookings', {
-              method: 'DELETE',
-              body: JSON.stringify({ id: btn.dataset.id })
-            }).then(loadBookings);
-          }
+          var id = btn.dataset.id;
+          if (!id || !confirm('Delete this booking? It will be removed from the dashboard.')) return;
+          btn.disabled = true;
+          api('/api/admin/bookings/' + encodeURIComponent(id) + '?id=' + encodeURIComponent(id), {
+            method: 'DELETE'
+          }).then(function () {
+            var row = btn.closest('tr');
+            if (row) row.remove();
+            if (!document.querySelector('#bookings-table tbody tr')) {
+              document.querySelector('#bookings-table tbody').innerHTML = '<tr><td colspan="9">No bookings yet</td></tr>';
+            }
+            loadOverview();
+          }).catch(function (err) {
+            alert(err.message || 'Could not delete booking.');
+            btn.disabled = false;
+          });
         });
       });
     });
@@ -734,12 +744,22 @@
 
       document.querySelectorAll('.del-txn').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          if (confirm('Delete transaction?')) {
-            api('/api/admin/transactions', {
-              method: 'DELETE',
-              body: JSON.stringify({ id: btn.dataset.id })
-            }).then(loadTransactions);
-          }
+          var id = btn.dataset.id;
+          if (!id || !confirm('Delete transaction?')) return;
+          btn.disabled = true;
+          api('/api/admin/transactions/' + encodeURIComponent(id) + '?id=' + encodeURIComponent(id), {
+            method: 'DELETE'
+          }).then(function () {
+            var row = btn.closest('tr');
+            if (row) row.remove();
+            if (!document.querySelector('#transactions-table tbody tr')) {
+              document.querySelector('#transactions-table tbody').innerHTML = '<tr><td colspan="6">No payments recorded yet</td></tr>';
+            }
+            loadOverview();
+          }).catch(function (err) {
+            alert(err.message || 'Could not delete transaction.');
+            btn.disabled = false;
+          });
         });
       });
     });

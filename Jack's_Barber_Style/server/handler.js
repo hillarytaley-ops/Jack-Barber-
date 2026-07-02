@@ -681,8 +681,10 @@ async function handleRequest(req, res) {
       const id = adminResourceId(pathname, '/api/admin/bookings', searchParams, body);
       if (!id) return send(res, 400, { error: 'Booking id required' });
       const bookings = await readJSON('bookings.json', []);
-      await writeJSON('bookings.json', bookings.filter(function (b) { return b.id !== id; }));
-      return send(res, 200, { ok: true });
+      const next = bookings.filter(function (b) { return b.id !== id; });
+      if (next.length === bookings.length) return send(res, 404, { error: 'Booking not found' });
+      await writeJSON('bookings.json', next);
+      return send(res, 200, { ok: true, deleted: id });
     }
 
     if (req.method === 'PATCH' && (pathname === '/api/admin/bookings' || pathname.startsWith('/api/admin/bookings/'))) {

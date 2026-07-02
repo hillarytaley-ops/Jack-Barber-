@@ -624,10 +624,12 @@ body { font-family: "Segoe UI", system-ui, sans-serif; background: #eef1f5; colo
 
 .booking-actions {
   white-space: nowrap;
+  min-width: 9.5rem;
 }
 
 .booking-actions .btn {
   margin-bottom: 0.25rem;
+  display: inline-block;
 }
 
 .gallery-admin-empty,
