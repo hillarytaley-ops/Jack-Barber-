@@ -628,17 +628,37 @@ body { font-family: "Segoe UI", system-ui, sans-serif; background: #eef1f5; colo
   padding: 0.15rem 0.35rem;
   border-radius: 4px;
   color: #227846;
-  word-break: break-all;
+  white-space: nowrap;
+}
+
+#bookings-table .actions-col,
+#bookings-table td.booking-actions {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--white);
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.04);
+}
+
+#bookings-table th.actions-col {
+  background: var(--cream);
 }
 
 .booking-actions {
-  white-space: nowrap;
-  min-width: 9.5rem;
+  white-space: normal;
+  min-width: 7.5rem;
 }
 
 .booking-actions .btn {
-  margin-bottom: 0.25rem;
-  display: inline-block;
+  margin-bottom: 0.35rem;
+  display: block;
+  width: 100%;
+}
+
+#bookings-table .contact-col,
+#bookings-table .location-col {
+  max-width: 10rem;
+  word-break: break-word;
 }
 
 .gallery-admin-empty,

@@ -32,9 +32,13 @@
           window.location.href = 'index.html';
           throw new Error('Session expired');
         }
-        return r.json().then(function (d) {
-          if (!r.ok) throw new Error(d.error || 'Request failed');
-          return d;
+        return r.text().then(function (text) {
+          var data = {};
+          if (text) {
+            try { data = JSON.parse(text); } catch (err) { /* non-JSON error page */ }
+          }
+          if (!r.ok) throw new Error(data.error || ('Request failed (' + r.status + ')'));
+          return data;
         });
       });
   }
@@ -643,9 +647,9 @@
         return '<tr>' +
           '<td>' + fmtDate(b.createdAt) + '</td>' +
           '<td><strong>' + b.name + '</strong></td>' +
-          '<td>' + b.phone + '<br>' + b.email + '</td>' +
+          '<td class="contact-col">' + b.phone + '<br>' + b.email + '</td>' +
           '<td>' + b.service + '<br><small>' + (b.serviceType === 'home' ? 'Home visit' : 'In-shop') + '</small></td>' +
-          '<td>' + location + '</td>' +
+          '<td class="location-col">' + location + '</td>' +
           '<td>' + b.date + ' ' + b.time + '</td>' +
           '<td><code class="booking-ref">' + b.id + '</code></td>' +
           '<td>' + payment + '</td>' +
@@ -715,19 +719,17 @@
           var id = btn.dataset.id;
           if (!id || !confirm('Delete this booking? It will be removed from the dashboard.')) return;
           btn.disabled = true;
+          btn.textContent = 'Deleting…';
           api('/api/admin/bookings/delete', {
             method: 'POST',
             body: JSON.stringify({ id: id })
           }).then(function () {
-            var row = btn.closest('tr');
-            if (row) row.remove();
-            if (!document.querySelector('#bookings-table tbody tr')) {
-              document.querySelector('#bookings-table tbody').innerHTML = '<tr><td colspan="10">No bookings yet</td></tr>';
-            }
+            loadBookings();
             loadOverview();
           }).catch(function (err) {
             alert(err.message || 'Could not delete booking.');
             btn.disabled = false;
+            btn.textContent = 'Delete';
           });
         });
       });
