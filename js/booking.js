@@ -219,14 +219,16 @@
 
   function showPaymentDetails(payment) {
     if (!payment || !paymentDetailsEl) return;
+    var ref = escapeHtml(payment.reference);
     var lines = [
       '<div class="payid-box">',
       '<p class="payid-lead"><strong>Pay now with PayID</strong> to confirm your appointment.</p>',
+      '<p class="payid-reference-warning" role="alert"><strong>Important:</strong> You must enter the payment reference below in your banking app every time you pay. Without it, we cannot match your payment and your booking may not be confirmed.</p>',
       '<dl class="payid-details">',
       '<div><dt>PayID</dt><dd><strong>' + escapeHtml(payment.payIdDisplay || payment.payId) + '</strong></dd></div>',
       '<div><dt>Business name</dt><dd>' + escapeHtml(payment.payIdName || "Jack's Barber Style") + '</dd></div>',
       '<div><dt>Amount</dt><dd><strong>$' + Number(payment.amount).toFixed(2) + ' AUD</strong></dd></div>',
-      '<div><dt>Reference</dt><dd><strong>' + escapeHtml(payment.reference) + '</strong></dd></div>'
+      '<div class="payid-ref-row"><dt>Payment reference</dt><dd><strong class="payid-ref-value">' + ref + '</strong><span class="payid-ref-note">Enter this exactly in the reference / description field</span></dd></div>'
     ];
     if (payment.gstRegistered && payment.gst > 0) {
       lines.push('<div><dt>GST included</dt><dd>$' + Number(payment.gst).toFixed(2) + '</dd></div>');
@@ -370,7 +372,7 @@
         if (result.data.payment) {
           showSuccess(
             'Pay with PayID',
-            'Your booking is saved. Pay the exact amount below using PayID to confirm your appointment.',
+            'Your booking is saved. Pay the exact amount below using PayID — and enter your unique payment reference so we can confirm your appointment.',
             result.data.payment
           );
           if (success) success.hidden = false;
@@ -496,7 +498,7 @@
         if (data.payment) {
           showSuccess(
             'Almost done — pay with PayID',
-            'Your booking is saved. Pay the exact amount below using PayID to confirm your appointment and secure priority.',
+            'Your booking is saved. Pay the exact amount below using PayID — and enter your unique payment reference so we can confirm your appointment and secure your priority.',
             data.payment
           );
           return;

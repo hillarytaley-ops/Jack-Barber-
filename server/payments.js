@@ -74,8 +74,8 @@ function buildPaymentInstructions(booking, settings) {
       'Enter PayID: ' + formatPayIdDisplay(payId),
       'Confirm the name shown is: ' + payIdName,
       'Enter the exact amount: $' + amount.toFixed(2),
-      'Use payment reference: ' + booking.id,
-      'Your appointment is confirmed once we receive your payment (usually within minutes)'
+      'IMPORTANT — enter this payment reference exactly: ' + booking.id,
+      'Your appointment is confirmed once we receive your payment with the correct reference (usually within minutes)'
     ]
   };
 }
