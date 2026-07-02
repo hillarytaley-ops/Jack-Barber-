@@ -622,6 +622,15 @@ body { font-family: "Segoe UI", system-ui, sans-serif; background: #eef1f5; colo
   color: #64748b;
 }
 
+.booking-ref {
+  font-size: 0.78rem;
+  background: rgba(34, 120, 70, 0.08);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  color: #227846;
+  word-break: break-all;
+}
+
 .booking-actions {
   white-space: nowrap;
   min-width: 9.5rem;

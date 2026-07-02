@@ -647,6 +647,7 @@
           '<td>' + b.service + '<br><small>' + (b.serviceType === 'home' ? 'Home visit' : 'In-shop') + '</small></td>' +
           '<td>' + location + '</td>' +
           '<td>' + b.date + ' ' + b.time + '</td>' +
+          '<td><code class="booking-ref">' + b.id + '</code></td>' +
           '<td>' + payment + '</td>' +
           '<td><select class="status-select" data-id="' + b.id + '">' +
           ['pending', 'confirmed', 'completed', 'cancelled'].map(function (s) {
@@ -659,13 +660,16 @@
           ' <button type="button" class="btn btn-danger btn-sm del-booking" data-id="' + b.id + '">Delete</button>' +
           '</td>' +
           '</tr>';
-      }).join('') || '<tr><td colspan="9">No bookings yet</td></tr>';
+      }).join('') || '<tr><td colspan="10">No bookings yet</td></tr>';
 
       document.querySelectorAll('.status-select').forEach(function (sel) {
         sel.addEventListener('change', function () {
-          api('/api/admin/bookings', {
-            method: 'PATCH',
+          api('/api/admin/bookings/update-status', {
+            method: 'POST',
             body: JSON.stringify({ id: sel.dataset.id, status: sel.value })
+          }).catch(function (err) {
+            alert(err.message || 'Could not update status.');
+            loadBookings();
           });
         });
       });
@@ -711,13 +715,14 @@
           var id = btn.dataset.id;
           if (!id || !confirm('Delete this booking? It will be removed from the dashboard.')) return;
           btn.disabled = true;
-          api('/api/admin/bookings/' + encodeURIComponent(id) + '?id=' + encodeURIComponent(id), {
-            method: 'DELETE'
+          api('/api/admin/bookings/delete', {
+            method: 'POST',
+            body: JSON.stringify({ id: id })
           }).then(function () {
             var row = btn.closest('tr');
             if (row) row.remove();
             if (!document.querySelector('#bookings-table tbody tr')) {
-              document.querySelector('#bookings-table tbody').innerHTML = '<tr><td colspan="9">No bookings yet</td></tr>';
+              document.querySelector('#bookings-table tbody').innerHTML = '<tr><td colspan="10">No bookings yet</td></tr>';
             }
             loadOverview();
           }).catch(function (err) {

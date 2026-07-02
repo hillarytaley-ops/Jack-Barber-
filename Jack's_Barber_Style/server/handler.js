@@ -169,13 +169,23 @@ function galleryUrl(item) {
 }
 
 function adminResourceId(pathname, basePath, searchParams, body) {
+  const reserved = { 'mark-paid': true, 'send-invoice': true, delete: true, 'update-status': true };
   const fromQuery = searchParams.get('id');
   if (fromQuery) return decodeURIComponent(fromQuery);
-  if (body && body.id) return String(body.id);
   if (pathname.startsWith(basePath + '/')) {
-    return decodeURIComponent(pathname.slice(basePath.length + 1).replace(/\/$/, ''));
+    const segment = decodeURIComponent(pathname.slice(basePath.length + 1).replace(/\/$/, ''));
+    if (segment && !reserved[segment]) return segment;
   }
+  if (body && body.id) return String(body.id);
   return '';
+}
+
+async function removeBookingById(id) {
+  const bookings = await readJSON('bookings.json', []);
+  const next = bookings.filter(function (b) { return b.id !== id; });
+  if (next.length === bookings.length) return false;
+  await writeJSON('bookings.json', next);
+  return true;
 }
 
 function parsePeriod(period) {
@@ -477,6 +487,25 @@ async function handleRequest(req, res) {
       });
     }
 
+    if (req.method === 'POST' && pathname === '/api/admin/bookings/delete') {
+      const body = await parseBody(req);
+      if (!body.id) return send(res, 400, { error: 'Booking id required' });
+      const removed = await removeBookingById(String(body.id));
+      if (!removed) return send(res, 404, { error: 'Booking not found' });
+      return send(res, 200, { ok: true, deleted: body.id });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/admin/bookings/update-status') {
+      const body = await parseBody(req);
+      if (!body.id || !body.status) return send(res, 400, { error: 'Booking id and status required' });
+      const bookings = await readJSON('bookings.json', []);
+      const idx = bookings.findIndex(function (b) { return b.id === body.id; });
+      if (idx === -1) return send(res, 404, { error: 'Booking not found' });
+      bookings[idx] = Object.assign({}, bookings[idx], { status: body.status });
+      await writeJSON('bookings.json', bookings);
+      return send(res, 200, bookings[idx]);
+    }
+
     if (req.method === 'POST' && pathname === '/api/admin/bookings/mark-paid') {
       const body = await parseBody(req);
       if (!body.id) return send(res, 400, { error: 'Booking id required' });
@@ -677,13 +706,14 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'DELETE' && (pathname === '/api/admin/bookings' || pathname.startsWith('/api/admin/bookings/'))) {
-      const body = await parseBody(req);
-      const id = adminResourceId(pathname, '/api/admin/bookings', searchParams, body);
+      let id = adminResourceId(pathname, '/api/admin/bookings', searchParams, null);
+      if (!id) {
+        const body = await parseBody(req);
+        id = adminResourceId(pathname, '/api/admin/bookings', searchParams, body);
+      }
       if (!id) return send(res, 400, { error: 'Booking id required' });
-      const bookings = await readJSON('bookings.json', []);
-      const next = bookings.filter(function (b) { return b.id !== id; });
-      if (next.length === bookings.length) return send(res, 404, { error: 'Booking not found' });
-      await writeJSON('bookings.json', next);
+      const removed = await removeBookingById(id);
+      if (!removed) return send(res, 404, { error: 'Booking not found' });
       return send(res, 200, { ok: true, deleted: id });
     }
 
@@ -700,8 +730,11 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'DELETE' && (pathname === '/api/admin/transactions' || pathname.startsWith('/api/admin/transactions/'))) {
-      const body = await parseBody(req);
-      const id = adminResourceId(pathname, '/api/admin/transactions', searchParams, body);
+      let id = adminResourceId(pathname, '/api/admin/transactions', searchParams, null);
+      if (!id) {
+        const body = await parseBody(req);
+        id = adminResourceId(pathname, '/api/admin/transactions', searchParams, body);
+      }
       if (!id) return send(res, 400, { error: 'Transaction id required' });
       const transactions = await readJSON('transactions.json', []);
       await writeJSON('transactions.json', transactions.filter(function (t) { return t.id !== id; }));
