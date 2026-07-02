@@ -339,18 +339,33 @@ async function handleRequest(req, res) {
         return send(res, 400, { error: 'Could not find a price for this service.' });
       }
 
+      const payAtShop = body.paymentChoice === 'shop';
+
       const bookings = await readJSON('bookings.json', []);
       const booking = Object.assign({}, body, {
         id: 'b' + Date.now(),
         serviceType: serviceType,
         status: 'pending',
         paymentStatus: 'unpaid',
+        paymentChoice: payAtShop ? 'shop' : 'now',
+        priority: payAtShop ? false : true,
         travelFee: travelFee,
         amount: price,
         createdAt: new Date().toISOString()
       });
       bookings.unshift(booking);
       await writeJSON('bookings.json', bookings);
+
+      if (payAtShop) {
+        return send(res, 200, {
+          ok: true,
+          id: booking.id,
+          amount: price,
+          paymentChoice: 'shop',
+          payment: (paymentsEnabled() && getPayId()) ? buildPaymentInstructions(booking, settings) : null,
+          message: 'Your booking request was received. Pay at the shop on arrival. Paying on arrival does not guarantee priority.'
+        });
+      }
 
       if (paymentsEnabled() && getPayId()) {
         return send(res, 200, {

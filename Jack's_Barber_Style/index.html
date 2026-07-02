@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260702d">
+  <link rel="stylesheet" href="css/styles.css?v=20260702e">
   <link rel="stylesheet" href="css/page-sections.css?v=20260717">
   <link rel="icon" href="assets/logo.png" type="image/png">
 </head>
@@ -334,7 +334,7 @@
         <div class="booking-layout">
           <div class="booking-panel">
             <h2 id="book-heading">Book an appointment</h2>
-            <p class="booking-intro">Complete the form below, then pay securely by Visa, Mastercard, or other credit/debit card.</p>
+            <p class="booking-intro">Complete the form below. Pay now with PayID to confirm your appointment and get priority, or choose to pay at the shop (no priority guarantee).</p>
 
             <form class="booking-form" id="booking-form" novalidate>
               <div class="form-row">
@@ -389,6 +389,22 @@
                 <p class="home-fee-note" id="home-fee-note" hidden></p>
               </div>
 
+              <fieldset class="form-fieldset" id="payment-choice-fieldset">
+                <legend>How would you like to pay?</legend>
+                <label class="radio-label">
+                  <input type="radio" name="payment-choice" value="now" checked>
+                  <span>
+                    <strong>Pay now with PayID</strong> — secures your spot and gives you priority on arrival.
+                  </span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="payment-choice" value="shop">
+                  <span>
+                    <strong>Pay at the shop</strong> — your booking is a request only. No guarantee of priority; walk-ins and paid bookings are served first.
+                  </span>
+                </label>
+              </fieldset>
+
               <div class="policy-consent" id="policy">
                 <p class="policy-consent-status" id="policy-status">
                   Please read and accept our booking policy before continuing.
@@ -439,10 +455,10 @@
 
       <div class="policy-modal-body">
         <div class="policy-block">
-          <h3>Payment required in advance</h3>
+          <h3>Payment options</h3>
           <ul>
-            <li>Full payment is required to secure your appointment.</li>
-            <li>Your booking is only confirmed once payment has been received.</li>
+            <li><strong>Pay now with PayID:</strong> your appointment is confirmed and you receive priority service on arrival.</li>
+            <li><strong>Pay at the shop:</strong> your booking is a request only. Payment is made on arrival, and priority is not guaranteed — walk-ins and pre-paid bookings may be served first.</li>
           </ul>
         </div>
 
@@ -555,7 +571,7 @@
 
   <script src="js/site-config.js?v=20260713"></script>
   <script src="js/main.js?v=20260714"></script>
-  <script src="js/booking.js?v=20260702d"></script>
+  <script src="js/booking.js?v=20260702e"></script>
   <script src="js/gallery.js?v=20260713"></script>
 </body>
 </html>

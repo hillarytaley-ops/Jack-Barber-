@@ -21,6 +21,7 @@
   var submitBtn = form.querySelector('button[type="submit"]');
   var bookingPanel = form.closest('.booking-panel');
   var pendingBookingId = null;
+  var pendingPayment = null;
   var paymentsEnabled = false;
 
   function updateHomeFeeNote() {
@@ -369,6 +370,11 @@
 
   if (payAgainBtn) {
     payAgainBtn.addEventListener('click', function () {
+      if (pendingPayment) {
+        showPaymentDetails(pendingPayment);
+        payAgainBtn.hidden = true;
+        return;
+      }
       startCheckout(pendingBookingId);
     });
   }
@@ -386,6 +392,7 @@
     if (terms) terms.removeAttribute('aria-invalid');
 
     var fd = new FormData(form);
+    var paymentChoice = fd.get('payment-choice') || 'now';
     var payload = {
       name: String(fd.get('name') || '').trim(),
       email: String(fd.get('email') || '').trim(),
@@ -394,7 +401,8 @@
       service: String(fd.get('service') || '').trim(),
       date: fd.get('date'),
       time: fd.get('time'),
-      address: String(fd.get('address') || '').trim()
+      address: String(fd.get('address') || '').trim(),
+      paymentChoice: paymentChoice
     };
 
     var validationError = validate(payload);
@@ -409,7 +417,7 @@
 
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = paymentsEnabled ? 'Saving booking…' : 'Sending…';
+      submitBtn.textContent = (paymentsEnabled && paymentChoice === 'now') ? 'Saving booking…' : 'Sending…';
     }
 
     var succeeded = false;
@@ -441,10 +449,25 @@
         }
         succeeded = true;
         pendingBookingId = data.id || null;
+
+        if (paymentChoice === 'shop') {
+          showSuccess(
+            'Booking request received',
+            'Thanks! Your appointment is booked as a request. Payment is made at the shop on arrival. Please note: paying at the shop does not guarantee priority — walk-ins and pre-paid bookings may be served first. To secure priority, you can still pay now with PayID below.',
+            null
+          );
+          if (data.payment && payAgainBtn) {
+            payAgainBtn.hidden = false;
+            payAgainBtn.textContent = 'Pay now with PayID for priority';
+            pendingPayment = data.payment;
+          }
+          return;
+        }
+
         if (data.payment) {
           showSuccess(
             'Almost done — pay with PayID',
-            'Your booking is saved. Pay the exact amount below using PayID to confirm your appointment.',
+            'Your booking is saved. Pay the exact amount below using PayID to confirm your appointment and secure priority.',
             data.payment
           );
           return;
