@@ -622,6 +622,55 @@ body { font-family: "Segoe UI", system-ui, sans-serif; background: #eef1f5; colo
   color: #64748b;
 }
 
+.status-cell {
+  min-width: 8.5rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.status-badge--pending {
+  background: rgba(100, 116, 139, 0.15);
+  color: #475569;
+}
+
+.status-badge--confirmed {
+  background: rgba(34, 120, 70, 0.15);
+  color: #227846;
+}
+
+.status-badge--completed {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+}
+
+.status-badge--cancelled {
+  background: rgba(196, 30, 58, 0.12);
+  color: #c41e3a;
+}
+
+.status-hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.status-select--after {
+  display: block;
+  margin-top: 0.35rem;
+  width: 100%;
+  max-width: 9rem;
+  font-size: 0.78rem;
+}
+
 .booking-ref {
   font-size: 0.78rem;
   background: rgba(34, 120, 70, 0.08);

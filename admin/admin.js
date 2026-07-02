@@ -628,6 +628,33 @@
     reader.readAsDataURL(file);
   });
 
+  function statusLabel(status) {
+    if (!status) return 'Pending payment';
+    if (status === 'pending') return 'Pending payment';
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
+  function renderBookingStatus(b) {
+    var status = b.status || 'pending';
+    var paid = b.paymentStatus === 'paid';
+
+    if (status === 'completed' || status === 'cancelled') {
+      return '<span class="status-badge status-badge--' + status + '">' + statusLabel(status) + '</span>';
+    }
+
+    if (paid) {
+      return '<span class="status-badge status-badge--confirmed">Confirmed</span>' +
+        '<select class="status-select status-select--after" data-id="' + b.id + '" aria-label="Update booking status">' +
+        '<option value="">After appointment…</option>' +
+        '<option value="completed">Completed</option>' +
+        '<option value="cancelled">Cancelled</option>' +
+        '</select>';
+    }
+
+    return '<span class="status-badge status-badge--pending">Pending payment</span>' +
+      '<small class="status-hint">Auto-confirms when you Mark paid</small>';
+  }
+
   /* Bookings */
   function loadBookings() {
     api('/api/admin/bookings').then(function (rows) {
@@ -653,10 +680,7 @@
           '<td>' + b.date + ' ' + b.time + '</td>' +
           '<td><code class="booking-ref">' + b.id + '</code></td>' +
           '<td>' + payment + '</td>' +
-          '<td><select class="status-select" data-id="' + b.id + '">' +
-          ['pending', 'confirmed', 'completed', 'cancelled'].map(function (s) {
-            return '<option value="' + s + '" ' + (b.status === s ? 'selected' : '') + '>' + s + '</option>';
-          }).join('') + '</select></td>' +
+          '<td class="status-cell">' + renderBookingStatus(b) + '</td>' +
           '<td class="booking-actions">' +
           (paid
             ? '<button type="button" class="btn btn-secondary btn-sm resend-invoice" data-id="' + b.id + '">Resend invoice</button>'
@@ -668,9 +692,12 @@
 
       document.querySelectorAll('.status-select').forEach(function (sel) {
         sel.addEventListener('change', function () {
+          if (!sel.value) return;
           api('/api/admin/bookings/update-status', {
             method: 'POST',
             body: JSON.stringify({ id: sel.dataset.id, status: sel.value })
+          }).then(function () {
+            loadBookings();
           }).catch(function (err) {
             alert(err.message || 'Could not update status.');
             loadBookings();

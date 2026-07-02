@@ -188,6 +188,30 @@ async function removeBookingById(id) {
   return true;
 }
 
+function syncBookingStatus(booking) {
+  if (!booking) return booking;
+  if (booking.paymentStatus === 'paid') {
+    if (booking.status === 'cancelled' || booking.status === 'completed') return booking;
+    if (booking.status !== 'confirmed') {
+      return Object.assign({}, booking, { status: 'confirmed' });
+    }
+  } else if (booking.status === 'confirmed') {
+    return Object.assign({}, booking, { status: 'pending' });
+  }
+  return booking;
+}
+
+async function normalizeBookingsList(bookings) {
+  let changed = false;
+  const next = bookings.map(function (booking) {
+    const synced = syncBookingStatus(booking);
+    if (synced !== booking) changed = true;
+    return synced;
+  });
+  if (changed) await writeJSON('bookings.json', next);
+  return next;
+}
+
 function parsePeriod(period) {
   const now = new Date();
   const start = new Date(now);
@@ -498,6 +522,13 @@ async function handleRequest(req, res) {
     if (req.method === 'POST' && pathname === '/api/admin/bookings/update-status') {
       const body = await parseBody(req);
       if (!body.id || !body.status) return send(res, 400, { error: 'Booking id and status required' });
+      const allowed = ['completed', 'cancelled'];
+      if (body.status === 'confirmed') {
+        return send(res, 400, { error: 'Confirmed is set automatically when payment is received. Use Mark paid first.' });
+      }
+      if (allowed.indexOf(body.status) === -1) {
+        return send(res, 400, { error: 'Only completed or cancelled can be set manually after payment.' });
+      }
       const bookings = await readJSON('bookings.json', []);
       const idx = bookings.findIndex(function (b) { return b.id === body.id; });
       if (idx === -1) return send(res, 404, { error: 'Booking not found' });
@@ -584,7 +615,8 @@ async function handleRequest(req, res) {
     }
 
     if (req.method === 'GET' && pathname === '/api/admin/bookings') {
-      return send(res, 200, await readJSON('bookings.json', []));
+      const bookings = await readJSON('bookings.json', []);
+      return send(res, 200, await normalizeBookingsList(bookings));
     }
     if (req.method === 'GET' && pathname === '/api/admin/transactions') {
       return send(res, 200, await readJSON('transactions.json', []));
