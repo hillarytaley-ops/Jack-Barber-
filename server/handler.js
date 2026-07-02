@@ -352,6 +352,15 @@ async function handleRequest(req, res) {
       bookings.unshift(booking);
       await writeJSON('bookings.json', bookings);
 
+      if (paymentsEnabled() && getPayId()) {
+        return send(res, 200, {
+          ok: true,
+          id: booking.id,
+          amount: price,
+          payment: buildPaymentInstructions(booking, settings)
+        });
+      }
+
       if (paymentsEnabled()) {
         try {
           const payment = await createPaymentRequest(booking, settings);

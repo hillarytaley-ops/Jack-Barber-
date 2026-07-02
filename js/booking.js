@@ -405,11 +405,11 @@
 
     var succeeded = false;
 
-    fetch('/api/bookings', {
+    fetchWithTimeout('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    })
+    }, 20000)
       .then(function (r) {
         return r.text().then(function (text) {
           var data;
@@ -456,7 +456,10 @@
         );
       })
       .catch(function (err) {
-        showError(err.message || 'Something went wrong. Please try again or call 0478 268 399.');
+        var msg = err.name === 'AbortError'
+          ? 'Saving your booking timed out. Please try again or call 0478 268 399.'
+          : (err.message || 'Something went wrong. Please try again or call 0478 268 399.');
+        showError(msg);
       })
       .finally(function () {
         if (!succeeded && submitBtn) {

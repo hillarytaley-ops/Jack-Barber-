@@ -80,6 +80,16 @@ function buildPaymentInstructions(booking, settings) {
   };
 }
 
+async function fetchWithTimeout(url, options, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(function () { controller.abort(); }, ms || 8000);
+  try {
+    return await fetch(url, Object.assign({}, options, { signal: controller.signal }));
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function createAzupayPaymentRequest(booking, settings) {
   const amount = Number(booking.amount) || getBookingTotal(settings, booking);
   const apiBase = (process.env.AZUPAY_API_URL || 'https://api.azupay.com.au').replace(/\/$/, '');
@@ -87,11 +97,11 @@ async function createAzupayPaymentRequest(booking, settings) {
   const secret = process.env.AZUPAY_SECRET;
   const brand = (settings.brand && settings.brand.name) || "Jack's Barber Style";
 
-  const authRes = await fetch(apiBase + '/v1/auth', {
+  const authRes = await fetchWithTimeout(apiBase + '/v1/auth', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ clientId: clientId, clientSecret: secret })
-  });
+  }, 8000);
   if (!authRes.ok) {
     throw new Error('Could not connect to PayID provider. Please pay using the instructions shown or call us.');
   }
@@ -101,7 +111,7 @@ async function createAzupayPaymentRequest(booking, settings) {
     throw new Error('PayID provider authentication failed.');
   }
 
-  const paymentRes = await fetch(apiBase + '/v1/paymentRequest', {
+  const paymentRes = await fetchWithTimeout(apiBase + '/v1/paymentRequest', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -115,7 +125,7 @@ async function createAzupayPaymentRequest(booking, settings) {
         expiryDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
       }
     })
-  });
+  }, 8000);
   if (!paymentRes.ok) {
     throw new Error('Could not create PayID payment request. Please use the PayID details shown.');
   }

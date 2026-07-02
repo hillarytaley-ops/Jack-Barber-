@@ -336,7 +336,7 @@
             <h2 id="book-heading">Book an appointment</h2>
             <p class="booking-intro">Complete the form below, then pay securely by Visa, Mastercard, or other credit/debit card.</p>
 
-            <form class="booking-form" id="booking-form">
+            <form class="booking-form" id="booking-form" novalidate>
               <div class="form-row">
                 <label for="name">Full name</label>
                 <input type="text" id="name" name="name" required autocomplete="name">
@@ -398,7 +398,7 @@
                 </button>
               </div>
 
-              <input type="checkbox" id="terms-agree" name="terms" required hidden aria-hidden="true" tabindex="-1">
+              <input type="checkbox" id="terms-agree" name="terms" hidden aria-hidden="true" tabindex="-1">
 
               <p class="booking-error" id="booking-error" hidden role="alert"></p>
 
@@ -555,7 +555,7 @@
 
   <script src="js/site-config.js?v=20260713"></script>
   <script src="js/main.js?v=20260714"></script>
-  <script src="js/booking.js?v=20260702b"></script>
+  <script src="js/booking.js?v=20260702c"></script>
   <script src="js/gallery.js?v=20260713"></script>
 </body>
 </html>
