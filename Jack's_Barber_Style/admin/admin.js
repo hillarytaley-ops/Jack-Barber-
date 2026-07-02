@@ -52,20 +52,56 @@
     return new Date(d).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
+  function bookingTimeValue(b) {
+    var date = b.date || '';
+    var time = b.time || '23:59';
+    var value = new Date(date + 'T' + time);
+    return Number.isNaN(value.getTime()) ? Number.MAX_SAFE_INTEGER : value.getTime();
+  }
+
+  function bookingPriorityRank(b) {
+    if (b.paymentStatus === 'paid' && b.status !== 'completed' && b.status !== 'cancelled') return 0;
+    if (b.priority && b.paymentChoice === 'now' && b.paymentStatus !== 'paid') return 1;
+    if (b.paymentChoice === 'shop') return 2;
+    if (b.status === 'completed') return 4;
+    if (b.status === 'cancelled') return 5;
+    return 3;
+  }
+
+  function sortBookings(rows) {
+    return (rows || []).slice().sort(function (a, b) {
+      var rank = bookingPriorityRank(a) - bookingPriorityRank(b);
+      if (rank !== 0) return rank;
+      return bookingTimeValue(a) - bookingTimeValue(b);
+    });
+  }
+
+  function showPanel(panelName) {
+    document.querySelectorAll('.nav-item').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.panel === panelName);
+    });
+    document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('active'); });
+    var panel = document.getElementById('panel-' + panelName);
+    if (panel) panel.classList.add('active');
+    if (panelName === 'reports') loadReport();
+    if (panelName === 'clients') loadBookings();
+    if (panelName === 'finances') loadTransactions();
+    if (panelName === 'gallery' && settings) {
+      renderGalleryAdmin();
+      renderGalleryPricesEditor();
+    }
+  }
+
   /* Navigation */
   document.querySelectorAll('.nav-item').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.remove('active'); });
-      document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('active'); });
-      btn.classList.add('active');
-      document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
-      if (btn.dataset.panel === 'reports') loadReport();
-      if (btn.dataset.panel === 'clients') loadBookings();
-      if (btn.dataset.panel === 'finances') loadTransactions();
-      if (btn.dataset.panel === 'gallery' && settings) {
-        renderGalleryAdmin();
-        renderGalleryPricesEditor();
-      }
+      showPanel(btn.dataset.panel);
+    });
+  });
+
+  document.querySelectorAll('[data-panel-jump]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      showPanel(btn.dataset.panelJump);
     });
   });
 
@@ -94,15 +130,46 @@
   function loadOverview() {
     api('/api/admin/overview').then(function (data) {
       document.getElementById('overview-stats').innerHTML =
-        statCard('Today', money(data.daily.totalRevenue), data.daily.transactionCount + ' payments') +
-        statCard('This week', money(data.weekly.totalRevenue), data.weekly.bookingCount + ' bookings') +
-        statCard('This month', money(data.monthly.totalRevenue), money(data.monthly.averageTicket) + ' avg') +
-        statCard('Pending bookings', data.pendingBookings, data.totalBookings + ' total');
+        statCard('Today', money(data.daily.totalRevenue), data.daily.transactionCount + ' payments', 'cash') +
+        statCard('This week', money(data.weekly.totalRevenue), data.weekly.bookingCount + ' bookings', 'calendar') +
+        statCard('This month', money(data.monthly.totalRevenue), money(data.monthly.averageTicket) + ' avg', 'trend') +
+        statCard('Pending payment', data.pendingBookings, data.totalBookings + ' total', 'alert');
     });
+    loadOverviewPriorityList();
   }
 
-  function statCard(label, value, sub) {
-    return '<div class="stat-card"><span>' + label + '</span><strong>' + value + '</strong><span>' + sub + '</span></div>';
+  function statCard(label, value, sub, tone) {
+    return '<div class="stat-card stat-card--' + (tone || 'default') + '">' +
+      '<span>' + label + '</span><strong>' + value + '</strong><span>' + sub + '</span></div>';
+  }
+
+  function loadOverviewPriorityList() {
+    var list = document.getElementById('overview-priority-list');
+    if (!list) return;
+    api('/api/admin/bookings').then(function (rows) {
+      var next = sortBookings(rows).filter(function (b) {
+        return b.status !== 'completed' && b.status !== 'cancelled';
+      }).slice(0, 5);
+
+      if (!next.length) {
+        list.innerHTML = '<p class="empty-state">No active bookings yet.</p>';
+        return;
+      }
+
+      list.innerHTML = next.map(function (b) {
+        var badge = b.paymentStatus === 'paid'
+          ? '<span class="mini-badge mini-badge--confirmed">Confirmed</span>'
+          : (b.paymentChoice === 'shop'
+            ? '<span class="mini-badge mini-badge--shop">Pay at shop</span>'
+            : '<span class="mini-badge mini-badge--priority">Priority payment</span>');
+        return '<article class="priority-item">' +
+          '<div><strong>' + b.name + '</strong><span>' + b.service + ' · ' + b.date + ' ' + b.time + '</span></div>' +
+          badge +
+          '</article>';
+      }).join('');
+    }).catch(function () {
+      list.innerHTML = '<p class="empty-state">Could not load bookings.</p>';
+    });
   }
 
   /* Content editor */
@@ -658,6 +725,7 @@
   /* Bookings */
   function loadBookings() {
     api('/api/admin/bookings').then(function (rows) {
+      rows = sortBookings(rows);
       document.querySelector('#bookings-table tbody').innerHTML = rows.map(function (b) {
         var payment = b.paymentStatus === 'paid'
           ? 'Paid' + (b.amount ? ' ($' + b.amount + ')' : '') + (b.invoiceNumber ? '<br><small>Invoice ' + b.invoiceNumber + '</small>' : '')
@@ -671,7 +739,8 @@
           ? (b.address || '—') + (b.travelFee ? '<br><small>Travel fee: $' + b.travelFee + '</small>' : '')
           : '47 O\'Meara St (in-shop)';
         var paid = b.paymentStatus === 'paid';
-        return '<tr>' +
+        var rowClass = paid ? 'booking-row booking-row--confirmed' : (b.paymentChoice === 'shop' ? 'booking-row booking-row--shop' : 'booking-row booking-row--priority');
+        return '<tr class="' + rowClass + '">' +
           '<td>' + fmtDate(b.createdAt) + '</td>' +
           '<td><strong>' + b.name + '</strong></td>' +
           '<td class="contact-col">' + b.phone + '<br>' + b.email + '</td>' +

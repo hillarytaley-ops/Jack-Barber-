@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Staff area | Jack's Barber Style</title>
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css?v=20260702m">
 </head>
 <body>
   <div class="server-alert" id="server-alert" hidden>
@@ -17,16 +17,16 @@
         <span>Staff area</span>
       </div>
       <nav class="sidebar-nav">
-        <button type="button" class="nav-item active" data-panel="overview">Overview</button>
-        <button type="button" class="nav-item" data-panel="content">Site Content</button>
-        <button type="button" class="nav-item" data-panel="hours">Hours &amp; Closures</button>
-        <button type="button" class="nav-item" data-panel="services">Services &amp; Prices</button>
-        <button type="button" class="nav-item" data-panel="home-service">Home Service</button>
-        <button type="button" class="nav-item" data-panel="gallery">Style Gallery</button>
-        <button type="button" class="nav-item" data-panel="clients">Client Bookings</button>
-        <button type="button" class="nav-item" data-panel="finances">Finances</button>
-        <button type="button" class="nav-item" data-panel="reports">Reports</button>
-        <button type="button" class="nav-item" data-panel="security">Security</button>
+        <button type="button" class="nav-item active" data-panel="overview"><span>Overview</span><small>Today</small></button>
+        <button type="button" class="nav-item nav-item-priority" data-panel="clients"><span>Client Bookings</span><small>Priority queue</small></button>
+        <button type="button" class="nav-item" data-panel="finances"><span>Finances</span><small>Payments</small></button>
+        <button type="button" class="nav-item" data-panel="reports"><span>Reports</span><small>Daily totals</small></button>
+        <button type="button" class="nav-item" data-panel="services"><span>Services &amp; Prices</span><small>Menu</small></button>
+        <button type="button" class="nav-item" data-panel="gallery"><span>Style Gallery</span><small>Photos</small></button>
+        <button type="button" class="nav-item" data-panel="hours"><span>Hours &amp; Closures</span><small>Schedule</small></button>
+        <button type="button" class="nav-item" data-panel="home-service"><span>Home Service</span><small>Mobile cuts</small></button>
+        <button type="button" class="nav-item" data-panel="content"><span>Site Content</span><small>Text</small></button>
+        <button type="button" class="nav-item" data-panel="security"><span>Security</span><small>Setup</small></button>
       </nav>
       <div class="sidebar-foot">
         <a href="/" target="_blank" rel="noopener">← Main website</a>
@@ -37,8 +37,32 @@
     <main class="admin-main">
       <!-- Overview -->
       <section class="panel active" id="panel-overview">
-        <header class="panel-head"><h2>Overview</h2><p>Today's snapshot</p></header>
+        <header class="panel-head panel-head-hero">
+          <div>
+            <span class="panel-kicker">Staff command centre</span>
+            <h2>Overview</h2>
+            <p>Today’s payments, priority bookings, and quick actions for Jack.</p>
+          </div>
+        </header>
         <div class="stat-grid" id="overview-stats"></div>
+        <div class="overview-grid">
+          <section class="overview-card">
+            <div class="overview-card-head">
+              <span class="overview-card-kicker">Next up</span>
+              <button type="button" class="link-button" data-panel-jump="clients">Open bookings</button>
+            </div>
+            <div id="overview-priority-list" class="priority-list"></div>
+          </section>
+          <section class="overview-card overview-card-accent">
+            <span class="overview-card-kicker">Daily flow</span>
+            <h3>Confirm payments first</h3>
+            <p>Match the PayID reference in ANZ, then click <strong>Mark paid</strong>. Paid bookings become <strong>Confirmed</strong> automatically.</p>
+            <div class="quick-actions">
+              <button type="button" class="btn btn-primary" data-panel-jump="clients">Review bookings</button>
+              <button type="button" class="btn btn-secondary" data-panel-jump="finances">View finances</button>
+            </div>
+          </section>
+        </div>
       </section>
 
       <!-- Site Content -->
@@ -222,6 +246,6 @@
       </section>
     </main>
   </div>
-  <script src="admin.js?v=20260702k"></script>
+  <script src="admin.js?v=20260702m"></script>
 </body>
 </html>
