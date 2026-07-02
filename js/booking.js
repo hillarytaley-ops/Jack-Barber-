@@ -18,7 +18,9 @@
   var errorEl = document.getElementById('booking-error');
   var payAgainBtn = document.getElementById('booking-pay-again');
   var paymentDetailsEl = document.getElementById('booking-payment-details');
-  var submitBtn = form.querySelector('button[type="submit"]');
+  var submitBtn = document.getElementById('booking-submit-btn') || form.querySelector('button[type="submit"]');
+  var paymentChoiceInputs = form.querySelectorAll('input[name="payment-choice"]');
+  var paymentOptionLabels = form.querySelectorAll('.payment-option');
   var bookingPanel = form.closest('.booking-panel');
   var pendingBookingId = null;
   var pendingPayment = null;
@@ -293,11 +295,29 @@
     return '';
   }
 
+  function getPaymentChoice() {
+    var selected = form.querySelector('input[name="payment-choice"]:checked');
+    return selected ? selected.value : 'now';
+  }
+
+  function syncPaymentOptionCards() {
+    var choice = getPaymentChoice();
+    paymentOptionLabels.forEach(function (label) {
+      var input = label.querySelector('input[name="payment-choice"]');
+      label.classList.toggle('is-selected', !!(input && input.value === choice));
+    });
+  }
+
   function updateSubmitLabel() {
     if (!submitBtn) return;
-    submitBtn.textContent = paymentsEnabled
-      ? 'Confirm booking & pay with PayID'
-      : 'Confirm booking request';
+    var choice = getPaymentChoice();
+    if (!paymentsEnabled) {
+      submitBtn.textContent = 'Confirm booking request';
+      return;
+    }
+    submitBtn.textContent = choice === 'shop'
+      ? 'Submit booking request (pay at shop)'
+      : 'Confirm booking & pay with PayID';
   }
 
   function setCheckoutLoading(isLoading) {
@@ -316,7 +336,7 @@
     if (isLoading) {
       activeBtn.textContent = 'Loading PayID details…';
     } else if (activeBtn === payAgainBtn) {
-      activeBtn.textContent = 'Show PayID details';
+      activeBtn.textContent = pendingPayment ? 'Pay now with PayID for priority' : 'Show PayID details';
     } else {
       updateSubmitLabel();
     }
@@ -379,6 +399,15 @@
     });
   }
 
+  paymentChoiceInputs.forEach(function (input) {
+    input.addEventListener('change', function () {
+      syncPaymentOptionCards();
+      updateSubmitLabel();
+    });
+  });
+  syncPaymentOptionCards();
+  updateSubmitLabel();
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     clearError();
@@ -392,7 +421,7 @@
     if (terms) terms.removeAttribute('aria-invalid');
 
     var fd = new FormData(form);
-    var paymentChoice = fd.get('payment-choice') || 'now';
+    var paymentChoice = getPaymentChoice();
     var payload = {
       name: String(fd.get('name') || '').trim(),
       email: String(fd.get('email') || '').trim(),
@@ -532,10 +561,6 @@
       if (cfg && cfg.paymentsEnabled) {
         paymentsEnabled = true;
         updateSubmitLabel();
-        var intro = document.querySelector('.booking-intro');
-        if (intro) {
-          intro.textContent = 'Complete the form below, then pay instantly with PayID from your banking app.';
-        }
       }
       if (cfg && cfg.homeService && cfg.homeService.enabled === false) {
         form.querySelectorAll('input[name="service-type"][value="home"]').forEach(function (el) {

@@ -633,8 +633,8 @@
           : (b.paymentStatus || 'unpaid');
         if (b.paymentStatus !== 'paid') {
           payment += b.paymentChoice === 'shop'
-            ? '<br><small class="tag-shop">Pay at shop · no priority</small>'
-            : '<br><small class="tag-priority">Pay now · priority</small>';
+            ? '<br><small class="tag-shop">🔴 Pay at shop · no priority</small>'
+            : '<br><small class="tag-priority">🟢 Pay now · priority</small>';
         }
         var location = b.serviceType === 'home'
           ? (b.address || '—') + (b.travelFee ? '<br><small>Travel fee: $' + b.travelFee + '</small>' : '')
