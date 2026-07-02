@@ -245,7 +245,7 @@
   function showSuccess(title, message, payment) {
     clearError();
     form.hidden = true;
-    if (payAgainBtn) payAgainBtn.hidden = !payment;
+    if (payAgainBtn) payAgainBtn.hidden = !!(payment && payment.payId);
     if (bookingPanel) bookingPanel.classList.add('booking-confirmed');
     if (success) {
       if (successTitle) successTitle.textContent = title || 'Request sent';
@@ -290,13 +290,40 @@
       : 'Confirm booking request';
   }
 
+  function setCheckoutLoading(isLoading) {
+    if (isLoading && form.hidden && paymentDetailsEl) {
+      paymentDetailsEl.hidden = false;
+      paymentDetailsEl.innerHTML = '<p class="payid-lead"><strong>Loading PayID details…</strong></p>';
+      return;
+    }
+    if (!isLoading && paymentDetailsEl && paymentDetailsEl.textContent.indexOf('Loading PayID') !== -1) {
+      paymentDetailsEl.innerHTML = '';
+      paymentDetailsEl.hidden = true;
+    }
+    var activeBtn = (form.hidden && payAgainBtn && !payAgainBtn.hidden) ? payAgainBtn : submitBtn;
+    if (!activeBtn || form.hidden) return;
+    activeBtn.disabled = isLoading;
+    if (isLoading) {
+      activeBtn.textContent = 'Loading PayID details…';
+    } else if (activeBtn === payAgainBtn) {
+      activeBtn.textContent = 'Show PayID details';
+    } else {
+      updateSubmitLabel();
+    }
+  }
+
+  function fetchWithTimeout(url, options, ms) {
+    ms = ms || 15000;
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, ms);
+    var opts = Object.assign({}, options || {}, { signal: controller.signal });
+    return fetch(url, opts).finally(function () { clearTimeout(timer); });
+  }
+
   function startCheckout(bookingId) {
     if (!bookingId) return;
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Loading PayID details…';
-    }
-    fetch('/api/payments/checkout', {
+    setCheckoutLoading(true);
+    fetchWithTimeout('/api/payments/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ bookingId: bookingId })
@@ -316,18 +343,18 @@
             'Your booking is saved. Pay the exact amount below using PayID to confirm your appointment.',
             result.data.payment
           );
-          form.hidden = true;
           if (success) success.hidden = false;
           return;
         }
         throw new Error('PayID details are not available. Please call 0478 268 399.');
       })
       .catch(function (err) {
-        showError(err.message || 'Payment could not be started. Please call 0478 268 399.');
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          updateSubmitLabel();
-        }
+        var msg = err.name === 'AbortError'
+          ? 'PayID details timed out. Please try again or call 0478 268 399.'
+          : (err.message || 'Payment could not be started. Please call 0478 268 399.');
+        showError(msg);
+        if (payAgainBtn && pendingBookingId) payAgainBtn.hidden = false;
+        setCheckoutLoading(false);
       });
   }
 
@@ -411,7 +438,16 @@
             'Your booking is saved. Pay the exact amount below using PayID to confirm your appointment.',
             data.payment
           );
-          if (payAgainBtn) payAgainBtn.hidden = false;
+          return;
+        }
+        if (paymentsEnabled && pendingBookingId) {
+          showSuccess(
+            'Booking saved',
+            'Loading your PayID payment details…',
+            null
+          );
+          if (payAgainBtn) payAgainBtn.hidden = true;
+          startCheckout(pendingBookingId);
           return;
         }
         showSuccess(

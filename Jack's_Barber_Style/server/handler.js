@@ -5,7 +5,7 @@ const { URL } = require('url');
 const { readJSON, writeJSON, DATA_DIR, ensureDefaults, saveImage, getImage, deleteImage } = require('./store');
 const { normalizeHoursSchedule } = require('./hours');
 const { createSession, verifyToken } = require('./auth-token');
-const { paymentsEnabled, createPaymentRequest, getServicePrice, getBookingTotal, getTravelFee, markBookingPaid } = require('./payments');
+const { paymentsEnabled, createPaymentRequest, buildPaymentInstructions, getServicePrice, getBookingTotal, getTravelFee, markBookingPaid, getPayId } = require('./payments');
 const { getRequiredAdminPassword, adminPasswordConfigured, isProductionHost } = require('./admin-auth');
 const { isBlockedBot, shouldSkipBotGuard, aiProtectionHeaders } = require('./bot-guard');
 
@@ -378,6 +378,14 @@ async function handleRequest(req, res) {
             });
           }
         } catch (e) {
+          if (getPayId()) {
+            return send(res, 200, {
+              ok: true,
+              id: booking.id,
+              amount: price,
+              payment: buildPaymentInstructions(booking, settings)
+            });
+          }
           /* booking is saved — payment can be arranged manually */
         }
       }
