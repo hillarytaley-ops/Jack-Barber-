@@ -197,7 +197,14 @@
       errorEl.textContent = message;
       errorEl.hidden = false;
     }
-    if (success) success.hidden = true;
+    if (success) {
+      success.hidden = true;
+      success.style.display = 'none';
+    }
+    if (form) {
+      form.hidden = false;
+      form.style.display = '';
+    }
   }
 
   function clearError() {
@@ -245,12 +252,14 @@
   function showSuccess(title, message, payment) {
     clearError();
     form.hidden = true;
+    form.style.display = 'none';
     if (payAgainBtn) payAgainBtn.hidden = !!(payment && payment.payId);
     if (bookingPanel) bookingPanel.classList.add('booking-confirmed');
     if (success) {
       if (successTitle) successTitle.textContent = title || 'Request sent';
       if (successText) successText.textContent = message || '';
       success.hidden = false;
+      success.style.display = '';
       if (payment) showPaymentDetails(payment);
       else if (paymentDetailsEl) paymentDetailsEl.hidden = true;
       success.setAttribute('aria-live', 'polite');
