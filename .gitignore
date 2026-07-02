@@ -4,3 +4,5 @@ server/data/settings.json
 server/data/bookings.json
 server/data/transactions.json
 uploads/
+.env
+.env.local

@@ -6,6 +6,14 @@ function getPayId() {
   return (process.env.PAYID || process.env.BUSINESS_PAYID || '').trim();
 }
 
+function formatPayIdDisplay(payId) {
+  var digits = String(payId || '').replace(/\D/g, '');
+  if (digits.length === 11) {
+    return digits.slice(0, 2) + ' ' + digits.slice(2, 5) + ' ' + digits.slice(5, 8) + ' ' + digits.slice(8, 11);
+  }
+  return payId;
+}
+
 function getAbn() {
   return (process.env.BUSINESS_ABN || '').trim();
 }
@@ -52,6 +60,7 @@ function buildPaymentInstructions(booking, settings) {
   return {
     method: 'payid',
     payId: payId,
+    payIdDisplay: formatPayIdDisplay(payId),
     payIdName: payIdName,
     amount: amount,
     reference: booking.id,
@@ -62,7 +71,7 @@ function buildPaymentInstructions(booking, settings) {
     instructions: [
       'Open your mobile banking app',
       'Choose Pay Anyone or PayID',
-      'Enter PayID: ' + payId,
+      'Enter PayID: ' + formatPayIdDisplay(payId),
       'Confirm the name shown is: ' + payIdName,
       'Enter the exact amount: $' + amount.toFixed(2),
       'Use payment reference: ' + booking.id,

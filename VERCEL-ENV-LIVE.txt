@@ -1,0 +1,77 @@
+VERCEL GO-LIVE — Jack's Barber Style (PayID)
+=============================================
+Client details received June 2026. Add these in Vercel → jack-barber → Settings → Environment Variables → Production, then Redeploy.
+
+COPY-PASTE VARIABLES
+--------------------
+
+PAYID
+  16440489587
+  (Jack registered PayID using ABN 16 440 489 587 — no spaces in Vercel)
+
+PAYID_NAME
+  Jacques Katumbulu
+  (Exact name clients must see when they look up the PayID in their bank app)
+
+BUSINESS_ABN
+  16 440 489 587
+
+SITE_URL
+  https://jack-barber-rho.vercel.app
+
+GST_REGISTERED
+  false
+  (Jack did not confirm GST on the client form — ask accountant, then change to true if registered)
+
+ADMIN_PASSWORD
+  (choose a strong password — share securely with Jack only)
+  Required for Staff login on the live site.
+
+OPTIONAL BUT RECOMMENDED
+------------------------
+
+RESEND_API_KEY
+  From https://resend.com — needed for appointment reminders and tax invoice emails.
+
+CRON_SECRET
+  Any long random string — secures the reminder cron job.
+
+REMINDER_FROM_EMAIL
+  Jack's Barber Style <bookings@yourdomain.com>
+  (After verifying domain in Resend; otherwise Resend uses onboarding@resend.dev for testing)
+
+NOT USING YET (client chose Phase 1 — manual confirm)
+------------------------------------------------------
+Azupay — leave unset until Jack signs up later.
+
+REMOVE IF STILL PRESENT
+-----------------------
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+
+CLIENT BANK DETAILS (reference only — not stored on website)
+------------------------------------------------------------
+Bank: ANZ
+Account name: Jacques Katumbulu
+BSB: 013-920
+Account: 658480733
+PayID is linked to this account. Clients pay via PayID, not BSB/account on the website.
+
+ALSO REQUIRED: NEON DATABASE
+----------------------------
+See LIVE-BOOKINGS-SETUP.txt — connect Neon in Vercel Storage so bookings persist on live.
+
+AFTER REDEPLOY — TEST CHECKLIST
+-------------------------------
+[ ] Open https://jack-barber-rho.vercel.app/
+[ ] Submit a test booking — PayID screen shows 16440489587 (or formatted ABN) and name Jacques Katumbulu
+[ ] Staff login at /admin with admin + ADMIN_PASSWORD
+[ ] Test booking appears under Client Bookings
+[ ] Mark test booking Paid — tax invoice email sends if RESEND_API_KEY is set
+[ ] Confirm no Stripe / card payment text on booking form
+
+PENDING FROM JACK
+-----------------
+[ ] Confirm GST registered? (Yes/No) — if Yes, set GST_REGISTERED=true and redeploy
+[ ] Facebook and TikTok URLs for floating social icons
+[ ] Real gallery photos in Staff → Style Gallery

@@ -213,7 +213,7 @@
       '<div class="payid-box">',
       '<p class="payid-lead"><strong>Pay now with PayID</strong> to confirm your appointment.</p>',
       '<dl class="payid-details">',
-      '<div><dt>PayID</dt><dd><strong>' + escapeHtml(payment.payId) + '</strong></dd></div>',
+      '<div><dt>PayID</dt><dd><strong>' + escapeHtml(payment.payIdDisplay || payment.payId) + '</strong></dd></div>',
       '<div><dt>Business name</dt><dd>' + escapeHtml(payment.payIdName || "Jack's Barber Style") + '</dd></div>',
       '<div><dt>Amount</dt><dd><strong>$' + Number(payment.amount).toFixed(2) + ' AUD</strong></dd></div>',
       '<div><dt>Reference</dt><dd><strong>' + escapeHtml(payment.reference) + '</strong></dd></div>'
