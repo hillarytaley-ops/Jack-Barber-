@@ -979,12 +979,13 @@
       "info info"
       "price duration"
       "book book";
+    text-align: center;
   }
 
   .service-price-row__info { grid-area: info; }
-  .service-price-row__price { grid-area: price; }
-  .service-price-row__duration { grid-area: duration; }
-  .service-price-row__book { grid-area: book; justify-self: start; }
+  .service-price-row__price { grid-area: price; justify-self: end; }
+  .service-price-row__duration { grid-area: duration; justify-self: start; }
+  .service-price-row__book { grid-area: book; justify-self: center; }
 
   .visit-detail-contact {
     grid-template-columns: 1fr;
@@ -1014,6 +1015,57 @@
   .meet-jack-inner,
   .featured-cut-inner {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .meet-jack-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .meet-jack-copy .section-label {
+    text-align: center;
+  }
+
+  .meet-jack-tags {
+    justify-content: center;
+  }
+
+  .featured-cut-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .featured-cut-copy .section-label {
+    text-align: center;
+  }
+
+  .service-price-row {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "info"
+      "price"
+      "duration"
+      "book";
+    justify-items: center;
+  }
+
+  .service-price-row__price,
+  .service-price-row__duration {
+    justify-self: center;
+  }
+
+  .book .booking-panel > h2,
+  .book .booking-intro {
+    text-align: center;
+  }
+
+  .book .booking-layout {
+    margin-inline: auto;
+    width: 100%;
   }
 
   .hairstyle-gallery {
