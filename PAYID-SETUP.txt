@@ -1,85 +1,170 @@
-PAYID PAYMENTS — Jack's Barber Style
-=====================================
-
-Clients pay by PayID (instant bank transfer from their banking app).
-No card processors. No Stripe.
-
-CLIENT DETAILS ON FILE (June 2026)
-----------------------------------
-Trading name:     Jack's Barber Style
-PayID (ABN):      16 440 489 587  → use 16440489587 in Vercel (no spaces)
-Bank lookup name: Jacques Katumbulu  → PAYID_NAME on Vercel
-ABN:              16 440 489 587
-Email:            Jacqueskatumbulu@gmail.com
-Phone:            0478 268 399
-Bank:             ANZ — BSB 013-920, account 658480733 (reference only)
-Azupay:           Not yet — manual Mark paid in Staff admin
-GST registered:   Not confirmed — set GST_REGISTERED=false until accountant confirms
-
-Full Vercel copy-paste list: VERCEL-ENV-LIVE.txt
-
-STEP 1 — STAFF LOGIN PASSWORD (required on live site)
------------------------------------------------------
-1. In Vercel → jack-barber → Environment Variables, add:
-   ADMIN_PASSWORD = a strong password you choose (min 8 characters)
-2. Redeploy
-3. Sign in at /admin with username: admin and your ADMIN_PASSWORD
-4. Share password securely with Jack only
-
-STEP 2 — PAYID (client has registered with ANZ)
------------------------------------------------
-Jack registered PayID using his ABN on his business account.
-Name shown in banking apps: Jacques Katumbulu
-
-STEP 3 — ADD SETTINGS TO VERCEL
--------------------------------
-1. Open https://vercel.com/dashboard → project **jack-barber**
-2. **Settings** → **Environment Variables** → Production
-3. Add (see VERCEL-ENV-LIVE.txt for full list):
-
-   PAYID = 16440489587
-   PAYID_NAME = Jacques Katumbulu
-   BUSINESS_ABN = 16 440 489 587
-   SITE_URL = https://jack-barber-rho.vercel.app
-   GST_REGISTERED = false
-   ADMIN_PASSWORD = (your chosen password)
-
-   Optional — tax invoice + reminder emails:
-   RESEND_API_KEY = (from resend.com — see REMINDERS-SETUP.txt)
-   CRON_SECRET = (any long random string)
-
-4. Redeploy after saving.
-
-OPTIONAL — AZUPAY (AUTOMATIC PAYID CONFIRMATION)
-------------------------------------------------
-Jack chose Phase 1 (manual). Can add later — see VERCEL-ENV-LIVE.txt.
-
-HOW IT WORKS
-------------
-1. Client fills in the booking form
-2. They see PayID payment instructions:
-   - PayID: 16 440 489 587 (ABN)
-   - Name: Jacques Katumbulu
-   - Exact amount (from your Services list)
-   - Booking reference (e.g. b1719567890123)
-   - GST breakdown (only if GST_REGISTERED=true)
-3. Client pays from their banking app using PayID
-4. Jack checks ANZ app → **Mark paid** in Staff → Client Bookings
-5. Set booking status to **Confirmed** for reminders
-
-GST & TAX INVOICES
-------------------
-- Jack has not confirmed GST registration on the client form
-- When confirmed: set GST_REGISTERED=true on Vercel and redeploy
-- Website prices are GST-inclusive when GST_REGISTERED=true
-- Tax invoices email when you click **Mark paid** (needs RESEND_API_KEY)
-
-LOCAL PC
---------
-Copy .env.example to .env and fill in values for local testing.
-
-REMOVING STRIPE
----------------
-Remove any old environment variables:
-  STRIPE_SECRET_KEY
-  STRIPE_WEBHOOK_SECRET
+PAYID PAYMENTS — Jack's Barber Style
+
+=====================================
+
+
+
+Clients pay by PayID (instant bank transfer from their banking app).
+
+No card processors. No Stripe.
+
+
+
+CLIENT DETAILS ON FILE (June 2026)
+
+----------------------------------
+
+Trading name:     Jack's Barber Style
+
+PayID (ABN):      16 440 489 587  → use 16440489587 in Vercel (no spaces)
+
+Bank lookup name: Jacques Katumbulu  → PAYID_NAME on Vercel
+
+ABN:              16 440 489 587
+
+Email:            Jacqueskatumbulu@gmail.com
+
+Phone:            0478 268 399
+
+Bank:             ANZ — BSB 013-920, account 658480733 (reference only)
+
+Azupay:           Not yet — manual Mark paid in Staff admin
+
+GST registered:   Not confirmed — set GST_REGISTERED=false until accountant confirms
+
+
+
+Full Vercel copy-paste list: VERCEL-ENV-LIVE.txt
+
+
+
+STEP 1 — STAFF LOGIN PASSWORD (required on live site)
+
+-----------------------------------------------------
+
+1. In Vercel → jack-barber → Environment Variables, add:
+
+   ADMIN_PASSWORD = a strong password you choose (min 8 characters)
+
+2. Redeploy
+
+3. Sign in at /admin with username: admin and your ADMIN_PASSWORD
+
+4. Share password securely with Jack only
+
+
+
+STEP 2 — PAYID (client has registered with ANZ)
+
+-----------------------------------------------
+
+Jack registered PayID using his ABN on his business account.
+
+Name shown in banking apps: Jacques Katumbulu
+
+
+
+STEP 3 — ADD SETTINGS TO VERCEL
+
+-------------------------------
+
+1. Open https://vercel.com/dashboard → project **jack-barber**
+
+2. **Settings** → **Environment Variables** → Production
+
+3. Add (see VERCEL-ENV-LIVE.txt for full list):
+
+
+
+   PAYID = 16440489587
+
+   PAYID_NAME = Jacques Katumbulu
+
+   BUSINESS_ABN = 16 440 489 587
+
+   SITE_URL = https://jack-barber-rho.vercel.app
+
+   GST_REGISTERED = false
+
+   ADMIN_PASSWORD = (your chosen password)
+
+
+
+   Optional — tax invoice + reminder emails:
+
+   RESEND_API_KEY = (from resend.com — see REMINDERS-SETUP.txt)
+
+   CRON_SECRET = (any long random string)
+
+
+
+4. Redeploy after saving.
+
+
+
+OPTIONAL — AZUPAY (AUTOMATIC PAYID CONFIRMATION)
+
+------------------------------------------------
+
+Jack chose Phase 1 (manual). Can add later — see VERCEL-ENV-LIVE.txt.
+
+
+
+HOW IT WORKS
+
+------------
+
+1. Client fills in the booking form
+
+2. They see PayID payment instructions:
+
+   - PayID: 16 440 489 587 (ABN)
+
+   - Name: Jacques Katumbulu
+
+   - Exact amount (from your Services list)
+
+   - Booking reference (e.g. b1719567890123)
+
+   - GST breakdown (only if GST_REGISTERED=true)
+
+3. Client pays from their banking app using PayID
+
+4. Jack checks ANZ app → **Mark paid** in Staff → Client Bookings
+
+5. Set booking status to **Confirmed** for reminders
+
+
+
+GST & TAX INVOICES
+
+------------------
+
+- Jack has not confirmed GST registration on the client form
+
+- When confirmed: set GST_REGISTERED=true on Vercel and redeploy
+
+- Website prices are GST-inclusive when GST_REGISTERED=true
+
+- Tax invoices email when you click **Mark paid** (needs RESEND_API_KEY)
+
+
+
+LOCAL PC
+
+--------
+
+Copy .env.example to .env and fill in values for local testing.
+
+
+
+REMOVING STRIPE
+
+---------------
+
+Remove any old environment variables:
+
+  STRIPE_SECRET_KEY
+
+  STRIPE_WEBHOOK_SECRET
+
